@@ -1,0 +1,6 @@
+# Override your default settings for the Production environment here.
+# 
+# Example:
+#   configatron.file.storage = :s3
+configatron.library_web_hostname = 'localhost'
+configatron.library_web_port_number = 3000

@@ -1,0 +1,26 @@
+    <strong><%= link_to h(reserve.manifestation.original_title), reserve -%></strong>
+    <%- if reserve.manifestation.serial? -%>
+      <%= reserve.manifestation.volume_number_list -%>
+      <%- unless reserve.manifestation.issue_number_list.blank? -%>
+        (<%= reserve.manifestation.issue_number_list -%>)
+      <%- end -%>
+      <%= reserve.manifestation.serial_number_list -%>
+    <%- end -%>
+    <br />
+    <%- if reserve.manifestation.creators.first -%>
+      <%= t('patron.creator') -%>: <%= raw patrons_list(reserve.manifestation.creators, current_user) -%>
+    <%- end -%>
+    <%- if reserve.manifestation.contributors.first -%>
+      <%= t('patron.contributor') -%>: <%= raw patrons_list(reserve.manifestation.contributors, current_user) -%>
+    <%- end -%>
+    <%- if reserve.manifestation.publishers.first -%>
+      <%= t('patron.publisher') -%>: <%= raw patrons_list(reserve.manifestation.publishers, current_user) -%>
+      <%- if reserve.manifestation.date_of_publication -%>
+        (<%= reserve.manifestation.date_of_publication.strftime('%Y') -%>)
+      <%- end -%>
+    <%- end -%>
+    <%- unless reserve.manifestation.access_address.blank? -%>
+      <br />
+      <%= link_to h(reserve.manifestation.access_address), h(manifestation.access_address) -%>
+      <%= link_to image_tag('/icons/world_go.png', :size => '16x16', :alt => ('Web')), h(reserve.manifestation.access_address) -%>
+    <%- end -%>

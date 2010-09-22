@@ -1,0 +1,26 @@
+<%- cache(:controller => :resources, :action => :show, :id => manifestation.id, :page => 'title', :role => current_user_role_name, :locale => @locale) do %>
+  <h2 class="resource_title">
+    [M]
+    <%= link_to h(manifestation.original_title), manifestation -%>
+    <%= link_to form_icon(manifestation.carrier_type), manifestation -%>
+  </h2>
+  <p>
+    <%- if manifestation.creators.first -%>
+      <%= t('patron.creator') -%>: <%= raw patrons_list(manifestation.creators, current_user) -%>
+    <%- end -%>
+    <%- if manifestation.contributors.first -%>
+      <%= t('patron.contributor') -%>: <%= raw patrons_list(manifestation.contributors, current_user) -%>
+    <%- end -%>
+    <%- if manifestation.publishers.first -%>
+      <%= t('patron.publisher') -%>: <%= raw patrons_list(manifestation.publishers, current_user) -%>
+      <%- if manifestation.date_of_publication -%>
+        (<%= manifestation.date_of_publication.strftime('%Y') -%>)
+      <%- end -%>
+    <%- end -%>
+    <%- unless manifestation.access_address.blank? -%>
+      <br />
+      <%= link_to h(manifestation.access_address), h(manifestation.access_address) -%>
+      <%= link_to image_tag('/icons/world_go.png', :size => '16x16', :alt => ('Web')), h(manifestation.access_address) -%>
+    <%- end -%>
+  </p>
+<% end %>
