@@ -1,6 +1,6 @@
 class Subject < ActiveRecord::Base
   has_many :work_has_subjects, :dependent => :destroy
-  has_many :works, :through => :work_has_subjects, :class_name => 'Resource'
+  has_many :works, :through => :work_has_subjects
   belongs_to :subject_type
   has_many :subject_has_classifications, :dependent => :destroy
   has_many :classifications, :through => :subject_has_classifications

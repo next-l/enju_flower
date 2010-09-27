@@ -1,9 +1,9 @@
-<%= form_for(@resource) do |f| %>
-  <% if @resource.errors.any? %>
+<%= form_for(@manifestation) do |f| %>
+  <% if @manifestation.errors.any? %>
   <div id="errorExplanation">
-    <h2><%= pluralize(@resource.errors.count, "error") %> prohibited this resource from being saved:</h2>
+    <h2><%= pluralize(@manifestation.errors.count, "error") %> prohibited this resource from being saved:</h2>
     <ul>
-    <% @resource.errors.full_messages.each do |msg| %>
+    <% @manifestation.errors.full_messages.each do |msg| %>
       <li><%= msg %></li>
     <% end %>
     </ul>

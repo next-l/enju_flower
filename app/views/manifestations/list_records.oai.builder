@@ -12,12 +12,12 @@ xml.tag! "OAI-PMH", :xmlns => "http://www.openarchives.org/OAI/2.0/",
   "xmlns:xsi" => "http://www.w3.org/2001/XMLSchema-instance",
   "xsi:schemaLocation" => "http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd" do
   xml.responseDate Time.zone.now.utc.iso8601
-  xml.request resources_url(:format => :oai), request_attr('oai_dc')
+  xml.request manifestations_url(:format => :oai), request_attr('oai_dc')
   @oai[:errors].each do |error|
     xml.error :code => error
   end
   xml.ListRecords do
-    @resources.each do |manifestation|
+    @manifestations.each do |manifestation|
       cache(:controller => :resources, :action => :show, :id => manifestation.id, :page => 'oai_pmh_list_records', :role => current_user_role_name, :locale => @locale) do
         xml.record do
           xml.header do
@@ -49,8 +49,8 @@ xml.tag! "OAI-PMH", :xmlns => "http://www.openarchives.org/OAI/2.0/",
       end
     end
     if @resumption.present?
-      if @resumption[:cursor].to_i + @resources.per_page < @resources.total_entries
-        xml.resumptionToken @resumption[:token], :completeListSize => @resources.total_entries, :cursor => @resumption[:cursor], :expirationDate => @resumption[:expired_at]
+      if @resumption[:cursor].to_i + @manifestations.per_page < @manifestations.total_entries
+        xml.resumptionToken @resumption[:token], :completeListSize => @manifestations.total_entries, :cursor => @resumption[:cursor], :expirationDate => @resumption[:expired_at]
       end
     end
   end

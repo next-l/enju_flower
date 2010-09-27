@@ -1,9 +1,8 @@
 # -*- encoding: utf-8 -*-
-class ResourcesController < ApplicationController
+class ManifestationsController < ApplicationController
   load_and_authorize_resource
   before_filter :authenticate_user!, :only => :edit
   before_filter :get_patron
-  before_filter :get_resource, :only => :index
   before_filter :get_manifestation, :only => :index
   before_filter :get_series_statement, :only => [:index, :new, :edit]
   before_filter :prepare_options, :only => [:new, :edit]
@@ -15,8 +14,8 @@ class ResourcesController < ApplicationController
   #include WorldcatController
   include OaiController
 
-  # GET /resources
-  # GET /resources.xml
+  # GET /manifestations
+  # GET /manifestations.xml
   def index
     @seconds = Benchmark.realtime do
       if params[:mode] == 'add'
@@ -31,7 +30,7 @@ class ResourcesController < ApplicationController
 	    end
 
       if params[:format] == 'oai'
-        from_and_until_times = set_from_and_until(Resource, params[:from], params[:until])
+        from_and_until_times = set_from_and_until(Manifestation, params[:from], params[:until])
         from_time = @from_time = from_and_until_times[:from]
         until_time = @until_time = from_and_until_times[:until]
         # OAI-PMHのデフォルトの件数
@@ -48,13 +47,13 @@ class ResourcesController < ApplicationController
 
         if params[:verb] == 'GetRecord' and params[:identifier]
           begin
-            @resource = Resource.find_by_oai_identifier(params[:identifier])
+            @manifestation = Manifestation.find_by_oai_identifier(params[:identifier])
           rescue ActiveRecord::RecordNotFound
             @oai[:errors] << "idDoesNotExist"
-            render :template => 'resources/index.oai.builder'
+            render :template => 'manifestations/index.oai.builder'
             return
           end
-          render :template => 'resources/show.oai.builder'
+          render :template => 'manifestations/show.oai.builder'
           return
         end
       end
@@ -65,7 +64,7 @@ class ResourcesController < ApplicationController
         per_page = 65534
       end
 
-      resources, sort, @count = {}, {}, {}
+      manifestations, sort, @count = {}, {}, {}
       query = ""
 
 			case
@@ -75,12 +74,12 @@ class ResourcesController < ApplicationController
           query = sru.cql.to_sunspot
           sort = sru.sort_by
         else
-          render :template => 'resources/explain', :layout => false
+          render :template => 'manifestations/explain', :layout => false
           return
         end
       when params[:api] == 'openurl' 
         openurl = Openurl.new(params)
-        @resources = openurl.search
+        @manifestations = openurl.search
         query = openurl.query_text
         sort = set_search_result_order(params[:sort_by], params[:order])
       else
@@ -92,7 +91,7 @@ class ResourcesController < ApplicationController
       @query = query.dup
       query = query.gsub('　', ' ')
 
-      search = Resource.search(:include => [:carrier_type, :required_role, :items, :creators, :contributors, :publishers, :bookmarks])
+      search = Manifestation.search(:include => [:carrier_type, :required_role, :items, :creators, :contributors, :publishers, :bookmarks])
       role = current_user.try(:role) || Role.default_role
       oai_search = true if params[:format] == 'oai'
       case @reservable
@@ -104,12 +103,12 @@ class ResourcesController < ApplicationController
         reservable = nil
       end
       unless params[:mode] == 'add'
-        resource = @resource if @resource
+        manifestation = @manifestation if @manifestation
       end
       patron = get_index_patron
       search.build do
         fulltext query unless query.blank?
-        with(:original_resource_ids).equal_to resource.id if resource
+        with(:original_manifestation_ids).equal_to manifestation.id if manifestation
         order_by sort[:sort_by], sort[:order] unless oai_search
         order_by :updated_at, :desc if oai_search
         with(:creator_ids).equal_to patron[:creator].id if patron[:creator]
@@ -133,19 +132,19 @@ class ResourcesController < ApplicationController
         session[:query] = @query
       end
 
-      unless session[:resource_ids]
-        resource_ids = search.build do
+      unless session[:manifestation_ids]
+        manifestation_ids = search.build do
           paginate :page => 1, :per_page => configatron.max_number_of_results
         end.execute.raw_results.collect(&:primary_key).map{|id| id.to_i}
-        session[:resource_ids] = resource_ids
+        session[:manifestation_ids] = manifestation_ids
       end
         
-      if session[:resource_ids]
-        bookmark_ids = Bookmark.all(:select => :id, :conditions => {:manifestation_id => session[:resource_ids]}, :limit => 1000).collect(&:id)
+      if session[:manifestation_ids]
+        bookmark_ids = Bookmark.all(:select => :id, :conditions => {:manifestation_id => session[:manifestation_ids]}, :limit => 1000).collect(&:id)
         @tags = Tag.bookmarked(bookmark_ids)
         if params[:view] == 'tag_cloud'
           render :partial => 'manifestations/tag_cloud'
-          #session[:resource_ids] = nil
+          #session[:manifestation_ids] = nil
           return
         end
       end
@@ -160,12 +159,12 @@ class ResourcesController < ApplicationController
           facet :library
           facet :language
           facet :subject_ids
-          paginate :page => page.to_i, :per_page => per_page || Resource.per_page
+          paginate :page => page.to_i, :per_page => per_page || Manifestation.per_page
         end
       end
       search_result = search.execute
-      @resources = search_result.results
-      @resources.total_entries = configatron.max_number_of_results if @count[:query_result] > configatron.max_number_of_results
+      @manifestations = search_result.results
+      @manifestations.total_entries = configatron.max_number_of_results if @count[:query_result] > configatron.max_number_of_results
 
       if params[:format].blank? or params[:format] == 'html'
         @carrier_type_facet = search_result.facet(:carrier_type).rows
@@ -176,15 +175,15 @@ class ResourcesController < ApplicationController
       @search_engines = Rails.cache.fetch('search_engine_all'){SearchEngine.all}
 
       # TODO: 検索結果が少ない場合にも表示させる
-      if resource_ids.blank?
+      if manifestation_ids.blank?
         if query.respond_to?(:suggest_tags)
           @suggested_tag = query.suggest_tags.first
         end
       end
-      save_search_history(query, @resources.offset, @count[:query_result], current_user)
+      save_search_history(query, @manifestations.offset, @count[:query_result], current_user)
       if params[:format] == 'oai'
-        unless @resources.empty?
-          set_resumption_token(@resources, @from_time || Resource.last.updated_at, @until_time || Resource.first.updated_at)
+        unless @manifestations.empty?
+          set_resumption_token(@manifestations, @from_time || Manifestation.last.updated_at, @until_time || Manifestation.first.updated_at)
         else
           @oai[:errors] << 'noRecordsMatch'
         end
@@ -195,7 +194,7 @@ class ResourcesController < ApplicationController
 
     respond_to do |format|
       format.html
-      format.xml  { render :xml => @resources }
+      format.xml  { render :xml => @manifestations }
       format.sru  { render :layout => false }
       format.rss  { render :layout => false }
       format.csv  { render :layout => false }
@@ -204,20 +203,20 @@ class ResourcesController < ApplicationController
       format.oai {
         case params[:verb]
         when 'Identify'
-          render :template => 'resources/identify'
+          render :template => 'manifestations/identify'
         when 'ListMetadataFormats'
-          render :template => 'resources/list_metadata_formats'
+          render :template => 'manifestations/list_metadata_formats'
         when 'ListSets'
           @series_statements = SeriesStatement.all
-          render :template => 'resources/list_sets'
+          render :template => 'manifestations/list_sets'
         when 'ListIdentifiers'
-          render :template => 'resources/list_identifiers'
+          render :template => 'manifestations/list_identifiers'
         when 'ListRecords'
-          render :template => 'resources/list_records'
+          render :template => 'manifestations/list_records'
         end
       }
       format.mods
-      format.json { render :json => @resources }
+      format.json { render :json => @manifestations }
       format.js
       format.pdf {
         prawnto :prawn => {
@@ -229,21 +228,21 @@ class ResourcesController < ApplicationController
   #rescue RSolr::RequestError
   #  unless params[:format] == 'sru'
   #    flash[:notice] = t('page.error_occured')
-  #    redirect_to resources_url
+  #    redirect_to manifestations_url
   #    return
   #  else
-  #    render :template => 'resources/error.xml', :layout => false
+  #    render :template => 'manifestations/error.xml', :layout => false
   #    return
   #  end
   #  return
   rescue QueryError => e
-    render :template => 'resources/error.xml', :layout => false
+    render :template => 'manifestations/error.xml', :layout => false
     Rails.logger.info "#{Time.zone.now}\t#{query}\t\t#{current_user.try(:username)}\t#{e}"
   #  return
   end
 
-  # GET /resources/1
-  # GET /resources/1.xml
+  # GET /manifestations/1
+  # GET /manifestations/1.xml
   def show
     if params[:api] or params[:mode] == 'generate_cache'
       unless my_networks?
@@ -251,23 +250,23 @@ class ResourcesController < ApplicationController
       end
     end
     if params[:isbn]
-      if @resource = Resource.find_by_isbn(params[:isbn])
-        redirect_to @resource
+      if @manifestation = Manifestation.find_by_isbn(params[:isbn])
+        redirect_to @manifestation
         return
       else
-        raise ActiveRecord::RecordNotFound if @resource.nil?
+        raise ActiveRecord::RecordNotFound if @manifestation.nil?
       end
     else
-      @resource = Resource.find(params[:id], :include => [:creators, :contributors, :publishers, :items])
+      @manifestation = Manifestation.find(params[:id], :include => [:creators, :contributors, :publishers, :items])
     end
-    @resource = @resource.versions.find(@version).item if @version
+    @manifestation = @manifestation.versions.find(@version).item if @version
 
     case params[:mode]
     when 'send_email'
       if user_signed_in?
-        Notifier.manifestation_info(current_user, @resource).deliver
+        Notifier.manifestation_info(current_user, @manifestation).deliver
         flash[:notice] = t('page.sent_email')
-        redirect_to resource_url(@resource)
+        redirect_to manifestation_url(@manifestation)
         return
       else
         access_denied; return
@@ -278,8 +277,8 @@ class ResourcesController < ApplicationController
 
     return if render_mode(params[:mode])
 
-    @reserved_count = Reserve.waiting.count(:all, :conditions => {:manifestation_id => @resource.id, :checked_out_at => nil})
-    @reserve = current_user.reserves.first(:conditions => {:manifestation_id => @resource.id}) if user_signed_in?
+    @reserved_count = Reserve.waiting.count(:all, :conditions => {:manifestation_id => @manifestation.id, :checked_out_at => nil})
+    @reserve = current_user.reserves.first(:conditions => {:manifestation_id => @manifestation.id}) if user_signed_in?
 
     store_location
 
@@ -288,16 +287,16 @@ class ResourcesController < ApplicationController
       format.xml  {
         case params[:mode]
         when 'related'
-          render :template => 'resources/related'
+          render :template => 'manifestations/related'
         else
-          render :xml => @resource
+          render :xml => @manifestation
         end
       }
       format.rdf
       format.oai
       format.mods
-      format.json { render :json => @resource }
-      #format.atom { render :template => 'resources/oai_ore' }
+      format.json { render :json => @manifestation }
+      #format.atom { render :template => 'manifestations/oai_ore' }
       #format.xml  { render :action => 'mods', :layout => false }
       format.js
       format.pdf {
@@ -309,107 +308,107 @@ class ResourcesController < ApplicationController
     end
   end
 
-  # GET /resources/new
+  # GET /manifestations/new
   def new
-    @resource = Resource.new
+    @manifestation = Manifestation.new
     @original_manifestation = get_manifestation
-    @resource.series_statement = @series_statement
-    if @resource.series_statement
-      @resource.original_title = @resource.series_statement.original_title
-      @resource.title_transcription = @resource.series_statement.title_transcription
+    @manifestation.series_statement = @series_statement
+    if @manifestation.series_statement
+      @manifestation.original_title = @manifestation.series_statement.original_title
+      @manifestation.title_transcription = @manifestation.series_statement.title_transcription
     elsif @original_manifestation
-      @resource.original_title = @original_manifestation.original_title
-      @resource.title_transcription = @original_manifestation.title_transcription
+      @manifestation.original_title = @original_manifestation.original_title
+      @manifestation.title_transcription = @original_manifestation.title_transcription
     elsif @expression
-      @resource.original_title = @expression.original_title
-      @resource.title_transcription = @expression.title_transcription
+      @manifestation.original_title = @expression.original_title
+      @manifestation.title_transcription = @expression.title_transcription
     end
-    @resource.language = Language.first(:conditions => {:iso_639_1 => @locale})
-    @resource = @resource.set_serial_number unless params[:mode] == 'attachment'
+    @manifestation.language = Language.first(:conditions => {:iso_639_1 => @locale})
+    @manifestation = @manifestation.set_serial_number unless params[:mode] == 'attachment'
 
     respond_to do |format|
       format.html # new.html.erb
-      format.xml  { render :xml => @resource }
+      format.xml  { render :xml => @manifestation }
     end
   end
 
-  # GET /resources/1;edit
+  # GET /manifestations/1;edit
   def edit
     unless current_user.has_role?('Librarian')
       unless params[:mode] == 'tag_edit'
         access_denied; return
       end
     end
-    @resource = Resource.find(params[:id])
+    @manifestation = Manifestation.find(params[:id])
     @original_manifestation = get_manifestation
-    @resource.series_statement = @series_statement if @series_statement
+    @manifestation.series_statement = @series_statement if @series_statement
     if params[:mode] == 'tag_edit'
-      @bookmark = current_user.bookmarks.first(:conditions => {:manifestation_id => @resource.id}) if @resource rescue nil
-      render :partial => 'manifestations/tag_edit', :locals => {:manifestation => @resource}
+      @bookmark = current_user.bookmarks.first(:conditions => {:manifestation_id => @manifestation.id}) if @manifestation rescue nil
+      render :partial => 'manifestations/tag_edit', :locals => {:manifestation => @manifestation}
     end
     store_location unless params[:mode] == 'tag_edit'
   end
 
-  # POST /resources
-  # POST /resources.xml
+  # POST /manifestations
+  # POST /manifestations.xml
   def create
-    @resource = Resource.new(params[:resource])
-    if @resource.respond_to?(:post_to_scribd)
-      @resource.post_to_scribd = true if params[:resource][:post_to_scribd] == "1"
+    @manifestation = Manifestation.new(params[:manifestation])
+    if @manifestation.respond_to?(:post_to_scribd)
+      @manifestation.post_to_scribd = true if params[:manifestation][:post_to_scribd] == "1"
     end
-    if @resource.original_title.blank?
-      @resource.original_title = @resource.attachment_file_name
+    if @manifestation.original_title.blank?
+      @manifestation.original_title = @manifestation.attachment_file_name
     end
 
     respond_to do |format|
-      if @resource.save
-        Resource.transaction do
-          if @original_manifestation = get_resource
-            @resource.derived_resources << @original_manifestation
+      if @manifestation.save
+        Manifestation.transaction do
+          if @original_manifestation = get_manifestation
+            @manifestation.derived_manifestations << @original_manifestation
           end
         end
 
-        flash[:notice] = t('controller.successfully_created', :model => t('activerecord.models.resource'))
-        format.html { redirect_to(@resource) }
-        format.xml  { render :xml => @resource, :status => :created, :location => @resource }
+        flash[:notice] = t('controller.successfully_created', :model => t('activerecord.models.manifestation'))
+        format.html { redirect_to(@manifestation) }
+        format.xml  { render :xml => @manifestation, :status => :created, :location => @manifestation }
       else
         prepare_options
         format.html { render :action => "new" }
-        format.xml  { render :xml => @resource.errors, :status => :unprocessable_entity }
+        format.xml  { render :xml => @manifestation.errors, :status => :unprocessable_entity }
       end
     end
   end
 
-  # PUT /resources/1
-  # PUT /resources/1.xml
+  # PUT /manifestations/1
+  # PUT /manifestations/1.xml
   def update
-    @resource = Resource.find(params[:id])
+    @manifestation = Manifestation.find(params[:id])
     
     respond_to do |format|
-      if @resource.update_attributes(params[:resource])
-        flash[:notice] = t('controller.successfully_updated', :model => t('activerecord.models.resource'))
-        format.html { redirect_to @resource }
+      if @manifestation.update_attributes(params[:manifestation])
+        flash[:notice] = t('controller.successfully_updated', :model => t('activerecord.models.manifestation'))
+        format.html { redirect_to @manifestation }
         format.xml  { head :ok }
-        format.json { render :json => @resource }
+        format.json { render :json => @manifestation }
         format.js
       else
         prepare_options
         format.html { render :action => "edit" }
-        format.xml  { render :xml => @resource.errors, :status => :unprocessable_entity }
-        format.json { render :json => @resource, :status => :unprocessable_entity }
+        format.xml  { render :xml => @manifestation.errors, :status => :unprocessable_entity }
+        format.json { render :json => @manifestation, :status => :unprocessable_entity }
       end
     end
   end
 
-  # DELETE /resources/1
-  # DELETE /resources/1.xml
+  # DELETE /manifestations/1
+  # DELETE /manifestations/1.xml
   def destroy
-    @resource = Resource.find(params[:id])
-    @resource.destroy
-    flash[:notice] = t('controller.successfully_deleted', :model => t('activerecord.models.resource'))
+    @manifestation = Manifestation.find(params[:id])
+    @manifestation.destroy
+    flash[:notice] = t('controller.successfully_deleted', :model => t('activerecord.models.manifestation'))
 
     respond_to do |format|
-      format.html { redirect_to resources_url }
+      format.html { redirect_to manifestations_url }
       format.xml  { head :ok }
     end
   end
@@ -534,29 +533,29 @@ class ResourcesController < ApplicationController
   def render_mode(mode)
     case mode
     when 'barcode'
-      barcode = Barby::QrCode.new(@resource.id)
+      barcode = Barby::QrCode.new(@manifestation.id)
       send_data(barcode.to_png.to_blob, :disposition => 'inline', :type => 'image/png')
     when 'holding'
-      render :partial => 'manifestations/show_holding', :locals => {:manifestation => @resource}
+      render :partial => 'manifestations/show_holding', :locals => {:manifestation => @manifestation}
     when 'tag_edit'
-      render :partial => 'manifestations/tag_edit', :locals => {:manifestation => @resource}
+      render :partial => 'manifestations/tag_edit', :locals => {:manifestation => @manifestation}
     when 'tag_list'
-      render :partial => 'manifestations/tag_list', :locals => {:manifestation => @resource}
+      render :partial => 'manifestations/tag_list', :locals => {:manifestation => @manifestation}
     when 'show_index'
-      render :partial => 'manifestations/show_index', :locals => {:manifestation => @resource}
+      render :partial => 'manifestations/show_index', :locals => {:manifestation => @manifestation}
     when 'show_authors'
-      render :partial => 'manifestations/show_authors', :locals => {:manifestation => @resource}
+      render :partial => 'manifestations/show_authors', :locals => {:manifestation => @manifestation}
     when 'show_all_authors'
-      render :partial => 'manifestations/show_authors', :locals => {:manifestation => @resource}
+      render :partial => 'manifestations/show_authors', :locals => {:manifestation => @manifestation}
     when 'pickup'
-      render :partial => 'manifestations/pickup', :locals => {:manifestation => @resource}
+      render :partial => 'manifestations/pickup', :locals => {:manifestation => @manifestation}
     when 'screen_shot'
-      if @resource.screen_shot
-        mime = FileWrapper.get_mime(@resource.screen_shot.path)
-        send_file @resource.screen_shot.path, :type => mime, :disposition => 'inline'
+      if @manifestation.screen_shot
+        mime = FileWrapper.get_mime(@manifestation.screen_shot.path)
+        send_file @manifestation.screen_shot.path, :type => mime, :disposition => 'inline'
       end
     when 'calil_list'
-      render :partial => 'manifestations/calil_list', :locals => {:manifestation => @resource}
+      render :partial => 'manifestations/calil_list', :locals => {:manifestation => @manifestation}
     else
       false
     end

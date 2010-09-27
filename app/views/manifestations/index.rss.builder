@@ -10,16 +10,16 @@ xml.rss('version' => "2.0",
     xml.language @locale
     xml.ttl "60"
     xml.tag! "atom:link", :rel => 'self', :href => "#{request.protocol}#{request.host_with_port}#{url_for(params.merge(:format => "rss"))}"
-    xml.tag! "atom:link", :rel => 'alternate', :href => resources_url
+    xml.tag! "atom:link", :rel => 'alternate', :href => manifestations_url
     xml.tag! "atom:link", :rel => 'search', :type => 'application/opensearchdescription+xml', :href => "#{request.protocol}#{request.host_with_port}/page/opensearch"
     unless params[:query].blank?
-      xml.tag! "opensearch:totalResults", @resources.total_entries
-      xml.tag! "opensearch:startIndex", @resources.offset + 1
-      xml.tag! "opensearch:itemsPerPage", @resources.per_page
+      xml.tag! "opensearch:totalResults", @manifestations.total_entries
+      xml.tag! "opensearch:startIndex", @manifestations.offset + 1
+      xml.tag! "opensearch:itemsPerPage", @manifestations.per_page
       xml.tag! "opensearch:Query", :role => 'request', :searchTerms => h(params[:query]), :startPage => (h(params[:page]) || 1)
     end
-    if @resources
-      @resources.each do |manifestation|
+    if @manifestations
+      @manifestations.each do |manifestation|
           xml.item do
             xml.title h(manifestation.original_title)
             #xml.description(manifestation.original_title)
@@ -28,8 +28,8 @@ xml.rss('version' => "2.0",
               xml.tag! "dc:creator", creator.full_name
             end
             xml.pubDate h(manifestation.created_at.utc.iso8601)
-            xml.link resource_url(manifestation)
-            xml.guid resource_url(manifestation), :isPermaLink => "true"
+            xml.link manifestation_url(manifestation)
+            xml.guid manifestation_url(manifestation), :isPermaLink => "true"
             manifestation.tags.each do |tag|
               xml.category h(tag)
             end

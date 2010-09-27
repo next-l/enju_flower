@@ -1,7 +1,7 @@
 require 'test_helper'
 
-class ResourcesControllerTest < ActionController::TestCase
-  fixtures :resources, :carrier_types, :work_has_subjects, :languages, :subjects, :subject_types,
+class ManifestationsControllerTest < ActionController::TestCase
+  fixtures :manifestations, :carrier_types, :work_has_subjects, :languages, :subjects, :subject_types,
     :form_of_works, :realizes,
     :content_types, :frequencies,
     :items, :library_groups, :libraries, :shelves, :languages,
@@ -13,13 +13,13 @@ class ResourcesControllerTest < ActionController::TestCase
   def test_api_sru_template
     get :index, :format => 'sru', :query => 'title=ruby', :operation => 'searchRetrieve'
     assert_response :success
-    assert_template('resources/index')
+    assert_template('manifestations/index')
   end
 
   def test_api_sru_error
     get :index, :format => 'sru'
     assert_response :success
-    assert_template('resources/explain')
+    assert_template('manifestations/explain')
   end
 
   def test_guest_should_get_index
@@ -34,7 +34,7 @@ class ResourcesControllerTest < ActionController::TestCase
     end
     get :index
     assert_response :success
-    assert assigns(:resources)
+    assert assigns(:manifestations)
   end
 
   def test_guest_should_get_index_xml
@@ -48,7 +48,7 @@ class ResourcesControllerTest < ActionController::TestCase
       end
     end
     assert_response :success
-    assert assigns(:resources)
+    assert assigns(:manifestations)
   end
 
   def test_guest_should_get_index_csv
@@ -62,21 +62,21 @@ class ResourcesControllerTest < ActionController::TestCase
       end
     end
     assert_response :success
-    assert assigns(:resources)
+    assert assigns(:manifestations)
   end
 
   def test_guest_should_get_index_mods
     get :index, :format => 'mods'
     assert_response :success
-    assert_template('resources/index')
-    assert assigns(:resources)
+    assert_template('manifestations/index')
+    assert assigns(:manifestations)
   end
 
   def test_guest_should_get_index_rdf
     get :index, :format => 'rdf'
     assert_response :success
-    assert_template('resources/index')
-    assert assigns(:resources)
+    assert_template('manifestations/index')
+    assert assigns(:manifestations)
   end
 
   def test_user_should_not_create_search_history_if_log_is_written_to_file
@@ -91,27 +91,27 @@ class ResourcesControllerTest < ActionController::TestCase
       end
     end
     assert_response :success
-    assert assigns(:resources)
+    assert assigns(:manifestations)
   end
 
   def test_guest_should_get_index_with_manifestation_id
     get :index, :manifestation_id => 1
     assert_response :success
     assert assigns(:manifestation)
-    assert assigns(:resources)
+    assert assigns(:manifestations)
   end
 
   def test_guest_should_get_index_with_patron_id
     get :index, :patron_id => 1
     assert_response :success
     assert assigns(:patron)
-    assert assigns(:resources)
+    assert assigns(:manifestations)
   end
 
   def test_guest_should_get_index_with_expression
     get :index, :expression_id => 1
     assert_response :success
-    assert assigns(:resources)
+    assert assigns(:manifestations)
   end
 
   #def test_user_should_not_get_index_with_subscription
@@ -125,19 +125,19 @@ class ResourcesControllerTest < ActionController::TestCase
   #  get :index, :subscription_id => 1
   #  assert_response :success
   #  assert assigns(:subscription)
-  #  assert assigns(:resources)
+  #  assert assigns(:manifestations)
   #end
 
   def test_guest_should_get_index_with_query
     get :index, :query => '2005'
     assert_response :success
-    assert assigns(:resources)
+    assert assigns(:manifestations)
   end
 
   def test_guest_should_get_index_with_page_number
     get :index, :query => '2005', :number_of_pages_at_least => 1, :number_of_pages_at_most => 100
     assert_response :success
-    assert assigns(:resources)
+    assert assigns(:manifestations)
     assert_equal '2005 number_of_pages_i: [1 TO 100]', assigns(:query)
   end
 
@@ -185,7 +185,7 @@ class ResourcesControllerTest < ActionController::TestCase
   #  sign_in users(:admin)
   #  get :index, :query => '2005'
   #  assert_response :success
-  #  assert assigns(:resources)
+  #  assert assigns(:manifestations)
   #  assert_equal old_search_history_count + 1, SearchHistory.count
   #end
 
@@ -193,7 +193,7 @@ class ResourcesControllerTest < ActionController::TestCase
     sign_in users(:user1)
     get :index
     assert_response :success
-    assert assigns(:resources)
+    assert assigns(:manifestations)
   end
 
   #def test_user_should_not_save_search_history_when_not_allowed
@@ -201,7 +201,7 @@ class ResourcesControllerTest < ActionController::TestCase
   #  sign_in users(:user1)
   #  get :index
   #  assert_response :success
-  #  assert assigns(:resources)
+  #  assert assigns(:manifestations)
   #  assert_equal old_search_history_count, SearchHistory.count
   #end
 
@@ -209,14 +209,14 @@ class ResourcesControllerTest < ActionController::TestCase
     sign_in users(:librarian1)
     get :index
     assert_response :success
-    assert assigns(:resources)
+    assert assigns(:manifestations)
   end
 
   def test_admin_should_get_index
     sign_in users(:admin)
     get :index
     assert_response :success
-    assert assigns(:resources)
+    assert assigns(:manifestations)
   end
 
   def test_guest_should_not_get_new
@@ -267,36 +267,36 @@ class ResourcesControllerTest < ActionController::TestCase
     assert_response :forbidden
   end
   
-  def test_guest_should_not_create_resource
-    assert_no_difference('Resource.count') do
-      post :create, :resource => { :original_title => 'test', :carrier_type_id => 1 }
+  def test_guest_should_not_create_manifestation
+    assert_no_difference('Manifestation.count') do
+      post :create, :manifestation => { :original_title => 'test', :carrier_type_id => 1 }
     end
     
     assert_redirected_to new_user_session_url
   end
 
-  #def test_user_should_not_create_resource
+  #def test_user_should_not_create_manifestation
   #  sign_in users(:user1)
-  #  assert_no_difference('Resource.count') do
-  #    post :create, :resource => { :original_title => 'test', :carrier_type_id => 1 }
+  #  assert_no_difference('Manifestation.count') do
+  #    post :create, :manifestation => { :original_title => 'test', :carrier_type_id => 1 }
   #  end
   #  
   #  assert_response :forbidden
   #end
 
-  def test_user_should_not_create_resource
+  def test_user_should_not_create_manifestation
     sign_in users(:user1)
-    assert_no_difference('Resource.count') do
-      post :create, :resource => { :original_title => 'test', :carrier_type_id => 1 }
+    assert_no_difference('Manifestation.count') do
+      post :create, :manifestation => { :original_title => 'test', :carrier_type_id => 1 }
     end
     
     assert_response :forbidden
   end
 
-  #def test_librarian_should_not_create_resource_without_expression
+  #def test_librarian_should_not_create_manifestation_without_expression
   #  sign_in users(:librarian1)
-  #  assert_no_difference('Resource.count') do
-  #   post :create, :resource => { :original_title => 'test', :carrier_type_id => 1, :language_id => 1 }
+  #  assert_no_difference('Manifestation.count') do
+  #   post :create, :manifestation => { :original_title => 'test', :carrier_type_id => 1, :language_id => 1 }
   #  end
   #  
   #  assert_response :redirect
@@ -304,101 +304,101 @@ class ResourcesControllerTest < ActionController::TestCase
   #  assert_equal 'Specify the expression.', flash[:notice]
   #end
 
-  def test_librarian_should_not_create_resource_without_expression
+  def test_librarian_should_not_create_manifestation_without_expression
     sign_in users(:librarian1)
-    assert_no_difference('Resource.count') do
-      post :create, :resource => { :original_title => 'test', :carrier_type_id => 1, :language_id => 1 }
+    assert_no_difference('Manifestation.count') do
+      post :create, :manifestation => { :original_title => 'test', :carrier_type_id => 1, :language_id => 1 }
     end
     
     assert_response :forbidden
   end
 
-  def test_librarian_should_not_create_resource_without_title
+  def test_librarian_should_not_create_manifestation_without_title
     sign_in users(:librarian1)
-    assert_no_difference('Resource.count') do
-      post :create, :resource => { :carrier_type_id => 1, :language_id => 1 }, :expression_id => 1
+    assert_no_difference('Manifestation.count') do
+      post :create, :manifestation => { :carrier_type_id => 1, :language_id => 1 }, :expression_id => 1
     end
     
     assert_response :forbidden
   end
 
-  def test_librarian_should_not_create_resource_with_expression
+  def test_librarian_should_not_create_manifestation_with_expression
     sign_in users(:librarian1)
-    assert_no_difference('Resource.count') do
-      post :create, :resource => { :original_title => 'test', :carrier_type_id => 1, :language_id => 1 }, :expression_id => 1
+    assert_no_difference('Manifestation.count') do
+      post :create, :manifestation => { :original_title => 'test', :carrier_type_id => 1, :language_id => 1 }, :expression_id => 1
     end
     
     assert_response :forbidden
   end
 
-  def test_admin_should_not_create_resource_with_expression
+  def test_admin_should_not_create_manifestation_with_expression
     sign_in users(:admin)
-    assert_no_difference('Resource.count') do
-      post :create, :resource => { :original_title => 'test', :carrier_type_id => 1, :language_id => 1 }, :expression_id => 1
+    assert_no_difference('Manifestation.count') do
+      post :create, :manifestation => { :original_title => 'test', :carrier_type_id => 1, :language_id => 1 }, :expression_id => 1
     end
     
     assert_response :forbidden
   end
 
-  def test_guest_should_show_resource
+  def test_guest_should_show_manifestation
     get :show, :id => 1
     assert_response :success
   end
 
-  test 'guest shoud show resource screen shot' do
+  test 'guest shoud show manifestation screen shot' do
     get :show, :id => 22, :mode => 'screen_shot'
     assert_response :success
   end
 
-  test 'guest shoud show resource mods template' do
+  test 'guest shoud show manifestation mods template' do
     get :show, :id => 22, :format => 'mods'
     assert_response :success
-    assert_template 'resources/show'
+    assert_template 'manifestations/show'
   end
 
-  test 'guest shoud show resource rdf template' do
+  test 'guest shoud show manifestation rdf template' do
     get :show, :id => 22, :format => 'rdf'
     assert_response :success
-    assert_template 'resources/show'
+    assert_template 'manifestations/show'
   end
 
-  def test_guest_should_show_resource_with_holding
+  def test_guest_should_show_manifestation_with_holding
     get :show, :id => 1, :mode => 'holding'
     assert_response :success
   end
 
-  def test_guest_should_show_resource_with_tag_edit
+  def test_guest_should_show_manifestation_with_tag_edit
     get :show, :id => 1, :mode => 'tag_edit'
     assert_response :success
   end
 
-  def test_guest_should_show_resource_with_tag_list
+  def test_guest_should_show_manifestation_with_tag_list
     get :show, :id => 1, :mode => 'tag_list'
     assert_response :success
   end
 
-  def test_guest_should_show_resource_with_show_authors
+  def test_guest_should_show_manifestation_with_show_authors
     get :show, :id => 1, :mode => 'show_authors'
     assert_response :success
   end
 
-  def test_guest_should_show_resource_with_show_all_authors
+  def test_guest_should_show_manifestation_with_show_all_authors
     get :show, :id => 1, :mode => 'show_all_authors'
     assert_response :success
   end
 
-  def test_guest_should_show_resource_with_isbn
+  def test_guest_should_show_manifestation_with_isbn
     get :show, :isbn => "4798002062"
     assert_response :redirect
-    assert_redirected_to resource_url(assigns(:resource))
+    assert_redirected_to manifestation_url(assigns(:manifestation))
   end
 
-  def test_guest_should_not_show_resource_with_invalid_isbn
+  def test_guest_should_not_show_manifestation_with_invalid_isbn
     get :show, :isbn => "47980020620"
     assert_response :missing
   end
 
-  def test_guest_should_not_send_resource_detail_email
+  def test_guest_should_not_send_manifestation_detail_email
     get :show, :id => 1, :mode => 'send_email'
     assert_redirected_to new_user_session_url
   end
@@ -408,37 +408,37 @@ class ResourcesControllerTest < ActionController::TestCase
     assert_response :success
   end
 
-  def test_user_should_show_resource
+  def test_user_should_show_manifestation
     sign_in users(:user1)
     get :show, :id => 1
     assert_response :success
   end
 
-  def test_user_should_send_resource_detail_email
+  def test_user_should_send_manifestation_detail_email
     sign_in users(:user1)
     get :show, :id => 1, :mode => 'send_email'
-    assert_redirected_to resource_url(assigns(:resource))
+    assert_redirected_to manifestation_url(assigns(:manifestation))
   end
 
-  def test_librarian_should_show_resource
+  def test_librarian_should_show_manifestation
     sign_in users(:librarian1)
     get :show, :id => 1
     assert_response :success
   end
 
-  def test_librarian_should_show_resource_with_expression_not_embodied
+  def test_librarian_should_show_manifestation_with_expression_not_embodied
     sign_in users(:librarian1)
     get :show, :id => 1, :expression_id => 3
     assert_response :success
   end
 
-  def test_librarian_should_show_resource_with_patron_not_produced
+  def test_librarian_should_show_manifestation_with_patron_not_produced
     sign_in users(:librarian1)
     get :show, :id => 3, :patron_id => 1
     assert_response :success
   end
 
-  def test_admin_should_show_resource
+  def test_admin_should_show_manifestation
     sign_in users(:admin)
     get :show, :id => 1
     assert_response :success
@@ -480,64 +480,64 @@ class ResourcesControllerTest < ActionController::TestCase
     assert_response :forbidden
   end
   
-  def test_guest_should_not_update_resource
-    put :update, :id => 1, :resource => { }
+  def test_guest_should_not_update_manifestation
+    put :update, :id => 1, :manifestation => { }
     assert_redirected_to new_user_session_url
   end
   
-  def test_user_should_not_update_resource
+  def test_user_should_not_update_manifestation
     sign_in users(:user1)
-    put :update, :id => 1, :resource => { }
+    put :update, :id => 1, :manifestation => { }
     assert_response :forbidden
   end
   
-  def test_librarian_should_not_update_resource_without_title
+  def test_librarian_should_not_update_manifestation_without_title
     sign_in users(:librarian1)
-    put :update, :id => 1, :resource => { :original_title => nil }
+    put :update, :id => 1, :manifestation => { :original_title => nil }
     assert_response :forbidden
   end
   
-  def test_librarian_should_not_update_resource
+  def test_librarian_should_not_update_manifestation
     sign_in users(:librarian1)
-    put :update, :id => 1, :resource => { }
+    put :update, :id => 1, :manifestation => { }
     assert_response :forbidden
   end
   
-  def test_admin_should_not_update_resource
+  def test_admin_should_not_update_manifestation
     sign_in users(:admin)
-    put :update, :id => 1, :resource => { }
+    put :update, :id => 1, :manifestation => { }
     assert_response :forbidden
   end
   
-  def test_guest_should_not_destroy_resource
-    assert_no_difference('Resource.count') do
+  def test_guest_should_not_destroy_manifestation
+    assert_no_difference('Manifestation.count') do
       delete :destroy, :id => 1
     end
     
     assert_redirected_to new_user_session_url
   end
 
-  def test_user_should_not_destroy_resource
+  def test_user_should_not_destroy_manifestation
     sign_in users(:user1)
-    assert_no_difference('Resource.count') do
+    assert_no_difference('Manifestation.count') do
       delete :destroy, :id => 1
     end
     
     assert_response :forbidden
   end
 
-  def test_librarian_should_not_destroy_resource
+  def test_librarian_should_not_destroy_manifestation
     sign_in users(:librarian1)
-    assert_no_difference('Resource.count') do
+    assert_no_difference('Manifestation.count') do
       delete :destroy, :id => 1
     end
     
     assert_response :forbidden
   end
 
-  def test_admin_should_not_destroy_resource
+  def test_admin_should_not_destroy_manifestation
     sign_in users(:admin)
-    assert_no_difference('Resource.count') do
+    assert_no_difference('Manifestation.count') do
       delete :destroy, :id => 1
     end
     

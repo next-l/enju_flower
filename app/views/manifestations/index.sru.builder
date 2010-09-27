@@ -13,8 +13,8 @@ if @sru
 
   @version = @sru.version
   @packing = @sru.packing
-  @number_of_records = @resources.total_entries
-  @next_record_position = @sru.start + @resources.size
+  @number_of_records = @manifestations.total_entries
+  @next_record_position = @sru.start + @manifestations.size
 end
   
 def search_retrieve_response!(xml)
@@ -23,7 +23,7 @@ def search_retrieve_response!(xml)
     xml.numberOfRecords @number_of_records
     extra_response_data!(xml) if @extra_response
     xml.records do
-      @resources.each_with_index do |rec, idx|
+      @manifestations.each_with_index do |rec, idx|
         xml.record do
           record!(xml, rec, idx + 1)
         end
@@ -69,7 +69,7 @@ def get_record(manifestation)
     'xmlns:srw_dc' => "info:srw/schema/1/dc-v1.1",
     'xmlns:xsi' => "http://www.w3.org/2001/XMLSchema-instance",
     'xsi:schemaLocation' => "info:srw/schema/1/dc-v1.1 http://www.loc.gov/standards/sru/dc-schema.xsd" do
-    cache(:controller => :resources, :action => :show, :id => manifestation.id, :page => 'sru', :role => current_user_role_name, :locale => @locale) do
+    cache(:controller => :manifestations, :action => :show, :id => manifestation.id, :page => 'sru', :role => current_user_role_name, :locale => @locale) do
       xml.tag! 'dc:title', manifestation.original_title
       manifestation.creators.each do |patron|
         xml.tag! 'dc:creator', patron.full_name

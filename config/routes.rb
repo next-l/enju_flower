@@ -2,27 +2,24 @@ EnjuFlower::Application.routes.draw do
   devise_for :users
 
   resources :patrons do
-    resources :resources
+    resources :manifestations
     resources :patrons
   end
   
-  resources :resources do
-    resources :resources
+  resources :manifestations do
+    resources :manifestations
     resources :picture_files
-  end
-
-  resources :works, :controller => 'resources' do
-    resources :patrons
-  end
-
-  resources :expressions, :controller => 'resources' do
-    resources :patrons
-  end
-
-  resources :manifestations, :controller => 'resources' do
     resources :patrons
     resources :picture_files
     resources :items
+  end
+
+  resources :works, :controller => 'manifestations' do
+    resources :patrons
+  end
+
+  resources :expressions, :controller => 'manifestations' do
+    resources :patrons
   end
 
   resources :tags
@@ -33,6 +30,7 @@ EnjuFlower::Application.routes.draw do
     resources :messages
     resources :bookmarks
     resources :reserves
+    resources :purchase_requests
   end
 
   resources :items
@@ -100,7 +98,7 @@ EnjuFlower::Application.routes.draw do
   # This is a legacy wild controller route that's not recommended for RESTful applications.
   # Note: This route will make all actions in every controller accessible via GET requests.
   # match ':controller(/:action(/:id(.:format)))'
-  match '/isbn/:isbn' => 'resources#show'
+  match '/isbn/:isbn' => 'manifestations#show'
   match '/calendar(/:year(/:month))' => 'calendar#index', :as => :calendar, :constraints => {:year => /\d{4}/, :month => /\d{1,2}/}
   match "/calendar/:year/:month/:day" => "calendar#show"
   match '/page/about' => 'page#about'
