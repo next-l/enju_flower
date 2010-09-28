@@ -3,6 +3,8 @@ EnjuFlower::Application.routes.draw do
 
   resources :patrons do
     resources :manifestations
+    resources :works
+    resources :expressions
     resources :patrons
   end
   
