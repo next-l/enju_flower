@@ -3,9 +3,21 @@ EnjuFlower::Application.routes.draw do
 
   resources :patrons do
     resources :manifestations
-    resources :works
-    resources :expressions
+    resources :works, :controller => 'manifestations'
+    resources :expressions, :controller => 'manifestations'
     resources :patrons
+  end
+
+  resources :creators, :controller => 'patrons' do
+    resources :manifestations
+  end
+  
+  resources :contributors, :controller => 'patrons' do
+    resources :manifestations
+  end
+  
+  resources :publishers, :controller => 'patrons' do
+    resources :manifestations
   end
   
   resources :manifestations do
