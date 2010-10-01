@@ -144,6 +144,9 @@ ja:
       user_has_role: 利用者と権限
       patron_relationship: 著者・編者・出版社の関係
       resource_relationship: 資料の関係
+      resource_import_result: 資料情報インポートの結果
+      patron_import_result: 人物・団体情報インポートの結果
+      event_import_result: 催し物情報インポートの結果
 
     attributes:
       library:
@@ -634,6 +637,7 @@ ja:
         subscribes_count: 購読数
       message_template:
         status: 状態
+        locale: 言語
         title: タイトル
         body: 本文
         position: 位置
@@ -1203,6 +1207,7 @@ ja:
     send_email: "書誌情報を電子メールで送信する"
     attachment_file: "添付ファイル"
     question: "この資料で調べた質問"
+    add_derivation: "派生資料を追加"
   item:
     current_checkout: "現在の貸出"
     donor: "寄贈者"
@@ -1447,7 +1452,6 @@ ja:
     published: 公開済み
     reject: 却下
     withdraw: 取り下げ
-    add_derivation: "派生資料を追加"
   news_feed:
     failed_to_fetch_feed: フィードの読み込みに失敗しました。
   import_request:

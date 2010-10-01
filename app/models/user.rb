@@ -24,7 +24,7 @@ class User < ActiveRecord::Base
   has_one :role, :through => :user_has_role
   has_many :bookmarks, :dependent => :destroy
   has_many :reserves, :dependent => :destroy
-  has_many :reserved_manifestations, :through => :reserves, :source => :resource
+  has_many :reserved_manifestations, :through => :reserves, :source => :manifestation
   has_many :questions
   has_many :answers
   has_many :search_histories, :dependent => :destroy

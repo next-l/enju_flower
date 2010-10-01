@@ -143,6 +143,9 @@ en:
       user_has_role: User and roles
       patron_relationship: Patron relationship
       resource_relationship: Resource relationship
+      resource_import_result: Resource Import Result
+      patron_import_result: Patron Import Result
+      event_import_result: Event Import Result
 
     attributes:
       library:
@@ -634,6 +637,7 @@ en:
         subscribes_count: Count
       message_template:
         status: Status
+        locale: Locale
         title: Title
         body: Body
         position: Position
@@ -1210,6 +1214,7 @@ en:
     send_email: "Email this information"
     attachment_file: "Attachment file"
     question: "Question"
+    add_derivation: "Add a derivation"
   item:
     current_checkout: "Current checkout"
     donor: "Donors"
@@ -1458,7 +1463,6 @@ en:
     published: Published
     reject: Reject
     withdraw: Withdraw
-    add_derivation: "Add a derivation"
   news_feed:
     failed_to_fetch_feed: Failed to fetch feeds.
   import_request:
