@@ -436,4 +436,15 @@ class Manifestation < ActiveRecord::Base
   def sort_title
     NKF.nkf('-w --katakana', title_transcription) if title_transcription
   end
+
+  def self.find_by_isbn(isbn)
+    if ISBN_Tools.is_valid?(isbn)
+      ISBN_Tools.cleanup!(isbn)
+      if isbn.size == 10
+        Manifestation.first(:conditions => {:isbn => ISBN_Tools.isbn10_to_isbn13(isbn)}) || Manifestation.first(:conditions => {:isbn => isbn})
+      else
+        Manifestation.first(:conditions => {:isbn => isbn}) || Manifestation.first(:conditions => {:isbn => ISBN_Tools.isbn13_to_isbn10(isbn)})
+      end
+    end
+  end
 end
