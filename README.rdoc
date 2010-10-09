@@ -1,8 +1,8 @@
 = Next-L Enju Flower
 
 == Related projects
-* {Next-L Enju Root}[http://wiki.github.com/nabeta/enju_root]
-* {Next-L Enju Leaf}[http://wiki.github.com/nabeta/enju_leaf]
+* {Next-L Enju Root}[http://github.com/nabeta/enju_root]
+* {Next-L Enju Leaf}[http://github.com/nabeta/enju_leaf]
 
 == Authors and contributors
 * {TANABE, Kosuke}[http://mwr.mediacom.keio.ac.jp/~tanabe/]
