@@ -1,6 +1,6 @@
 source 'http://rubygems.org'
 
-gem 'rails', '3.0.0'
+gem 'rails', '3.0.1'
 
 # Bundle edge Rails instead:
 # gem 'rails', :git => 'git://github.com/rails/rails.git'
@@ -22,7 +22,7 @@ gem 'sunspot_rails', '1.2.rc4'
 gem 'friendly_id'
 gem 'nokogiri'
 gem 'acts-as-taggable-on'
-gem 'memcache-client'
+gem 'dalli'
 gem 'file_wrapper'
 gem 'paper_trail'
 gem 'rails-geocoder', :require => 'geocoder'
