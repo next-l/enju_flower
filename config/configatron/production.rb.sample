@@ -2,5 +2,4 @@
 # 
 # Example:
 #   configatron.file.storage = :s3
-configatron.library_web_hostname = 'localhost'
-configatron.library_web_port_number = 3000
+#configatron.uploaded_file.storage = :s3
