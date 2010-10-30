@@ -8,7 +8,7 @@ module ManifestationsHelper
         string << ' - ' + manifestation.original_title.to_s
       end
     end
-    string << ' - Next-L Enju Leaf'
+    string << ' - Next-L Enju Flower'
     string.html_safe
   end
 
