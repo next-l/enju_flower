@@ -334,3 +334,6 @@ class ApplicationController < ActionController::Base
   end
 
 end
+
+class InvalidLocale < StandardError
+end
