@@ -10,7 +10,7 @@ class ManifestationsController < ApplicationController
   before_filter :get_version, :only => [:show]
   after_filter :solr_commit, :only => [:create, :update, :destroy]
   after_filter :convert_charset, :only => :index
-  cache_sweeper :resource_sweeper, :only => [:create, :update, :destroy]
+  cache_sweeper :manifestation_sweeper, :only => [:create, :update, :destroy]
   #include WorldcatController
   include OaiController
 
@@ -183,7 +183,7 @@ class ManifestationsController < ApplicationController
       save_search_history(query, @manifestations.offset, @count[:query_result], current_user)
       if params[:format] == 'oai'
         unless @manifestations.empty?
-          set_resumption_token(@manifestations, @from_time || Manifestation.last.updated_at, @until_time || Manifestation.first.updated_at)
+          set_resumption_token(params[:resumptionToken], @from_time || Manifestation.last.updated_at, @until_time || Manifestation.first.updated_at)
         else
           @oai[:errors] << 'noRecordsMatch'
         end
@@ -236,7 +236,7 @@ class ManifestationsController < ApplicationController
   #  end
   #  return
   rescue QueryError => e
-    render :template => 'manifestations/error.xml', :layout => false
+  #  render :template => 'manifestations/error.xml', :layout => false
     Rails.logger.info "#{Time.zone.now}\t#{query}\t\t#{current_user.try(:username)}\t#{e}"
   #  return
   end
@@ -257,9 +257,12 @@ class ManifestationsController < ApplicationController
         raise ActiveRecord::RecordNotFound if @manifestation.nil?
       end
     else
-      @manifestation = Manifestation.find(params[:id], :include => [:creators, :contributors, :publishers, :items])
+      if @version
+        @manifestation = @manifestation.versions.find(@version).item if @version
+      else
+        @manifestation = Manifestation.find(params[:id], :include => [:creators, :contributors, :publishers, :items])
+      end
     end
-    @manifestation = @manifestation.versions.find(@version).item if @version
 
     case params[:mode]
     when 'send_email'
@@ -418,6 +421,11 @@ class ManifestationsController < ApplicationController
   def make_query(query, options = {})
     # TODO: integerやstringもqfに含める
     query = query.to_s.strip
+
+    if query.size == 1
+      query = "#{query}*"
+    end
+
     if options[:mode] == 'recent'
       query = "#{query} created_at_d: [NOW-1MONTH TO NOW]"
     end
@@ -473,28 +481,37 @@ class ManifestationsController < ApplicationController
 
     unless options[:number_of_pages_at_least].blank? and options[:number_of_pages_at_most].blank?
       number_of_pages = {}
-      number_of_pages['at_least'] = options[:number_of_pages_at_least].to_i
-      number_of_pages['at_most'] = options[:number_of_pages_at_most].to_i
-      number_of_pages['at_least'] = "*" if number_of_pages['at_least'] == 0
-      number_of_pages['at_most'] = "*" if number_of_pages['at_most'] == 0
+      number_of_pages[:at_least] = options[:number_of_pages_at_least].to_i
+      number_of_pages[:at_most] = options[:number_of_pages_at_most].to_i
+      number_of_pages[:at_least] = "*" if number_of_pages[:at_least] == 0
+      number_of_pages[:at_most] = "*" if number_of_pages[:at_most] == 0
 
-      query = "#{query} number_of_pages_i: [#{number_of_pages['at_least']} TO #{number_of_pages['at_most']}]"
+      query = "#{query} number_of_pages_i: [#{number_of_pages[:at_least]} TO #{number_of_pages[:at_most]}]"
     end
 
     unless options[:pubdate_from].blank? and options[:pubdate_to].blank?
+      options[:pubdate_from].gsub!(/\D/, '')
+      options[:pubdate_to].gsub!(/\D/, '')
+
       pubdate = {}
       if options[:pubdate_from].blank?
-        pubdate['from'] = "*"
+        pubdate[:from] = "*"
       else
-        pubdate['from'] = Time.zone.parse(options[:pubdate_from]).beginning_of_day.utc.iso8601
+        pubdate[:from] = Time.zone.parse(options[:pubdate_from]).beginning_of_day.utc.iso8601 rescue nil
+        unless pubdate[:from]
+          pubdate[:from] = Time.zone.parse(Time.mktime(options[:pubdate_from]).to_s).beginning_of_day.utc.iso8601
+        end
       end
 
       if options[:pubdate_to].blank?
-        pubdate['to'] = "*"
+        pubdate[:to] = "*"
       else
-        pubdate['to'] = Time.zone.parse(options[:pubdate_to]).tomorrow.beginning_of_day.utc.iso8601
+        pubdate[:from] = Time.zone.parse(options[:pubdate_from]).beginning_of_day.utc.iso8601 rescue nil
+        unless pubdate[:to]
+          pubdate[:to] = Time.zone.parse(Time.mktime(options[:pubdate_to]).to_s).beginning_of_day.utc.iso8601
+        end
       end
-      query = "#{query} date_of_publication_d: [#{pubdate['from']} TO #{pubdate['to']}]"
+      query = "#{query} date_of_publication_d: [#{pubdate[:from]} TO #{pubdate[:to]}]"
     end
 
     query = query.strip

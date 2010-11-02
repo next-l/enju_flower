@@ -3,16 +3,19 @@ source 'http://rubygems.org'
 gem 'rails', '3.0.1'
 
 # Bundle edge Rails instead:
-# gem 'rails', :git => 'git://github.com/rails/rails.git'
+#gem 'rails', :git => 'git://github.com/rails/rails.git'
 
 if defined?(JRUBY_VERSION)
   gem 'jruby-openssl'
   gem 'activerecord-jdbc-adapter'
   gem 'jdbc-postgres', :require => false
+  #gem 'jdbc-mysql', :require => false
 else
   gem 'pg'
+  #gem 'mysql'
+  gem 'formatize'
+  gem 'zipruby'
 end
-
 gem 'will_paginate', :git => 'git://github.com/mislav/will_paginate.git', :branch => 'rails3'
 gem 'delayed_job', :git => 'git://github.com/collectiveidea/delayed_job.git'
 gem 'exception_notification', :git => 'git://github.com/rails/exception_notification.git', :require => 'exception_notifier'
@@ -36,9 +39,12 @@ gem 'paperclip'
 gem 'formatize'
 
 gem 'oink'
+if RUBY_VERSION > '1.9'
+  gem 'simplecov', :require => false, :group => :test
+end
 
 # Use unicorn as the web server
-gem 'unicorn'
+gem 'unicorn' unless defined?(JRUBY_VERSION)
 
 # Deploy with Capistrano
 # gem 'capistrano'

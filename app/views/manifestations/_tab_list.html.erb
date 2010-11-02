@@ -10,3 +10,6 @@
 <%- unless @xisbn_resources.blank? -%>
   <%= render 'manifestations/show_xisbn' -%>
 <%- end -%>
+<%- if current_user.try(:has_role?, 'Librarian') -%>
+  <%= render :partial => 'manifestations/history_list', :locals => {:manifestation => manifestation} -%>
+<%- end -%>
