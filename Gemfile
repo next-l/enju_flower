@@ -37,7 +37,7 @@ gem 'extractcontent'
 gem 'cancan', '>=1.4.0'
 gem 'devise'
 gem 'paperclip'
-gem 'formatize'
+gem 'dynamic_form'
 
 gem 'oink'
 if RUBY_VERSION > '1.9'
