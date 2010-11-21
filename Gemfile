@@ -1,6 +1,6 @@
 source 'http://rubygems.org'
 
-gem 'rails', '3.0.1'
+gem 'rails', '3.0.3'
 
 # Bundle edge Rails instead:
 #gem 'rails', :git => 'git://github.com/rails/rails.git'
@@ -17,8 +17,8 @@ else
   gem 'zipruby'
 end
 gem 'will_paginate', :git => 'git://github.com/mislav/will_paginate.git', :branch => 'rails3'
-gem 'delayed_job', :git => 'git://github.com/collectiveidea/delayed_job.git'
 gem 'exception_notification', :git => 'git://github.com/rails/exception_notification.git', :require => 'exception_notifier'
+gem 'delayed_job', '>=2.1.1'
 gem 'state_machine'
 gem 'prawn'
 gem 'sunspot_rails', '1.2.rc4'
@@ -28,7 +28,7 @@ gem 'acts-as-taggable-on'
 gem 'memcache-client'
 #gem 'dalli'
 gem 'file_wrapper'
-gem 'paper_trail'
+gem 'paper_trail', '>=1.6.4'
 gem 'rails-geocoder', :require => 'geocoder'
 gem 'isbn-tools', :require => 'isbn/tools'
 gem 'attribute_normalizer'
