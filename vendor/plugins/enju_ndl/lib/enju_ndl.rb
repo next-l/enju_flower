@@ -6,7 +6,7 @@ module EnjuNdl
 
   module ClassMethods
     def enju_ndl
-    #  include EnjuNdl::InstanceMethods
+      include EnjuNdl::InstanceMethods
     end
 
     def import_isbn(isbn)
@@ -20,7 +20,7 @@ module EnjuNdl
       doc = return_xml(isbn)
       raise EnjuNdl::RecordNotFound if doc.at('//openSearch:totalResults').content.to_i == 0
 
-      date_of_publication, language, nbn = nil, nil, nil
+      date_of_publication, language, nbn, ndc = nil, nil, nil, nil
 
       publishers = get_publishers(doc)
 
@@ -36,24 +36,24 @@ module EnjuNdl
 
       Patron.transaction do
         publisher_patrons = Patron.import_patrons(publishers)
-        #language_id = Language.first(:conditions => {:iso_639_2 => language}).id || 1
+        language_id = Language.first(:conditions => {:iso_639_2 => language}).id || 1
 
         manifestation = Manifestation.new(
           :original_title => title[:manifestation],
           :title_transcription => title[:transcription],
           # TODO: PORTAに入っている図書以外の資料を調べる
-          #:carrier_type_id => CarrierType.first(:conditions => {:name => 'print'}).id,
-          #:language_id => language_id,
+          :carrier_type_id => CarrierType.first(:conditions => {:name => 'print'}).id,
+          :language_id => language_id,
           :isbn => isbn,
           :date_of_publication => date_of_publication,
           :nbn => nbn
         )
-        manifestation.publishers << publisher_patrons
+        manifestation.patrons << publisher_patrons
         #manifestation.save!
       end
 
       #manifestation.send_later(:create_frbr_instance, doc.to_s)
-      create_frbr_instance(doc, manifestation)
+      manifestation.create_frbr_instance(doc)
       return manifestation
     end
 
@@ -73,7 +73,9 @@ module EnjuNdl
       end
       url = "http://api.porta.ndl.go.jp/servicedp/opensearch?dpid=#{options[:dpid]}&#{options[:item]}=#{URI.escape(query)}&cnt=#{options[:per_page]}&idx=#{startrecord}"
       if options[:raw] == true
-        open(url).read
+        open(url) do |f|
+          f.read
+        end
       else
         RSS::Rss::Channel.install_text_element("openSearch:totalResults", "http://a9.com/-/spec/opensearchrss/1.0/", "?", "totalResults", :text, "openSearch:totalResults")
         RSS::BaseListener.install_get_text_element "http://a9.com/-/spec/opensearchrss/1.0/", "totalResults", "totalResults="
@@ -193,24 +195,42 @@ module EnjuNdl
       end
       return publishers
     end
+  end
   
-    def create_frbr_instance(doc, manifestation)
-      title = get_title(doc)
-      authors = get_authors(doc)
-      language = get_language(doc)
-      subjects = get_subjects(doc)
+  module InstanceMethods
+    def create_frbr_instance(doc)
+      title = self.class.get_title(doc)
+      authors = self.class.get_authors(doc)
+      language = self.class.get_language(doc)
+      subjects = self.class.get_subjects(doc)
 
       Patron.transaction do
         author_patrons = Patron.import_patrons(authors)
+        work = self.similar_works.first
+        unless work
+          if title[:original].present?
+            work = Work.new(:original_title => title[:original])
+          else
+            work = Work.new(:original_title => title[:manifestation], :title_transcription => title[:transcription])
+          end
+        end
         language_id = Language.first(:conditions => {:iso_639_2 => language}).id rescue 1
         content_type_id = ContentType.first(:conditions => {:name => 'text'}).id rescue 1
-        manifestation.creators << author_patrons
+        expression = Expression.new(
+          :original_title => work.original_title,
+          :content_type_id => content_type_id,
+          :language_id => language_id
+        )
+        work.save
+        work.patrons << author_patrons
         subjects.each do |term|
           subject = Subject.first(:conditions => {:term => term})
-          manifestation.subjects << subject if subject
+          work.subjects << subject if subject
           #subject = Tag.first(:conditions => {:name => term})
           #manifestation.tags << subject if subject
         end
+        work.expressions << expression
+        expression.manifestations << self
       end
     end
   end

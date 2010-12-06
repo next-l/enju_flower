@@ -13,7 +13,6 @@ if defined?(JRUBY_VERSION)
 else
   gem 'pg'
   #gem 'mysql'
-  gem 'formatize'
   gem 'zipruby'
 end
 gem 'will_paginate', :git => 'git://github.com/mislav/will_paginate.git', :branch => 'rails3'
@@ -40,6 +39,7 @@ gem 'paperclip'
 gem 'dynamic_form'
 
 gem 'oink'
+gem "ruby-prof", :group => [:development, :test] unless defined?(JRUBY_VERSION)
 if RUBY_VERSION > '1.9'
   gem 'simplecov', :require => false, :group => :test
 end
