@@ -8,12 +8,14 @@ gem 'rails', '3.0.3'
 if defined?(JRUBY_VERSION)
   gem 'jruby-openssl'
   gem 'activerecord-jdbc-adapter'
-  gem 'jdbc-postgres', :require => false
+  gem 'activerecord-jdbcpostgresql-adapter'
+  #gem 'jdbc-postgres', :require => false
   #gem 'jdbc-mysql', :require => false
 else
   gem 'pg'
   #gem 'mysql'
   gem 'zipruby'
+  gem 'formatize'
 end
 gem 'will_paginate', :git => 'git://github.com/mislav/will_paginate.git', :branch => 'rails3'
 gem 'exception_notification', :git => 'git://github.com/rails/exception_notification.git', :require => 'exception_notifier'
@@ -33,10 +35,11 @@ gem 'isbn-tools', :require => 'isbn/tools'
 gem 'attribute_normalizer'
 gem 'configatron'
 gem 'extractcontent'
-gem 'cancan', '>=1.4.0'
+gem 'cancan', '>=1.4.1'
 gem 'devise'
 gem 'paperclip'
 gem 'dynamic_form'
+gem 'formtastic'
 
 gem 'oink'
 gem "ruby-prof", :group => [:development, :test] unless defined?(JRUBY_VERSION)
@@ -45,7 +48,7 @@ if RUBY_VERSION > '1.9'
 end
 
 # Use unicorn as the web server
-gem 'unicorn' unless defined?(JRUBY_VERSION)
+# gem 'unicorn'
 
 # Deploy with Capistrano
 # gem 'capistrano'
