@@ -333,7 +333,11 @@ class ApplicationController < ActionController::Base
     true unless params[:format].nil? or params[:format] == 'html'
   end
 
+  def current_ability
+    @current_ability ||= Ability.new(current_user, request.remote_ip)
+  end
+
 end
 
-class InvalidLocale < StandardError
+class InvalidLocaleError < StandardError
 end
