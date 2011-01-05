@@ -30,7 +30,7 @@
 
 <p>
   <strong><%= t('activerecord.models.circulation_status') -%>:</strong>
-  <%= link_to h(@item.circulation_status.display_name.localize), @item.circulation_status -%>
+  <%= @item.circulation_status.display_name.localize -%>
   <%- if user_signed_in? -%>
     <%- if current_user.has_role?('Librarian') -%>
       <%- unless @item.checkouts.not_returned.blank? -%>
@@ -109,12 +109,7 @@
     <%- else -%>
       <li><%= link_to t('page.edit'), edit_item_path(@item) -%></li>
     <%- end -%>
-    <li><%= link_to t('page.listing', :model => t('activerecord.models.inter_library_loan')), item_inter_library_loans_path(@item) -%></li>
     <li><%= link_to t('page.back'), items_path -%></li>
     <li><%= link_to t('page.destroy'), @item, :confirm => t('page.are_you_sure'), :method => :delete -%></li>
-    <%- if @item.inter_library_loans.empty? -%>
-      <li><%= link_to t('item.add_new_copy'), new_manifestation_item_path(@item.manifestation) -%></li>
-    <%- end -%>
-    <li><%= link_to t('page.listing', :model => t('activerecord.models.lending_policy')), item_lending_policies_path(@item) -%></li>
   </ul>
 </div>

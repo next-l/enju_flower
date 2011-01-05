@@ -30,6 +30,7 @@ EnjuFlower::Application.routes.draw do
 
   resources :works, :controller => 'manifestations' do
     resources :patrons
+    resources :subjects
   end
 
   resources :expressions, :controller => 'manifestations' do
@@ -44,17 +45,25 @@ EnjuFlower::Application.routes.draw do
     resources :messages
     resources :bookmarks
     resources :reserves
+    resources :questions
     resources :purchase_requests
   end
 
   resources :items
   resources :series_statements
   resources :subjects
-  resources :libraries
+  resources :libraries do
+    resources :events
+    resources :shelves
+  end
   resources :shelves
   resources :classifications
   resources :questions
   resources :reserves
+  resources :checkouts
+  resources :purchase_requests
+  resources :events
+  resources :checkout_types
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

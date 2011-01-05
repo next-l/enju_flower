@@ -22,7 +22,7 @@ gem 'exception_notification', :git => 'git://github.com/rails/exception_notifica
 gem 'delayed_job', '>=2.1.1'
 gem 'state_machine'
 gem 'prawn'
-gem 'sunspot_rails', '1.2.rc4'
+gem 'sunspot_rails', '>=1.2.1'
 gem 'friendly_id'
 gem 'nokogiri'
 gem 'acts-as-taggable-on'
@@ -40,6 +40,7 @@ gem 'devise'
 gem 'paperclip'
 gem 'dynamic_form'
 gem 'formtastic'
+gem 'jquery-rails'
 
 gem 'oink'
 gem "ruby-prof", :group => [:development, :test] unless defined?(JRUBY_VERSION)
@@ -53,8 +54,9 @@ end
 # Deploy with Capistrano
 # gem 'capistrano'
 
-# To use debugger
+# To use debugger (ruby-debug for Ruby 1.8.7+, ruby-debug19 for Ruby 1.9.2+)
 # gem 'ruby-debug'
+# gem 'ruby-debug19'
 
 # Bundle the extra gems:
 # gem 'bj'
