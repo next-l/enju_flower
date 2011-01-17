@@ -329,7 +329,7 @@ class ApplicationController < ActionController::Base
     session[:query] = nil
     session[:params] = nil
     session[:search_params] = nil
-    session[:resource_ids] = nil
+    session[:manifestation_ids] = nil
   end
 
   def api_request?

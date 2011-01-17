@@ -100,6 +100,7 @@ class UsersController < ApplicationController
     @user.patron_id = @patron.id if @patron
     @user.expired_at = LibraryGroup.site_config.valid_period_for_new_user.days.from_now
     @user.library = current_user.library
+    @user.locale = current_user.locale
   end
 
   def edit
@@ -289,13 +290,6 @@ class UsersController < ApplicationController
   end
 
   private
-  def suspended?
-    if user_signed_in? and !current_user.active?
-      current_user_session.destroy
-      access_denied
-    end
-  end
-
   def prepare_options
     @user_groups = UserGroup.all
     @roles = Rails.cache.fetch('role_all'){Role.all}
@@ -306,9 +300,4 @@ class UsersController < ApplicationController
   def set_operator
     @user.operator = current_user
   end
-
-  def last_request_update_allowed?
-    true if %w[create update].include?(action_name)
-  end
-
 end
