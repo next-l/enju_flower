@@ -49,6 +49,8 @@ if RUBY_VERSION > '1.9'
   gem 'simplecov', :require => false, :group => :test
 end
 
+gem "parallel_tests", :group => [:development, :test]
+
 # Use unicorn as the web server
 # gem 'unicorn'
 
