@@ -1,3 +1,4 @@
+# -*- encoding: utf-8 -*-
 class Patron < ActiveRecord::Base
   has_many :creates, :dependent => :destroy
   has_many :works, :through => :creates
@@ -14,15 +15,19 @@ class Patron < ActiveRecord::Base
   has_many :donated_items, :through => :donates, :source => :item
   has_many :owns, :dependent => :destroy
   has_many :items, :through => :owns
+  #has_many :patron_merges, :dependent => :destroy
+  #has_many :patron_merge_lists, :through => :patron_merges
   belongs_to :user
   belongs_to :patron_type
   belongs_to :required_role, :class_name => 'Role', :foreign_key => 'required_role_id', :validate => true
   belongs_to :language
   belongs_to :country
+  #has_one :patron_import_result
 
   validates_presence_of :full_name, :language, :patron_type, :country
   validates_associated :language, :patron_type, :country
   validates_length_of :full_name, :maximum => 255
+  validates_uniqueness_of :user_id, :allow_nil => true
   before_validation :set_role_and_name, :on => :create
 
   has_paper_trail
@@ -43,6 +48,7 @@ class Patron < ActiveRecord::Base
     integer :work_ids, :multiple => true
     integer :expression_ids, :multiple => true
     integer :manifestation_ids, :multiple => true
+    #integer :patron_merge_list_ids, :multiple => true
     integer :original_patron_ids, :multiple => true
     integer :required_role_id
     integer :patron_type_id

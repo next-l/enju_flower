@@ -6,14 +6,14 @@ class User < ActiveRecord::Base
          :lockable, :lock_strategy => :none, :unlock_strategy => :none
 
   # Setup accessible (or protected) attributes for your model
-  attr_accessible :email, :password, :password_confirmation, :username, :current_password, :user_number
+  attr_accessible :email, :password, :password_confirmation, :username, :current_password, :user_number, :remember_me
 
   scope :administrators, :include => ['role'], :conditions => ['roles.name = ?', 'Administrator']
   scope :librarians, :include => ['role'], :conditions => ['roles.name = ? OR roles.name = ?', 'Administrator', 'Librarian']
   scope :suspended, :conditions => ['locked_at IS NOT NULL']
   has_one :patron
   has_many :checkouts
-  has_many :import_requests
+  #has_many :import_requests
   has_many :sent_messages, :foreign_key => 'sender_id', :class_name => 'Message'
   has_many :received_messages, :foreign_key => 'receiver_id', :class_name => 'Message'
   #has_many :user_has_shelves
@@ -39,10 +39,11 @@ class User < ActiveRecord::Base
   belongs_to :library, :validate => true
   belongs_to :user_group
   belongs_to :required_role, :class_name => 'Role', :foreign_key => 'required_role_id' #, :validate => true
+  has_one :patron_import_result
 
   validates_presence_of :username
   validates_uniqueness_of :username
-  validates_uniqueness_of :email, :scope => authentication_keys[1..-1], :allow_blank => true
+  validates_uniqueness_of :email, :scope => authentication_keys[1..-1], :case_sensitive => false, :allow_blank => true
   EMAIL_REGEX = /^([\w\.%\+\-]+)@([\w\-]+\.)+([\w]{2,})$/i
   validates_format_of     :email, :with  => EMAIL_REGEX, :allow_blank => true
 
@@ -163,7 +164,7 @@ class User < ActiveRecord::Base
   end
 
   def set_auto_generated_password
-    password = Devise.friendly_token
+    password = Devise.friendly_token[0..7]
     self.reset_password!(password, password)
   end
 
@@ -240,9 +241,8 @@ class User < ActiveRecord::Base
       request = MessageRequest.new
       request.sender = User.find(1) # TODO: システムからのメッセージ送信者
       request.receiver = self
-      request.message_template = MessageTemplate.find_by_status(status)
-      request.embed_body(options)
-      request.save!
+      request.message_template = MessageTemplate.localized_template(status, self.locale)
+      request.save_message_body(options)
       request.sm_send_message!
     end
   end
