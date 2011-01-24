@@ -88,9 +88,9 @@ module ApplicationHelper
     return nil if patrons.blank?
     patrons_list = []
     if options[:nolink]
-      patrons_list = patrons.map{|patron| h(patron.full_name) if patron.is_readable_by(user)}
+      patrons_list = patrons.map{|patron| h(patron.full_name) if can?(:read, patron)}
     else
-      patrons_list = patrons.map{|patron| link_to(h(patron.full_name), patron) if patron.is_readable_by(user)}
+      patrons_list = patrons.map{|patron| link_to(h(patron.full_name), patron) if can?(:read, patron)}
     end
     patrons_list.join(" ")
   end
@@ -106,7 +106,7 @@ module ApplicationHelper
           link = link_to image_tag(book_jacket[:url], :width => book_jacket[:width], :height => book_jacket[:height], :alt => manifestation.original_title, :class => 'book_jacket'), "http://#{configatron.amazon.hostname}/dp/#{book_jacket[:asin]}"
         end
       else
-        if manifestation.access_address
+        if manifestation.access_address.present?
           # TODO: thumbalizerはプラグインに移動
           if configatron.thumbalizr.api_key
             link = link_to image_tag("http://api.thumbalizr.com/?url=#{manifestation.access_address}&width=128", :width => 128, :height => 144, :alt => manifestation.original_title, :border => 0), manifestation.access_address

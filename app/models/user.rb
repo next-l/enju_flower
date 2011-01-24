@@ -105,15 +105,16 @@ class User < ActiveRecord::Base
   end
 
   def has_role?(role_in_question)
-    if role
-      return true if role.name == 'Administrator'
-      return true if role.name == role_in_question
-    end
-    if role == 'Librarian'
+    return false unless role
+    return true if role.name == role_in_question
+    case role.name
+    when 'Administrator'
+      return true
+    when 'Librarian'
       return true if role_in_question == 'User'
+    else
+      false
     end
-    return true if role_in_question == 'Guest'
-    false
   end
 
   def set_role_and_patron
@@ -239,7 +240,7 @@ class User < ActiveRecord::Base
   def send_message(status, options = {})
     MessageRequest.transaction do
       request = MessageRequest.new
-      request.sender = User.find(1) # TODO: システムからのメッセージ送信者
+      request.sender = User.find('admin')
       request.receiver = self
       request.message_template = MessageTemplate.localized_template(status, self.locale)
       request.save_message_body(options)
