@@ -44,12 +44,19 @@ gem 'jquery-rails'
 gem 'sanitize'
 
 gem 'oink'
+gem "parallel_tests", :group => [:development, :test]
 gem "ruby-prof", :group => [:development, :test] unless defined?(JRUBY_VERSION)
 if RUBY_VERSION > '1.9'
   gem 'simplecov', :require => false, :group => :test
 end
 
-gem "parallel_tests", :group => [:development, :test]
+group :development, :test do
+  gem 'rspec'
+  gem 'rspec-rails'
+  gem 'autotest'
+  gem 'autotest-rails'
+  gem 'factory_girl_rails'
+end
 
 # Use unicorn as the web server
 # gem 'unicorn'

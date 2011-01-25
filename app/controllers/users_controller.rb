@@ -2,11 +2,10 @@
 class UsersController < ApplicationController
   #before_filter :reset_params_session
   load_and_authorize_resource
-  #before_filter :suspended?
-  #before_filter :get_patron, :only => :new
-  #before_filter :store_location, :only => [:index]
-  #before_filter :clear_search_sessions, :only => [:show]
-  #after_filter :solr_commit, :only => [:create, :update, :destroy]
+  before_filter :get_patron, :only => :new
+  before_filter :store_location, :only => [:index]
+  before_filter :clear_search_sessions, :only => [:show]
+  after_filter :solr_commit, :only => [:create, :update, :destroy]
   cache_sweeper :user_sweeper, :only => [:create, :update, :destroy]
   #ssl_required :new, :edit, :create, :update, :destroy
   ssl_allowed :index, :show, :new, :edit, :create, :update, :destroy
@@ -65,7 +64,7 @@ class UsersController < ApplicationController
 
   def show
     session[:return_to] = nil
-    @user = User.first(:conditions => {:username => params[:id]})
+    #@user = User.first(:conditions => {:username => params[:id]})
     #@user = User.find(params[:id])
     raise ActiveRecord::RecordNotFound if @user.blank?
     unless @user.patron
@@ -105,12 +104,6 @@ class UsersController < ApplicationController
 
   def edit
     #@user = User.first(:conditions => {:login => params[:id]})
-    if current_user.has_role?('Librarian')
-      @user = User.first(:conditions => {:username => params[:id]})
-    else
-      @user = current_user
-    end
-    raise ActiveRecord::RecordNotFound if @user.blank?
     @user.role_id = @user.role.id
 
     if params[:mode] == 'feed_token'
@@ -128,11 +121,6 @@ class UsersController < ApplicationController
 
   def update
     #@user = User.first(:conditions => {:login => params[:id]})
-    if current_user.has_role?('Librarian')
-      @user = User.first(:conditions => {:username => params[:id]})
-    else
-      @user = current_user
-    end
     @user.operator = current_user
 
     if params[:user]
@@ -142,10 +130,8 @@ class UsersController < ApplicationController
       @user.checkout_icalendar_token = params[:user][:checkout_icalendar_token]
       @user.email = params[:user][:email]
       #@user.note = params[:user][:note]
-    end
 
-    if current_user.has_role?('Librarian')
-      if params[:user]
+      if current_user.has_role?('Librarian')
         @user.note = params[:user][:note]
         @user.user_group_id = params[:user][:user_group_id] || 1
         @user.library_id = params[:user][:library_id] || 1
@@ -153,6 +139,7 @@ class UsersController < ApplicationController
         @user.required_role_id = params[:user][:required_role_id] || 1
         @user.user_number = params[:user][:user_number]
         @user.locale = params[:user][:locale]
+        @user.locked = params[:user][:locked]
         expired_at_array = [params[:user]["expired_at(1i)"], params[:user]["expired_at(2i)"], params[:user]["expired_at(3i)"]]
         begin
           @user.expired_at = Time.zone.parse(expired_at_array.join("-"))
@@ -163,13 +150,8 @@ class UsersController < ApplicationController
         end
       end
       if params[:user][:auto_generated_password] == "1"
-        @user.password = Devise.friendly_token
-      else
-        params.delete(:password) if params[:password].blank?
-        params.delete(:password_confirmation) if params[:password_confirmation].blank?
-        @user.current_password = params[:current_password]
-        @user.password = params[:password]
-        @user.password_confirmation = params[:password_confirmation]
+        @user.set_auto_generated_password
+        flash[:temporary_password] = @user.password
       end
     end
     if current_user.has_role?('Administrator')
@@ -181,11 +163,12 @@ class UsersController < ApplicationController
 
     #@user.save do |result|
     respond_to do |format|
-      #if @user.update_attributes(params[:user])
-      if @user.save!
+      if params[:user][:current_password].present? or params[:user][:password].present? or params[:user][:password_confirmation].present?
         @user.update_with_password(params[:user])
-        flash[:temporary_password] = @user.password
-
+      else
+        @user.save
+      end
+      if @user.errors.empty?
         flash[:notice] = t('controller.successfully_updated', :model => t('activerecord.models.user'))
         format.html { redirect_to user_url(@user.username) }
         format.xml  { head :ok }
@@ -229,6 +212,7 @@ class UsersController < ApplicationController
       if @user.save
         #self.current_user = @user
         flash[:notice] = t('controller.successfully_created.', :model => t('activerecord.models.user'))
+        flash[:temporary_password] = @user.password
         format.html { redirect_to user_url(@user.username) }
         #format.html { redirect_to new_user_patron_url(@user.username) }
         format.xml  { head :ok }
@@ -243,7 +227,7 @@ class UsersController < ApplicationController
   end
 
   def destroy
-    @user = User.first(:conditions => {:username => params[:id]})
+    #@user = User.first(:conditions => {:username => params[:id]})
     #@user = User.find(params[:id])
 
     # 自分自身を削除しようとした
@@ -294,10 +278,11 @@ class UsersController < ApplicationController
     @user_groups = UserGroup.all
     @roles = Rails.cache.fetch('role_all'){Role.all}
     @libraries = Rails.cache.fetch('library_all'){Library.all}
-    @languages = Language.all
-  end
-
-  def set_operator
-    @user.operator = current_user
+    @languages = Rails.cache.fetch('language_all'){Language.all}
+    if @user.active?
+      @user.locked = '0'
+    else
+      @user.locked = '1'
+    end
   end
 end
