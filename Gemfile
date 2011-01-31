@@ -5,18 +5,27 @@ gem 'rails', '3.0.3'
 # Bundle edge Rails instead:
 #gem 'rails', :git => 'git://github.com/rails/rails.git'
 
-if defined?(JRUBY_VERSION)
-  gem 'jruby-openssl'
-  gem 'activerecord-jdbc-adapter'
-  gem 'activerecord-jdbcpostgresql-adapter'
-  #gem 'jdbc-postgres', :require => false
-  #gem 'jdbc-mysql', :require => false
-else
+platforms :ruby do
   gem 'pg'
-  #gem 'mysql2'
-  gem 'zipruby'
-  gem 'formatize'
+  gem 'ruby-prof', :group => [:development, :test]
 end
+
+platforms :ruby_19 do
+  gem 'simplecov', :require => false, :group => :test
+end
+
+platforms :ruby_18 do
+  gem 'fastercsv'
+  gem 'system_timer'
+end
+
+platforms :jruby do
+  gem 'activerecord-jdbc-adapter'
+  gem 'jdbc-postgres', :require => false
+  #gem 'jdbc-mysql', :require => false
+  gem 'fastercsv'
+end
+
 gem 'will_paginate', :git => 'git://github.com/mislav/will_paginate.git', :branch => 'rails3'
 gem 'exception_notification', :git => 'git://github.com/rails/exception_notification.git', :require => 'exception_notifier'
 gem 'delayed_job', '>=2.1.3'
@@ -42,13 +51,13 @@ gem 'dynamic_form'
 gem 'formtastic'
 gem 'jquery-rails'
 gem 'sanitize'
+gem 'zipruby'
+gem 'formatize'
+gem 'barby'
+gem 'prawnto'
 
 gem 'oink'
-gem "parallel_tests", :group => [:development, :test]
-gem "ruby-prof", :group => [:development, :test] unless defined?(JRUBY_VERSION)
-if RUBY_VERSION > '1.9'
-  gem 'simplecov', :require => false, :group => :test
-end
+gem 'parallel_tests', :group => :development
 
 group :development, :test do
   gem 'rspec'

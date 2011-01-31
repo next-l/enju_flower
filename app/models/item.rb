@@ -14,7 +14,6 @@ class Item < ActiveRecord::Base
   has_many :reserves
   has_many :reserved_patrons, :through => :reserves, :class_name => 'Patron'
   has_many :lending_policies, :dependent => :destroy
-  has_one :barcode, :as => :barcodable, :dependent => :destroy
 
   def self.per_page
     10
