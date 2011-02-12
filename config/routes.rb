@@ -64,6 +64,7 @@ EnjuFlower::Application.routes.draw do
   resources :purchase_requests
   resources :events
   resources :checkout_types
+  resources :circulation_statuses
 
   # The priority is based upon order of creation:
   # first created -> highest priority.
