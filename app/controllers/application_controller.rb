@@ -9,7 +9,8 @@ class ApplicationController < ActionController::Base
   rescue_from CanCan::AccessDenied, :with => :render_403
   rescue_from ActiveRecord::RecordNotFound, :with => :render_404
 
-  before_filter :get_library_group, :set_locale, :set_available_languages
+  before_filter :get_library_group, :set_locale, :set_available_languages, :prepare_for_mobile
+  helper_method :mobile_device?
 
   private
   def render_403
@@ -142,7 +143,7 @@ class ApplicationController < ActionController::Base
   end
 
   def get_libraries
-    @libraries = Rails.cache.fetch('library_all'){Library.all}
+    @libraries = Library.all_cache
   end
 
   def get_library_group
@@ -256,12 +257,9 @@ class ApplicationController < ActionController::Base
   end
 
   def store_location
-    session[:return_to] = request.fullpath
-  end
-
-  def redirect_back_or_default(default = '/')
-    redirect_to(session[:return_to] || default)
-    session[:return_to] = nil
+    if request.get? and request.format.html? and !request.xhr?
+      session[:user_return_to] = request.fullpath
+    end
   end
 
   def set_role_query(user, search)
@@ -340,6 +338,18 @@ class ApplicationController < ActionController::Base
     @current_ability ||= Ability.new(current_user, request.remote_ip)
   end
 
+  def mobile_device?
+    if session[:mobile_param]
+      session[:mobile_param] == "1"
+    else
+      request.user_agent =~ /Mobile|webOS/
+    end
+  end
+
+  def prepare_for_mobile
+    session[:mobile_param] = params[:mobile] if params[:mobile]
+    request.format = :mobile if mobile_device?
+  end
 end
 
 class InvalidLocaleError < StandardError

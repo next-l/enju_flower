@@ -3,10 +3,10 @@ class ManifestationsController < ApplicationController
   load_and_authorize_resource
   before_filter :authenticate_user!, :only => :edit
   before_filter :get_patron
-  before_filter :get_manifestation, :only => :index
+  helper_method :get_manifestation
   before_filter :get_series_statement, :only => [:index, :new, :edit]
   before_filter :prepare_options, :only => [:new, :edit]
-  before_filter :get_libraries, :only => :index
+  helper_method :get_libraries
   before_filter :get_version, :only => [:show]
   after_filter :solr_commit, :only => [:create, :update, :destroy]
   after_filter :convert_charset, :only => :index
@@ -103,6 +103,7 @@ class ManifestationsController < ApplicationController
         reservable = nil
       end
       unless params[:mode] == 'add'
+        get_manifestation
         manifestation = @manifestation if @manifestation
       end
       patron = get_index_patron
@@ -117,6 +118,18 @@ class ManifestationsController < ApplicationController
         facet :reservable
       end
       search = make_internal_query(search)
+      search.data_accessor_for(Manifestation).select = [
+        :id,
+        :original_title,
+        :title_transcription,
+        :required_role_id,
+        :carrier_type_id,
+        :access_address,
+        :volume_number_list,
+        :issue_number_list,
+        :serial_number_list,
+        :date_of_publication
+      ] if params[:format] == 'html' or params[:format].nil?
       all_result = search.execute
       @count[:query_result] = all_result.total
       @reservable_facet = all_result.facet(:reservable).rows
@@ -140,7 +153,7 @@ class ManifestationsController < ApplicationController
       end
         
       if session[:manifestation_ids]
-        bookmark_ids = Bookmark.all(:select => :id, :conditions => {:manifestation_id => session[:manifestation_ids]}, :limit => 1000).collect(&:id)
+        bookmark_ids = Bookmark.where(:manifestation_id => session[:manifestation_ids]).limit(1000).select(:id).collect(&:id)
         @tags = Tag.bookmarked(bookmark_ids)
         if params[:view] == 'tag_cloud'
           render :partial => 'manifestations/tag_cloud'
@@ -165,6 +178,7 @@ class ManifestationsController < ApplicationController
       search_result = search.execute
       @manifestations = search_result.results
       @manifestations.total_entries = configatron.max_number_of_results if @count[:query_result] > configatron.max_number_of_results
+      get_libraries
 
       if params[:format].blank? or params[:format] == 'html'
         @carrier_type_facet = search_result.facet(:carrier_type).rows
@@ -194,6 +208,7 @@ class ManifestationsController < ApplicationController
 
     respond_to do |format|
       format.html
+      format.mobile
       format.xml  { render :xml => @manifestations }
       format.sru  { render :layout => false }
       format.rss  { render :layout => false }
@@ -259,8 +274,8 @@ class ManifestationsController < ApplicationController
     else
       if @version
         @manifestation = @manifestation.versions.find(@version).item if @version
-      else
-        @manifestation = Manifestation.find(params[:id], :include => [:creators, :contributors, :publishers, :items])
+      #else
+      #  @manifestation = Manifestation.find(params[:id], :include => [:creators, :contributors, :publishers, :items])
       end
     end
 
@@ -287,6 +302,7 @@ class ManifestationsController < ApplicationController
 
     respond_to do |format|
       format.html # show.rhtml
+      format.mobile
       format.xml  {
         case params[:mode]
         when 'related'
@@ -490,8 +506,8 @@ class ManifestationsController < ApplicationController
     end
 
     unless options[:pubdate_from].blank? and options[:pubdate_to].blank?
-      options[:pubdate_from].gsub!(/\D/, '')
-      options[:pubdate_to].gsub!(/\D/, '')
+      options[:pubdate_from].to_s.gsub!(/\D/, '')
+      options[:pubdate_to].to_s.gsub!(/\D/, '')
 
       pubdate = {}
       if options[:pubdate_from].blank?
@@ -506,7 +522,7 @@ class ManifestationsController < ApplicationController
       if options[:pubdate_to].blank?
         pubdate[:to] = "*"
       else
-        pubdate[:from] = Time.zone.parse(options[:pubdate_from]).beginning_of_day.utc.iso8601 rescue nil
+        pubdate[:to] = Time.zone.parse(options[:pubdate_to]).beginning_of_day.utc.iso8601 rescue nil
         unless pubdate[:to]
           pubdate[:to] = Time.zone.parse(Time.mktime(options[:pubdate_to]).to_s).beginning_of_day.utc.iso8601
         end
@@ -580,8 +596,8 @@ class ManifestationsController < ApplicationController
 
   def prepare_options
     @carrier_types = CarrierType.all
-    @roles = Rails.cache.fetch('role_all'){Role.all}
-    @languages = Rails.cache.fetch('language_all'){Language.all}
+    @roles = Role.all_cache
+    @languages = Language.all_cache
     @frequencies = Frequency.all
     @nii_types = NiiType.all
   end

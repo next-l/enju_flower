@@ -1,6 +1,6 @@
 source 'http://rubygems.org'
 
-gem 'rails', '3.0.3'
+gem 'rails', '3.0.4'
 
 # Bundle edge Rails instead:
 #gem 'rails', :git => 'git://github.com/rails/rails.git'
@@ -15,7 +15,6 @@ platforms :ruby_19 do
 end
 
 platforms :ruby_18 do
-  gem 'fastercsv'
   gem 'system_timer'
 end
 
@@ -23,8 +22,9 @@ platforms :jruby do
   gem 'activerecord-jdbc-adapter'
   gem 'jdbc-postgres', :require => false
   #gem 'jdbc-mysql', :require => false
-  gem 'fastercsv'
 end
+
+gem 'fastercsv' if RUBY_VERSION < '1.9'
 
 gem 'will_paginate', :git => 'git://github.com/mislav/will_paginate.git', :branch => 'rails3'
 gem 'exception_notification', :git => 'git://github.com/rails/exception_notification.git', :require => 'exception_notifier'
@@ -37,8 +37,8 @@ gem 'nokogiri'
 gem 'acts-as-taggable-on'
 gem 'dalli'
 gem 'file_wrapper'
-gem 'paper_trail', '>=1.6.4'
-gem 'rails-geocoder', :require => 'geocoder'
+gem 'paper_trail', '>=2.0.0'
+gem 'rails-geocoder', '0.9.7', :require => 'geocoder'
 gem 'isbn-tools', :require => 'isbn/tools'
 gem 'attribute_normalizer'
 gem 'configatron'
