@@ -1,5 +1,5 @@
 <div id="content_detail" class="ui-corner-all">
-  <h1 class="title"><%= t('page.showing', :model => t('activerecord.models.resource')) -%></h1>
+  <h1 class="title"><%= t('page.showing', :model => t('activerecord.models.manifestation')) -%></h1>
   <div id="content_list">
     <%= form_for :manifestations, :url => manifestations_path, :html => {:method => 'get'} do -%>
       <div>
@@ -131,15 +131,3 @@
     <%- end -%>
   </div>
 </div>
-
-<% if user_signed_in? and @manifestation.isbn.present? %>
-<script type="text/javascript">
-  window.onload = function() {
-    $("#calil_list").load('<%= manifestation_path(@manifestation, :mode => 'calil_list') -%>', null, hideCalilSpinner);
-  }
-
-  function hideCalilSpinner(){
-    $("#spinner_calil_list").hide();
-  }
-</script>
-<% end %>

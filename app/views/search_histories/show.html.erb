@@ -8,12 +8,12 @@
 
 <p>
   <strong>Version:</strong>
-  <%= @search_history.version -%>
+  <%= @search_history.sru_version -%>
 </p>
 
 <p>
 <strong><%= t('activerecord.attributes.search_history.query') -%>:</strong>
-<%= link_to h(@search_history.query), manifestations_path(:query => @search_history.query) -%>
+<%= link_to @search_history.query, manifestations_path(:query => @search_history.query) -%>
 </p>
 
 <p>

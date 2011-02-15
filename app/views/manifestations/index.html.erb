@@ -11,7 +11,7 @@
       <%= hidden_field_tag 'manifestation_id', @manifestation.id if @manifestation -%>
       <%= submit_tag t('page.search') -%>
       <% if @manifestation %>
-        <%- if can? :destroy, @manifestation -%>
+        <%- if can? :update, @manifestation -%>
           <%- if params[:mode] == 'add' -%>
             <%= radio_button_tag 'mode', 'show' -%> <%= t('page.show') -%>
             <%= radio_button_tag 'mode', 'add', :checked => true -%> <%= t('page.add') -%>
@@ -68,7 +68,7 @@
   <%- else -%>
     <!-- TODO: 検索結果が少ない場合にも表示させる -->
     <%- if @suggested_tag -%>
-      <p><%= t('page.did_you_mean') -%>: <%= link_to h(@suggested_tag.name), manifestations_path(:tag => @suggested_tag.name) -%></p>
+      <p><%= t('page.did_you_mean') -%>: <%= link_to @suggested_tag.name, manifestations_path(:tag => @suggested_tag.name) -%></p>
     <%- end -%>
     <%= render :partial => 'manifestations/not_found' -%>
   <%- end -%>
@@ -85,9 +85,9 @@
     <%- end -%>
   <div>
     <%- if params[:library_id].blank? -%>
-      <%= link_to (image_tag 'feed-icon-14x14.png', :size => '14x14', :alt => t('page.feed'), :border => 0), url_for(params.merge(:format => 'rss', :page => nil, :library_id => nil)) -%> <%= link_to t('page.search_result_feed'), url_for(params.merge(:format => 'rss', :page => nil, :library_id => nil, :commit => nil)) -%>
+      <%= link_to (image_tag 'feed-icon-14x14.png', :size => '14x14', :alt => t('page.feed'), :class => 'icon'), url_for(params.merge(:format => 'rss', :page => nil, :library_id => nil)) -%> <%= link_to t('page.search_result_feed'), url_for(params.merge(:format => 'rss', :page => nil, :library_id => nil, :commit => nil)) -%>
     <%- else -%>
-      <%= link_to (image_tag 'feed-icon-14x14.png', :size => '14x14', :alt => t('page.feed'), :border => 0), url_for(params.merge(:format => 'rss', :page => nil)) -%> <%= link_to t('page.search_result_feed'), url_for(params.merge(:format => 'rss', :page => nil, :commit => nil)) -%>
+      <%= link_to (image_tag 'feed-icon-14x14.png', :size => '14x14', :alt => t('page.feed'), :class => 'icon'), url_for(params.merge(:format => 'rss', :page => nil)) -%> <%= link_to t('page.search_result_feed'), url_for(params.merge(:format => 'rss', :page => nil, :commit => nil)) -%>
     <%- end -%>
   </div>
 </div>
