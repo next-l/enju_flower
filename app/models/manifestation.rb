@@ -180,6 +180,7 @@ class Manifestation < ActiveRecord::Base
   validates_format_of :access_address, :with => URI::regexp(%w(http https)) , :allow_blank => true
   validate :check_isbn
   before_validation :convert_isbn
+  before_create :set_digest
   normalize_attributes :identifier, :date_of_publication, :isbn, :issn, :nbn, :lccn, :original_title
 
   def self.per_page
@@ -324,7 +325,7 @@ class Manifestation < ActiveRecord::Base
 
   def is_reserved_by(user = nil)
     if user
-      Reserve.waiting.first(:conditions => {:user_id => user.id, :manifestation_id => self.id})
+      Reserve.waiting.where(:user_id => user.id, :manifestation_id => self.id).first
     else
       false
     end
@@ -339,7 +340,7 @@ class Manifestation < ActiveRecord::Base
   end
 
   def checkouts(start_date, end_date)
-    Checkout.completed(start_date, end_date).all(:conditions => {:item_id => self.items.collect(&:id)})
+    Checkout.completed(start_date, end_date).where(:item_id => self.items.collect(&:id))
   end
 
   def creator
@@ -375,6 +376,14 @@ class Manifestation < ActiveRecord::Base
     manifestation = response.results.first
   end
 
+  def set_digest(options = {:type => 'sha1'})
+    if attachment.queued_for_write[:original]
+      if File.exists?(attachment.queued_for_write[:original])
+        self.file_hash = Digest::SHA1.hexdigest(File.open(attachment.queued_for_write[:original].path, 'rb').read)
+      end
+    end
+  end
+
   def extract_text
     extractor = ExtractContent::Extractor.new
     text = Tempfile::new("text")
@@ -403,15 +412,15 @@ class Manifestation < ActiveRecord::Base
   end
 
   def created(patron)
-    creates.first(:conditions => {:patron_id => patron.id})
+    creates.where(:patron_id => patron.id).first
   end
 
   def realized(patron)
-    realizes.first(:conditions => {:patron_id => patron.id})
+    realizes.where(:patron_id => patron.id).first
   end
 
   def produced(patron)
-    produces.first(:conditions => {:patron_id => patron.id})
+    produces.where(:patron_id => patron.id).first
   end
 
   def sort_title

@@ -8,6 +8,8 @@ gem 'rails', '3.0.4'
 platforms :ruby do
   gem 'pg'
   gem 'ruby-prof', :group => [:development, :test]
+  gem 'zipruby'
+  gem 'formatize'
 end
 
 platforms :ruby_19 do
@@ -19,9 +21,12 @@ platforms :ruby_18 do
 end
 
 platforms :jruby do
+  gem 'jruby-openssl'
   gem 'activerecord-jdbc-adapter'
   gem 'jdbc-postgres', :require => false
   #gem 'jdbc-mysql', :require => false
+  gem 'rubyzip'
+  gem 'glassfish'
 end
 
 gem 'fastercsv' if RUBY_VERSION < '1.9'
@@ -39,7 +44,7 @@ gem 'dalli'
 gem 'file_wrapper'
 gem 'paper_trail', '>=2.0.0'
 gem 'rails-geocoder', :require => 'geocoder'
-gem 'isbn-tools', :require => 'isbn/tools'
+gem 'isbn-tools', :git => 'git://github.com/nabeta/isbn-tools.git', :require => 'isbn/tools'
 gem 'attribute_normalizer'
 gem 'configatron'
 gem 'extractcontent'
@@ -51,8 +56,6 @@ gem 'dynamic_form'
 gem 'formtastic'
 gem 'jquery-rails'
 gem 'sanitize'
-gem 'zipruby'
-gem 'formatize'
 gem 'barby'
 gem 'prawnto'
 
