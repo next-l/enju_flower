@@ -149,8 +149,10 @@ class User < ActiveRecord::Base
 
   def set_expiration
     return if self.has_role?('Administrator')
-    unless self.expired_at.blank? and self.active?
-      self.lock_access! if self.expired_at.beginning_of_day < Time.zone.now.beginning_of_day
+    if expired_at
+      if expired_at.beginning_of_day < Time.zone.now.beginning_of_day
+        lock_access! if self.active?
+      end
     end
   end
 
@@ -217,7 +219,7 @@ class User < ActiveRecord::Base
   end
 
   def reached_reservation_limit?(manifestation)
-    return true if self.user_group.user_group_has_checkout_types.available_for_carrier_type(manifestation.carrier_type).all(:conditions => {:user_group_id => self.user_group.id}).collect(&:reservation_limit).max <= self.reserves.waiting.size
+    return true if self.user_group.user_group_has_checkout_types.available_for_carrier_type(manifestation.carrier_type).where(:user_group_id => self.user_group.id).collect(&:reservation_limit).max <= self.reserves.waiting.size
     false
   end
 
