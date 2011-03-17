@@ -43,12 +43,13 @@ gem 'acts-as-taggable-on'
 gem 'dalli'
 gem 'file_wrapper'
 gem 'paper_trail', '>=2.0.0'
-gem 'rails-geocoder', :require => 'geocoder'
+gem 'geocoder', '>=0.9.10'
 gem 'isbn-tools', :git => 'git://github.com/nabeta/isbn-tools.git', :require => 'isbn/tools'
 gem 'attribute_normalizer'
 gem 'configatron'
 gem 'extractcontent'
 gem 'cancan', '>=1.5.1'
+gem 'scribd_fu', :git => 'git://github.com/nabeta/scribd_fu.git'
 gem 'devise'
 gem 'omniauth'
 gem 'paperclip'
@@ -65,9 +66,9 @@ gem 'parallel_tests', :group => :development
 group :development, :test do
   gem 'rspec'
   gem 'rspec-rails'
-  gem 'autotest'
-  gem 'autotest-rails'
+  gem 'guard-rspec'
   gem 'factory_girl_rails'
+  gem 'spork', '~> 0.9.0.rc4'
 end
 
 # Use unicorn as the web server

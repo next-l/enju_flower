@@ -46,15 +46,4 @@ module EnjuFlower
   end
 end
 
-require 'csv' if RUBY_VERSION > '1.9'
-require 'mathn'
-require 'rss'
-require 'nkf'
-require 'ipaddr'
-require 'porta_cql'
-require 'sru'
-require 'openurl'
-require 'bookmark_url'
-require 'localized_name'
-require 'master_model'
-require 'expire_editable_fragment'
+require 'enju_flower'

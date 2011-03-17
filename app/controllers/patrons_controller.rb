@@ -92,10 +92,10 @@ class PatronsController < ApplicationController
       format.json { render :json => @patrons }
       format.mobile
     end
-  rescue RSolr::RequestError
-    flash[:notice] = t('page.error_occured')
-    redirect_to patrons_url
-    return
+  #rescue RSolr::RequestError
+  #  flash[:notice] = t('page.error_occured')
+  #  redirect_to patrons_url
+  #  return
   end
 
   # GET /patrons/1
