@@ -1,6 +1,6 @@
 source 'http://rubygems.org'
 
-gem 'rails', '3.0.5'
+gem 'rails', '3.0.6'
 
 # Bundle edge Rails instead:
 #gem 'rails', :git => 'git://github.com/rails/rails.git'
@@ -60,7 +60,7 @@ gem 'sanitize'
 gem 'barby'
 gem 'prawnto'
 
-gem 'oink'
+gem 'oink', '>=0.9.1'
 gem 'parallel_tests', :group => :development
 
 group :development, :test do
