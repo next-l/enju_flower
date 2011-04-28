@@ -1,9 +1,9 @@
 source 'http://rubygems.org'
 
-gem 'rails', '3.0.6'
+gem 'rails', '3.0.7'
 
 # Bundle edge Rails instead:
-#gem 'rails', :git => 'git://github.com/rails/rails.git'
+# gem 'rails', :git => 'git://github.com/rails/rails.git'
 
 platforms :ruby do
   gem 'pg'
@@ -13,7 +13,7 @@ platforms :ruby do
 end
 
 platforms :ruby_19 do
-  gem 'simplecov', :require => false, :group => :test
+  gem 'simplecov', '>= 0.4.0', :require => false, :group => :test
 end
 
 platforms :ruby_18 do
@@ -25,15 +25,15 @@ platforms :jruby do
   gem 'activerecord-jdbc-adapter'
   gem 'jdbc-postgres', :require => false
   #gem 'jdbc-mysql', :require => false
-  gem 'rubyzip'
+  gem 'rubyzip2'
   gem 'glassfish'
 end
 
 gem 'fastercsv' if RUBY_VERSION < '1.9'
 
 gem 'will_paginate', :git => 'git://github.com/mislav/will_paginate.git', :branch => 'rails3'
-gem 'exception_notification', :git => 'git://github.com/rails/exception_notification.git', :require => 'exception_notifier'
-gem 'delayed_job', '>=2.1.3'
+gem 'exception_notification', :require => 'exception_notifier'
+gem 'delayed_job', '>=2.1.4'
 gem 'state_machine'
 gem 'prawn'
 gem 'sunspot_rails', '>=1.2.1'
@@ -43,26 +43,32 @@ gem 'acts-as-taggable-on'
 gem 'dalli'
 gem 'file_wrapper'
 gem 'paper_trail', '>=2.2.2'
-gem 'geocoder', '>=0.9.13'
 gem 'isbn-tools', :git => 'git://github.com/nabeta/isbn-tools.git', :require => 'isbn/tools'
 gem 'attribute_normalizer'
 gem 'configatron'
 gem 'extractcontent'
 gem 'cancan', '>=1.6.4'
-gem 'scribd_fu', :git => 'git://github.com/nabeta/scribd_fu.git'
-gem 'devise', '>=1.3.0'
+gem 'scribd_fu'
+gem 'devise', '>=1.3.3'
 gem 'omniauth'
 gem 'paperclip'
 gem 'dynamic_form'
 gem 'formtastic'
-gem 'jquery-rails'
 gem 'sanitize'
 gem 'barby'
 gem 'prawnto'
 gem 'event-calendar', :require => 'event_calendar'
+gem 'jpmobile', '>=1.0.0.pre.4'
+#gem 'geokit'
+gem 'geocoder'
+gem 'acts_as_list', :git => 'git://github.com/haihappen/acts_as_list.git'
 
 gem 'oink', '>=0.9.1'
-gem 'parallel_tests', :group => :development
+
+group :development do
+  gem 'parallel_tests'
+  gem 'jquery-rails'
+end
 
 group :development, :test do
   gem 'rspec'

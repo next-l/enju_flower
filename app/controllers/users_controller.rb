@@ -92,8 +92,8 @@ class UsersController < ApplicationController
     prepare_options
     @user_groups = UserGroup.all
     if get_patron.try(:user)
-      redirect_to patron_url(@patron)
       flash[:notice] = t('page.already_activated')
+      redirect_to @patron
       return
     end
     @user.patron_id = @patron.id if @patron
