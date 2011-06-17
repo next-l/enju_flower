@@ -9,7 +9,7 @@
 
 <p>
   <strong><%= t('activerecord.models.shelf') -%>:</strong>
-  <%= link_to @item.shelf.display_name.localize, shelf_path(@item.shelf_id) -%>
+  <%= link_to @item.shelf_display_name.localize, @item.shelf -%>
   <%= render :partial => 'items/shelf_picture', :locals => {:item => @item} -%>
   (<%= link_to @item.shelf.library.display_name.localize, @item.shelf.library -%>)
 </p>
@@ -76,7 +76,7 @@
 </p>
 -->
 
-<%- cache(:controller => :items, :action => :show, :id => @item.id, :page => 'detail', :role => current_user_role_name, :locale => @locale) do -%>
+<%- cache(:controller => :items, :action => :show, :id => @item.id, :page => 'detail', :role => current_user_role_name, :locale => @locale, :item_id => nil) do -%>
 <%- if can? :update, @item -%>
   <p>
     <strong><%= t('item.donor') -%>:</strong>
@@ -85,6 +85,11 @@
     <%- end -%>
   </p>
 <%- end -%>
+
+<p>
+  <strong><%= t('activerecord.attributes.item.acquired_at') -%>:</strong>
+  <%= l(@item.acquired_at, :format => :only_date) if @item.acquired_at -%>
+</p>
 
 <p>
   <strong><%= t('page.created_at') -%>:</strong>
@@ -107,12 +112,8 @@
     <%- else -%>
       <li><%= link_to t('page.edit'), edit_item_path(@item) -%></li>
     <%- end -%>
-    <li><%= link_to t('page.listing', :model => t('activerecord.models.inter_library_loan')), item_inter_library_loans_path(@item) -%></li>
     <li><%= link_to t('page.back'), items_path -%></li>
     <li><%= link_to t('page.destroy'), @item, :confirm => t('page.are_you_sure'), :method => :delete -%></li>
-    <%- if @item.inter_library_loans.empty? -%>
-      <li><%= link_to t('item.add_new_copy'), new_manifestation_item_path(@item.manifestation) -%></li>
-    <%- end -%>
     <li><%= link_to t('page.listing', :model => t('activerecord.models.lending_policy')), item_lending_policies_path(@item) -%></li>
   </ul>
 </div>

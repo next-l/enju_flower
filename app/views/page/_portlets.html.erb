@@ -1,13 +1,3 @@
-<style type="text/css">
-  .column { width: 463px; float: left; padding-bottom: 0px; }
-  .portlet { margin: 0 11px 10px 0; }
-  .portlet-header { margin: 0.3em: padding-bottom: 4px; padding-left: 0.2em; }
-  .portlet-header .ui-icon { float: right; }
-  .portlet-content { padding: 0.4em; }
-  .ui-sortable-placeholder { border: 1px dotted black; visibility: visible !important; height: 200px !important; }
-  .ui-sortable-placeholder * { visibility: hidden; }
-</style>
-
 <!--
 The following code was originally written by Ralph Bean. Thanks Ralph!
 http://groups.google.com/group/jquery-ui/msg/f11601f56737a129
@@ -18,25 +8,25 @@ function saveOrder() {
     $(".column").each(function(index, value){
         var columnId = value.id;
         var cookieName = "listOrder" + columnId;
-        // Get the order for this column. 
+        // Get the order for this column.
         var order = $('#' + columnId).sortable("toArray");
-        // For each portlet in the column 
+        // For each portlet in the column
         for ( var i = 0, n = order.length; i < n; i++ ) {
             var v = $('#' + order[i] ).find('.portlet-content').is(':visible');
-            // Modify the array we're saving to indicate what's open and 
+            // Modify the array we're saving to indicate what's open and
             //  what's not. 
             order[i] = order[i] + ":" + v;
         }
-        <% expired_date = 1.month.from_now %>
-        $.cookie(cookieName, order, { path: "/", expiry: new Date(<%= expired_date.year %>, <%= expired_date.month %>, <%= expired_date.day %>)});
+        <% expire_date = 1.month.from_now %>
+        $.cookie(cookieName, order, { path: "<%= root_path %>", expiry: new Date(<%= expire_date.year %>, <%= expire_date.month %>, <%= expire_date.day %>)});
     });
 }
 
-// function that restores the list order from a cookie 
+// function that restores the list order from a cookie
 function restoreOrder() {
     $(".column").each(function(index, value) {
         var columnId = value.id;
-        var cookieName = "cookie-" + columnId
+        var cookieName = "listOrder" + columnId
         var cookie = $.cookie(cookieName);
         if ( cookie == null ) { return; }
         var IDs = cookie.split(",");
@@ -84,7 +74,7 @@ $(document).ready( function () {
         $(this).toggleClass("ui-icon-plus");
         $(this).parents(".portlet:first").find(".portlet-content").toggle();
       <% if user_signed_in? %>
-        saveOrder(); // This is important 
+        saveOrder(); // This is important
       <% end %>
     });
     $(".portlet-header .ui-icon").hover(

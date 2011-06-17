@@ -161,8 +161,8 @@ class Manifestation < ActiveRecord::Base
   enju_mozshot
   #enju_calil_check
   #enju_cinii
-  #enju_scribd
   #has_ipaper_and_uses 'Paperclip'
+  #enju_scribd
   has_paper_trail
   if configatron.uploaded_file.storage == :s3
     has_attached_file :attachment, :storage => :s3, :s3_credentials => "#{Rails.root.to_s}/config/s3.yml"
@@ -172,16 +172,20 @@ class Manifestation < ActiveRecord::Base
 
   validates_presence_of :original_title, :carrier_type, :language
   validates_associated :carrier_type, :language
-  validates_numericality_of :start_page, :end_page, :allow_blank => true
-  validates_length_of :access_address, :maximum => 255, :allow_blank => true
-  validates_uniqueness_of :isbn, :allow_blank => true
-  validates_uniqueness_of :nbn, :allow_blank => true
-  validates_uniqueness_of :identifier, :allow_blank => true
-  validates_format_of :access_address, :with => URI::regexp(%w(http https)) , :allow_blank => true
-  validate :check_isbn
+  validates :start_page, :numericality => true, :allow_blank => true
+  validates :end_page, :numericality => true, :allow_blank => true
+  validates :isbn, :uniqueness => true, :allow_blank => true
+  validates :nbn, :uniqueness => true, :allow_blank => true
+  validates :identifier, :uniqueness => true, :allow_blank => true
+  validates :pub_date, :format => {:with => /^\d+(-\d{0,2}){0,2}$/}, :allow_blank => true
+  validates :access_address, :url => true, :allow_blank => true, :length => {:maximum => 255}
+  validate :check_isbn, :check_issn, :check_lccn, :unless => :during_import
+  before_validation :set_wrong_isbn, :check_issn, :check_lccn, :if => :during_import
   before_validation :convert_isbn
   before_create :set_digest
-  normalize_attributes :identifier, :date_of_publication, :isbn, :issn, :nbn, :lccn, :original_title
+  before_save :set_date_of_publication
+  normalize_attributes :identifier, :pub_date, :isbn, :issn, :nbn, :lccn, :original_title
+  attr_accessor :during_import
 
   def self.per_page
     10
@@ -189,14 +193,35 @@ class Manifestation < ActiveRecord::Base
 
   def check_isbn
     if isbn.present?
-      errors.add(:isbn) unless ISBN_Tools.is_valid?(isbn)
-      #set_wrong_isbn
+      unless ISBN_Tools.is_valid?(isbn)
+        errors.add(:isbn)
+      end
+    end
+  end
+
+  def check_issn
+    self.issn = ISBN_Tools.cleanup(issn)
+    if issn.present?
+      unless StdNum::ISSN.valid?(issn)
+        errors.add(:issn)
+      end
+    end
+  end
+
+  def check_lccn
+    if lccn.present?
+      unless StdNum::LCCN.valid?(issn)
+        errors.add(:issn)
+      end
     end
   end
 
   def set_wrong_isbn
     if isbn.present?
-      wrong_isbn = isbn unless ISBN_Tools.is_valid?(isbn)
+      unless ISBN_Tools.is_valid?(isbn)
+        self.wrong_isbn
+        self.isbn = nil
+      end
     end
   end
 
@@ -212,8 +237,30 @@ class Manifestation < ActiveRecord::Base
     end
   end
 
+  def set_date_of_publication
+    return if pub_date.blank?
+    begin
+      date = Time.zone.parse("#{pub_date}")
+    rescue ArgumentError
+      begin
+        date = Time.zone.parse("#{pub_date}-01")
+      rescue ArgumentError
+        begin
+          date = Time.zone.parse("#{pub_date}-01-01")
+        rescue ArgumentError
+          nil
+        end
+      end
+    end
+    self.date_of_publication = date
+  end
+
   def self.cached_numdocs
     Rails.cache.fetch("manifestation_search_total"){Manifestation.search.total}
+  end
+
+  def clear_cached_numdocs
+    Rails.cache.delete("manifestation_search_total")
   end
 
   def parent_of_series
@@ -221,15 +268,7 @@ class Manifestation < ActiveRecord::Base
   end
 
   def next_reservation
-    self.reserves.first(:order => ['reserves.created_at'])
-  end
-
-  def has_single_work?
-    return true if works.size == 0
-    if works.size == 1
-      return true if works.first.original_title == original_title
-    end
-    false
+    self.reserves.waiting.first
   end
 
   def serial?
@@ -266,22 +305,27 @@ class Manifestation < ActiveRecord::Base
 
   def url
     #access_address
-    "#{LibraryGroup.url}#{self.class.to_s.tableize}/#{self.id}"
+    "#{LibraryGroup.site_config.url}#{self.class.to_s.tableize}/#{self.id}"
   end
 
   def available_checkout_types(user)
-    user.user_group.user_group_has_checkout_types.available_for_carrier_type(self.carrier_type)
+    if user
+      user.user_group.user_group_has_checkout_types.available_for_carrier_type(self.carrier_type)
+    end
   end
 
   def checkout_period(user)
-    available_checkout_types(user).collect(&:checkout_period).max || 0
+    if available_checkout_types(user)
+      available_checkout_types(user).collect(&:checkout_period).max || 0
+    end
   end
-  
+
   def reservation_expired_period(user)
-    available_checkout_types(user).collect(&:reservation_expired_period).max || 
-0
- end
-  
+    if available_checkout_types(user)
+      available_checkout_types(user).collect(&:reservation_expired_period).max || 0
+    end
+  end
+
   def patrons
     (creators + contributors + publishers).flatten
   end
@@ -402,7 +446,7 @@ class Manifestation < ActiveRecord::Base
       self.fulltext = extractor.analyse(text.read)
     when "text/html"
       # TODO: 日本語以外
-      system("elinks --dump 1 #{attachment(:path)} 2> /dev/null | nkf -w > #{text.path}")
+      system("w3m -dump #{attachment(:path)} 2> /dev/null | nkf -w > #{text.path}")
       self.fulltext = extractor.analyse(text.read)
     end
 

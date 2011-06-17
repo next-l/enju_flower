@@ -6,7 +6,7 @@
         <%= raw paginate_id_link(@manifestation) -%>
         <%= back_to_manifestation_index -%>
         <%= t('page.search_term') -%>:
-        <%= search_field_tag 'query', session[:query], {:id => 'search_form_top', :class => 'search_form_short'} -%>
+        <%= search_field_tag 'query', session[:query], {:id => 'search_form_top', :class => 'search_form_short', :placeholder => t('page.search_term')} -%>
         <%= submit_tag t('page.search') -%>
         <%= link_to t('page.advanced_search'), page_advanced_search_path -%>
       </div>
@@ -21,11 +21,6 @@
     <% else %>
       <%= render :partial => 'manifestations/show_detail_user', :locals => {:manifestation => @manifestation} %>
     <% end %>
-
-    <%- if params[:mode] == 'generate_cache' -%>
-      <%= render :partial => 'manifestations/show_index', :locals => {:manifestation => @manifestation} -%>
-      <%= render :partial => 'manifestations/pickup', :locals => {:manifestation => @manifestation} -%>
-    <%- end -%>
   </div>
 </div>
 
@@ -108,13 +103,6 @@
 
       <%- if current_user.has_role?('Librarian') -%>
         <ul>
-          <%- case when @expression -%>
-            <li><%= link_to t('page.edit'), edit_expression_manifestation_path(@expression, @manifestation) -%></li>
-          <%- when @patron -%>
-            <li><%= link_to t('page.edit'), edit_publisher_manifestation_path(@patron, @manifestation) -%></li>
-          <%- else -%>
-            <li><%= link_to t('page.edit'), edit_manifestation_path(@manifestation) -%></li>
-          <%- end -%>
           <ul>
             <li><%= link_to t('manifestation.edit_creator'), work_patrons_path(@manifestation) -%></li>
             <li><%= link_to t('manifestation.edit_contributor'), expression_patrons_path(@manifestation) -%></li>
