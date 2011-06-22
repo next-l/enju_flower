@@ -42,7 +42,7 @@ gem 'nokogiri'
 gem 'acts-as-taggable-on'
 gem 'dalli'
 gem 'file_wrapper'
-gem 'paper_trail', '>=2.2.4'
+gem 'paper_trail', '>=2.2.5'
 gem 'isbn-tools', :git => 'git://github.com/nabeta/isbn-tools.git', :require => 'isbn/tools'
 gem 'attribute_normalizer'
 gem 'configatron'
@@ -64,7 +64,7 @@ gem 'geocoder'
 gem 'acts_as_list', :git => 'git://github.com/haihappen/acts_as_list.git'
 gem 'sitemap_generator', '>=2.0.1'
 
-gem 'oink', '>=0.9.1'
+gem 'oink', '>=0.9.2'
 
 group :development do
   gem 'parallel_tests'
@@ -76,7 +76,7 @@ group :development, :test do
   gem 'rspec-rails'
   gem 'guard-rspec'
   gem 'factory_girl_rails'
-  gem 'spork', '~> 0.9.0.rc7'
+  gem 'spork', '~> 0.9.0.rc8'
 end
 
 # Use unicorn as the web server
