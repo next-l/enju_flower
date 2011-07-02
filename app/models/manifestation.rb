@@ -1,4 +1,5 @@
 class Manifestation < ActiveRecord::Base
+  scope :periodical_master, where(:periodical_master => true)
   has_many :creates, :dependent => :destroy, :foreign_key => 'work_id'
   has_many :creators, :through => :creates, :source => :patron
   has_many :realizes, :dependent => :destroy, :foreign_key => 'expression_id'
@@ -153,6 +154,12 @@ class Manifestation < ActiveRecord::Base
     end
     # OTC end
     string :sort_title
+    boolean :periodical do
+      serial?
+    end
+    time :acquired_at do
+      items.order(:acquired_at).last.try(:acquired_at)
+    end
   end
 
   enju_manifestation_viewer
@@ -174,7 +181,7 @@ class Manifestation < ActiveRecord::Base
   validates_associated :carrier_type, :language
   validates :start_page, :numericality => true, :allow_blank => true
   validates :end_page, :numericality => true, :allow_blank => true
-  validates :isbn, :uniqueness => true, :allow_blank => true
+  validates :isbn, :uniqueness => true, :allow_blank => true, :unless => proc{|manifestation| manifestation.series_statement}
   validates :nbn, :uniqueness => true, :allow_blank => true
   validates :identifier, :uniqueness => true, :allow_blank => true
   validates :pub_date, :format => {:with => /^\d+(-\d{0,2}){0,2}$/}, :allow_blank => true
@@ -186,6 +193,7 @@ class Manifestation < ActiveRecord::Base
   before_save :set_date_of_publication
   normalize_attributes :identifier, :pub_date, :isbn, :issn, :nbn, :lccn, :original_title
   attr_accessor :during_import
+  attr_protected :periodical_master
 
   def self.per_page
     10
@@ -272,7 +280,7 @@ class Manifestation < ActiveRecord::Base
   end
 
   def serial?
-    return true if series_statement
+    return true if series_statement.try(:periodical) and !periodical_master
     #return true if parent_of_series
     #return true if frequency_id > 1
     false
@@ -506,16 +514,16 @@ class Manifestation < ActiveRecord::Base
   end
 
   def web_item
-    items.first(:conditions => {:shelf_id => Shelf.web.id})
+    items.where(:shelf_id => Shelf.web.id).first
   end
 
   def self.find_by_isbn(isbn)
     if ISBN_Tools.is_valid?(isbn)
       ISBN_Tools.cleanup!(isbn)
       if isbn.size == 10
-        Manifestation.first(:conditions => {:isbn => ISBN_Tools.isbn10_to_isbn13(isbn)}) || Manifestation.first(:conditions => {:isbn => isbn})
+        Manifestation.where(:isbn => ISBN_Tools.isbn10_to_isbn13(isbn)).first || Manifestation.where(:isbn => isbn).first
       else
-        Manifestation.first(:conditions => {:isbn => isbn}) || Manifestation.first(:conditions => {:isbn => ISBN_Tools.isbn13_to_isbn10(isbn)})
+        Manifestation.where(:isbn => isbn).first || Manifestation.where(:isbn => ISBN_Tools.isbn13_to_isbn10(isbn)).first
       end
     end
   end

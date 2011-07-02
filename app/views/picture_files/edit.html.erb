@@ -5,44 +5,44 @@
 <%= form_for(@picture_file) do |f| -%>
   <%= f.error_messages -%>
 
-  <p>
-    <%= f.label t('activerecord.attributes.picture_file.picture_attachable_type') -%><br />
+  <div class="field">
+    <%= f.label :picture_attachable_type -%><br />
     <%= f.text_field :picture_attachable_type -%>
-  </p>
+  </div>
 
-  <p>
+  <div class="field">
     <%= f.label t('page.attachable') -%><br />
     <%= f.text_field :picture_attachable_id -%>
-  </p>
+  </div>
 
-  <p>
-    <%= f.label t('activerecord.attributes.picture_file.picture_file_size') -%><br />
+  <div class="field">
+    <%= f.label :picture_file_size -%><br />
     <%= f.text_field :picture_file_size -%>
-  </p>
+  </div>
 
-  <p>
-    <%= f.label t('activerecord.attributes.picture_file.picture_content_type') -%><br />
+  <div class="field">
+    <%= f.label :picture_content_type -%><br />
     <%= f.text_field :picture_content_type -%>
-  </p>
+  </div>
 
-  <p>
-    <%= f.label t('activerecord.attributes.picture_file.picture_file_name') -%><br />
+  <div class="field">
+    <%= f.label :picture_file_name -%><br />
     <%= f.text_field :picture_file_name -%>
-  </p>
+  </div>
 
-  <p>
-    <%= f.label t('activerecord.attributes.picture_file.width') -%><br />
+  <div class="field">
+    <%= f.label :width -%><br />
     <%= f.text_field :width -%>
-  </p>
+  </div>
 
-  <p>
-    <%= f.label t('activerecord.attributes.picture_file.height') -%><br />
+  <div class="field">
+    <%= f.label :height -%><br />
     <%= f.text_field :height -%>
-  </p>
+  </div>
 
-  <p>
+  <div class="actions">
     <%= f.submit %>
-  </p>
+  </div>
 <%- end -%>
 
 </div>

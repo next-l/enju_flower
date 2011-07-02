@@ -30,7 +30,7 @@ end
 
 gem 'fastercsv' if RUBY_VERSION < '1.9'
 
-gem 'will_paginate', :git => 'git://github.com/mislav/will_paginate.git', :branch => 'rails3'
+gem 'will_paginate', :git => 'git://github.com/wantful/will_paginate.git', :branch => 'rails3'
 gem 'exception_notification', :require => 'exception_notifier'
 gem 'delayed_job', '>=2.1.4'
 gem 'state_machine'
@@ -57,7 +57,7 @@ gem 'extractcontent'
 gem 'cancan', '>=1.6.5'
 gem 'scribd_fu'
 gem 'devise', '>=1.4.2'
-gem 'omniauth'
+gem 'omniauth', '>=0.2.6'
 gem 'paperclip'
 gem 'whenever', :require => false
 gem 'amazon-ecs', '>=2.0.0', :require => 'amazon/ecs'
@@ -73,6 +73,9 @@ gem 'jpmobile', '>=1.0.0.pre.4'
 #gem 'geokit'
 gem 'geocoder'
 gem 'acts_as_list', :git => 'git://github.com/haihappen/acts_as_list.git'
+gem 'simple_form'
+gem 'validates_timeliness'
+gem 'rack-protection'
 
 gem 'oink', '>=0.9.2'
 
