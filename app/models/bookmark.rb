@@ -1,22 +1,23 @@
 # -*- encoding: utf-8 -*-
 class Bookmark < ActiveRecord::Base
   scope :bookmarked, lambda {|start_date, end_date| {:conditions => ['created_at >= ? AND created_at < ?', start_date, end_date]}}
-  scope :user_bookmarks, lambda {|user| {:conditions => {:user_id => user.id}}}
+  scope :user_bookmarks, lambda {|user| where(:user_id => user.id)}
+  scope :shared, where(:shared => true)
   belongs_to :manifestation, :class_name => 'Manifestation'
   belongs_to :user #, :counter_cache => true, :validate => true
 
-  validates_presence_of :user, :title, :url
+  validates_presence_of :user, :title
   validates_associated :user, :manifestation
   validates_uniqueness_of :manifestation_id, :scope => :user_id
-  validates_length_of :url, :maximum => 255, :allow_blank => true
+  validates :url, :url => true, :presence => true, :length => {:maximum => 255}
   #validate :get_manifestation
   before_validation :create_manifestation, :on => :create
-  before_validation :set_url
   validate :bookmarkable_url?
   before_save :replace_space_in_tags
   after_create :create_frbr_object
   after_save :save_manifestation
   after_destroy :reindex_manifestation
+  attr_protected :user
 
   acts_as_taggable_on :tags
   normalize_attributes :url
@@ -35,16 +36,11 @@ class Bookmark < ActiveRecord::Base
     integer :manifestation_id
     time :created_at
     time :updated_at
+    boolean :shared
   end
 
   def self.per_page
     10
-  end
-
-  def set_url
-    self.url = URI.parse(self.url).normalize.to_s
-  rescue URI::InvalidURIError
-    nil
   end
 
   def replace_space_in_tags
@@ -87,12 +83,14 @@ class Bookmark < ActiveRecord::Base
 
   def self.get_title_from_url(url)
     return if url.blank?
+    return unless Addressable::URI.parse(url).host
     if manifestation_id = url.bookmarkable_id
       manifestation = Manifestation.find(manifestation_id)
       return manifestation.original_title
     end
     unless manifestation
-      doc = Nokogiri::HTML(open(url))
+      normalized_url = Addressable::URI.parse(url).normalize.to_s
+      doc = Nokogiri::HTML(open(normalized_url))
       # TODO: 日本語以外
       #charsets = ['iso-2022-jp', 'euc-jp', 'shift_jis', 'iso-8859-1']
       #if charsets.include?(page.charset.downcase)
@@ -115,7 +113,7 @@ class Bookmark < ActiveRecord::Base
     doc = Nokogiri::HTML(open(url))
     canonical_url = doc.search("/html/head/link[@rel='canonical']").first['href']
     # TODO: URLを相対指定している時
-    URI.parse(canonical_url).normalize.to_s
+    Addressable::URI.parse(canonical_url).normalize.to_s
   rescue
     nil
   end
@@ -140,7 +138,7 @@ class Bookmark < ActiveRecord::Base
       manifestation = self.my_host_resource
     else
       if LibraryGroup.site_config.allow_bookmark_external_url
-        manifestation = Manifestation.first(:conditions => {:access_address => self.url}) if self.url.present?
+        manifestation = Manifestation.where(:access_address => self.url).first if self.url.present?
       end
     end
     manifestation
@@ -150,7 +148,7 @@ class Bookmark < ActiveRecord::Base
     manifestation = get_manifestation
     unless manifestation
       manifestation = Manifestation.new(:access_address => url)
-      manifestation.carrier_type = CarrierType.first(:conditions => {:name => 'file'})
+      manifestation.carrier_type = CarrierType.where(:name => 'file').first
     end
     # OTC start
     # get_manifestationで自館のmanifestation以外ならば例外とし登録させないよう修正した。
@@ -178,9 +176,8 @@ class Bookmark < ActiveRecord::Base
   end
 
   def create_bookmark_item
-    circulation_status = CirculationStatus.first(:conditions => {:name => 'Not Available'})
-    item = Item.new(:shelf => Shelf.web, :circulation_status => circulation_status)
-    manifestation.items << item
+    circulation_status = CirculationStatus.where(:name => 'Not Available').first
+    item = Item.create!(:shelf => Shelf.web, :circulation_status => circulation_status, :manifestation => manifestation)
   end
 
   def self.manifestations_count(start_date, end_date, manifestation)

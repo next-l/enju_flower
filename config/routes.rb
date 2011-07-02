@@ -1,7 +1,7 @@
 EnjuFlower::Application.routes.draw do
   devise_for :users, :path => 'accounts'
 
-  resources :patrons do
+  resources :patrons, :only => [:index, :show] do
     resources :manifestations
     resources :works, :controller => 'manifestations'
     resources :expressions, :controller => 'manifestations'
@@ -20,7 +20,7 @@ EnjuFlower::Application.routes.draw do
     resources :manifestations
   end
   
-  resources :manifestations do
+  resources :manifestations, :only => [:index, :show, :edit] do
     resources :manifestations
     resources :picture_files
     resources :patrons
@@ -34,6 +34,11 @@ EnjuFlower::Application.routes.draw do
   end
 
   resources :expressions, :controller => 'manifestations' do
+    resources :patrons
+  end
+
+  resources :items do
+    resources :lending_policies
     resources :patrons
   end
 
@@ -65,6 +70,8 @@ EnjuFlower::Application.routes.draw do
   resources :events
   resources :checkout_types
   resources :circulation_statuses
+  resources :picture_files
+  resources :lending_policies
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

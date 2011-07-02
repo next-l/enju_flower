@@ -6,12 +6,16 @@ class ApplicationController < ActionController::Base
 
   rescue_from CanCan::AccessDenied, :with => :render_403
   rescue_from ActiveRecord::RecordNotFound, :with => :render_404
+  rescue_from Errno::ECONNREFUSED, :with => :render_500
+  rescue_from RSolr::RequestError, :with => :render_500
+  rescue_from ActionView::MissingTemplate, :with => :render_404_invalid_format
 
   before_filter :get_library_group, :set_locale, :set_available_languages, :prepare_for_mobile
   helper_method :mobile_device?
 
   private
   def render_403
+    return if performed?
     if user_signed_in?
       respond_to do |format|
         format.html {render :template => 'page/403', :status => 403}
@@ -28,10 +32,25 @@ class ApplicationController < ActionController::Base
   end
 
   def render_404
+    return if performed?
     respond_to do |format|
       format.html {render :template => 'page/404', :status => 404}
       format.mobile {render :template => 'page/404', :status => 404}
       format.xml {render :template => 'page/404', :status => 404}
+    end
+  end
+
+  def render_404_invalid_format
+    return if performed?
+    render :file => "#{Rails.root}/public/404.html"
+  end
+
+  def render_500
+    return if performed?
+    #flash[:notice] = t('page.connection_failed')
+    respond_to do |format|
+      format.html {render :file => "#{Rails.root.to_s}/public/500.html", :layout => false, :status => 500}
+      format.mobile {render :file => "#{Rails.root.to_s}/public/500.html", :layout => false, :status => 500}
     end
   end
 
@@ -64,7 +83,14 @@ class ApplicationController < ActionController::Base
   end
 
   def set_available_languages
-    @available_languages = Language.available_languages
+    if Rails.env == 'production'
+      @available_languages = Rails.cache.fetch('available_languages'){
+        Language.where(:iso_639_1 => I18n.available_locales.map{|l| l.to_s}).select([:id, :iso_639_1, :name, :native_name, :display_name, :position]).all
+      }
+    else
+      @available_languages = Language.where(:iso_639_1 => I18n.available_locales.map{|l| l.to_s})
+    end
+    @selectable_languages = @available_languages - Language.where(:iso_639_1 => @locale.to_s)
   end
 
   def reset_params_session
@@ -134,11 +160,11 @@ class ApplicationController < ActionController::Base
     @user = User.where(:username => params[:user_id]).first if params[:user_id]
     #authorize! :show, @user if @user
   end
-  
+
   def get_user_group
     @user_group = UserGroup.find(params[:user_group_id]) if params[:user_group_id]
   end
-                    
+
   def get_library
     @library = Library.find(params[:library_id]) if params[:library_id]
   end
@@ -201,8 +227,6 @@ class ApplicationController < ActionController::Base
   end
 
   def convert_charset
-    #if params[:format] == 'ics'
-    #  response.body = NKF::nkf('-w -Lw', response.body)
     case params[:format]
     when 'csv'
       return unless configatron.csv_charset_conversion
@@ -258,7 +282,7 @@ class ApplicationController < ActionController::Base
   end
 
   def store_location
-    if request.get? and request.format.html? and !request.xhr?
+    if request.get? and request.format.try(:html?) and !request.xhr?
       session[:user_return_to] = request.fullpath
     end
   end
@@ -277,7 +301,7 @@ class ApplicationController < ActionController::Base
     unless params[:mode] == "add"
       expression = @expression
       patron = @patron
-      resource = @resource
+      manifestation = @manifestation
       reservable = @reservable
       carrier_type = params[:carrier_type]
       library = params[:library]
@@ -288,7 +312,7 @@ class ApplicationController < ActionController::Base
 
       search.build do
         with(:publisher_ids).equal_to patron.id if patron
-        with(:original_resource_ids).equal_to resource.id if resource
+        with(:original_manifestation_ids).equal_to manifestation.id if manifestation
         with(:reservable).equal_to reservable unless reservable.nil?
         unless carrier_type.blank?
           with(:carrier_type).equal_to carrier_type
@@ -339,17 +363,8 @@ class ApplicationController < ActionController::Base
     @current_ability ||= Ability.new(current_user, request.remote_ip)
   end
 
-  def mobile_device?
-    if session[:mobile_param]
-      session[:mobile_param] == "1"
-    else
-      request.user_agent =~ /Mobile|webOS/
-    end
-  end
-
   def prepare_for_mobile
-    session[:mobile_param] = params[:mobile] if params[:mobile]
-    request.format = :mobile if mobile_device?
+    request.format = :mobile if request.smart_phone?
   end
 end
 

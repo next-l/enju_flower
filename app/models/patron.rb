@@ -23,16 +23,26 @@ class Patron < ActiveRecord::Base
   belongs_to :required_role, :class_name => 'Role', :foreign_key => 'required_role_id', :validate => true
   belongs_to :language
   belongs_to :country
-  #has_one :patron_import_result
+  has_one :patron_import_result
 
-  validates_presence_of :full_name, :language, :patron_type, :country
+  validates_presence_of :language, :patron_type, :country
   validates_associated :language, :patron_type, :country
-  validates_length_of :full_name, :maximum => 255
-  validates_uniqueness_of :user_id, :allow_nil => true
+  validates :full_name, :presence => true, :length => {:maximum => 255}
+  validates :user_id, :uniqueness => true, :allow_nil => true
+  validates :birth_date, :format => {:with => /^\d+(-\d{0,2}){0,2}$/}, :allow_blank => true
+  validates :death_date, :format => {:with => /^\d+(-\d{0,2}){0,2}$/}, :allow_blank => true
+  validates :email, :format => {:with => /^([\w\.%\+\-]+)@([\w\-]+\.)+([\w]{2,})$/i}, :allow_blank => true
+  validate :check_birth_date
   before_validation :set_role_and_name, :on => :create
+  before_save :set_date_of_birth, :set_date_of_death
 
   has_paper_trail
   attr_accessor :user_username
+  #[:address_1, :address_2].each do |column|
+  #  encrypt_with_public_key column,
+  #    :key_pair => File.join(Rails.root.to_s,'config','keypair.pem'),
+  #    :base64 => true
+  #end
 
   searchable do
     text :name, :place, :address_1, :address_2, :other_designation, :note
@@ -71,15 +81,61 @@ class Patron < ActiveRecord::Base
   def set_full_name
     if self.full_name.blank?
       if self.last_name.to_s.strip and self.first_name.to_s.strip and configatron.family_name_first == true
-        self.full_name = [last_name, middle_name, first_name].compact.join(", ").to_s.strip
+        self.full_name = [last_name, middle_name, first_name].compact.join(" ").to_s.strip
       else
-        self.full_name = [first_name, middle_name, middle_name].compact.join(" ").to_s.strip
+        self.full_name = [first_name, last_name, middle_name].compact.join(" ").to_s.strip
       end
     end
     if self.full_name_transcription.blank?
       self.full_name_transcription = [last_name_transcription, middle_name_transcription, first_name_transcription].join(" ").to_s.strip
     end
     [self.full_name, self.full_name_transcription]
+  end
+
+  def set_date_of_birth
+    return if birth_date.blank?
+    begin
+      date = Time.zone.parse("#{birth_date}")
+    rescue ArgumentError
+      begin
+        date = Time.zone.parse("#{birth_date}-01")
+      rescue ArgumentError
+        begin
+          date = Time.zone.parse("#{birth_date}-01-01")
+        rescue
+          nil
+        end
+      end
+    end
+    self.date_of_birth = date
+  end
+
+  def set_date_of_death
+    return if death_date.blank?
+    begin
+      date = Time.zone.parse("#{death_date}")
+    rescue ArgumentError
+      begin
+        date = Time.zone.parse("#{death_date}-01")
+      rescue ArgumentError
+        begin
+          date = Time.zone.parse("#{death_date}-01-01")
+        rescue
+          nil
+        end
+      end
+    end
+
+    self.date_of_death = date
+  end
+
+  def check_birth_date
+    if date_of_birth.present? and date_of_death.present?
+      if date_of_birth > date_of_death
+        errors.add(:birth_date)
+        errors.add(:death_date)
+      end
+    end
   end
 
   #def full_name_generate
@@ -135,7 +191,7 @@ class Patron < ActiveRecord::Base
     end
   end
 
-  def author?(resource)
+  def creator?(resource)
     resource.creators.include?(self)
   end
 
@@ -172,8 +228,13 @@ class Patron < ActiveRecord::Base
   def self.import_patrons(patron_lists)
     list = []
     patron_lists.each do |patron_list|
-      unless patron = Patron.where(:full_name => patron_list).first
-        patron = Patron.new(:full_name => patron_list, :language_id => 1)
+      patron = Patron.where(:full_name => patron_list[:full_name]).first
+      unless patron
+        patron = Patron.new(
+          :full_name => patron_list[:full_name],
+          :full_name_transcription => patron_list[:full_name_transcription],
+          :language_id => 1
+        )
         patron.required_role = Role.where(:name => 'Guest').first
         patron.save
       end
@@ -185,5 +246,4 @@ class Patron < ActiveRecord::Base
   def patrons
     self.original_patrons + self.derived_patrons
   end
-
 end

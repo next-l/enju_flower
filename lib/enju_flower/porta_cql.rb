@@ -17,7 +17,7 @@ class Cql
   end
 
   attr_reader :query, :from, :until, :sort_by, :logic
-  
+
   def ==(other)
     instance_variables.all? do |val|
       instance_variable_get(val) == other.instance_variable_get(val)
@@ -61,7 +61,7 @@ class Cql
     element, rest = arr.partition{|c| reg =~ c.index }
     [element.last, rest]
   end
-  
+
   def date_range(from_date, until_date)
     unless from_date == '*' and until_date == '*'
       ["date_of_publication_d:[#{from_date} TO #{until_date}]"]
@@ -69,7 +69,7 @@ class Cql
       []
     end
   end
-  
+
   def comp_date(date)
     if date
       text = date.terms[0]
@@ -139,15 +139,17 @@ class Clause
 
     if ss.scan(INDEX) or ss.scan(SORT_BY)
       index = ss[0]
-    else
-      raise ScannerError, "index or the sortBy is requested in '#{text}'"
     end
+    #else
+    #  raise ScannerError, "index or the sortBy is requested in '#{text}'"
+    #end
     ss.scan(/\s+/)
     if ss.scan(RELATION)
       relation = ss[0].upcase
-    else
-      raise ScannerError, "relation is requested in '#{text}'"
     end
+    #else
+    #  raise ScannerError, "relation is requested in '#{text}'"
+    #end
     ss.scan(/\s+/)
     if ss.scan(/.+/)
       terms = ss[0].gsub(/(\A\"|\"\Z)/, '').split
@@ -179,7 +181,7 @@ class Clause
       raise AdapterError if @terms.size > 1
     end
   end
-      
+
   def to_sunspot
     case
     when MATCH_ALL.include?(@index)
@@ -193,7 +195,7 @@ class Clause
     when MATCH_ANYWHERE.include?(@index)
       to_sunspot_match_anywhere
     when @index.empty?
-      ''
+      @terms.join(' ')
     end
   end
 
@@ -269,7 +271,7 @@ class Clause
     boolean = relation == :any ? ' OR ' : ' AND '
     "#{terms.map{|t| trim_ahead(t)}.join(boolean)}"
   end
-  
+
   def trim_ahead(term)
     term.sub(/\A\^+/,'')
   end

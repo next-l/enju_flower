@@ -385,6 +385,10 @@ input.date_field{
   ime-mode: disabled;
 }
 
+input.date_text_field{
+  width: 80px;
+}
+
 input.short_name{
   ime-mode: disabled;
 }
@@ -415,7 +419,7 @@ th.checked_item_title{
   color: red;
 }
 
-div.holding{
+div.holding_index{
   margin-top: 10px;
 }
 
@@ -500,7 +504,20 @@ p{
   line-height: 2em;
 }
 
-table#resource_detail, table#holding{
+table#resource_detail{
   background-color: white;
   width: 100%;
+}
+
+div#holding{
+  margin-top: 10px;
+}
+
+table.holding{
+  background-color: white;
+  width: 100%;
+}
+
+abbr[title="required"]{
+  color: red;
 }

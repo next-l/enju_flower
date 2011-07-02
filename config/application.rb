@@ -47,4 +47,5 @@ module EnjuFlower
   end
 end
 
+ActiveSupport::XmlMini.backend = 'Nokogiri'
 require 'enju_flower'

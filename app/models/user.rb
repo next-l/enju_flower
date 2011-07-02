@@ -41,8 +41,7 @@ class User < ActiveRecord::Base
   belongs_to :required_role, :class_name => 'Role', :foreign_key => 'required_role_id' #, :validate => true
   has_one :patron_import_result
 
-  validates_presence_of :username
-  validates_uniqueness_of :username
+  validates :username, :presence => true, :uniqueness => true
   validates_uniqueness_of :email, :scope => authentication_keys[1..-1], :case_sensitive => false, :allow_blank => true
   EMAIL_REGEX = /^([\w\.%\+\-]+)@([\w\-]+\.)+([\w]{2,})$/i
   validates_format_of     :email, :with  => EMAIL_REGEX, :allow_blank => true
@@ -61,7 +60,9 @@ class User < ActiveRecord::Base
   before_validation :set_role_and_patron, :on => :create
   before_validation :set_lock_information
   before_destroy :check_item_before_destroy, :check_role_before_destroy
-  before_save :set_expiration
+  before_save :check_expiration
+  before_create :set_expired_at
+  before_save :check_expired_at
   after_destroy :remove_from_index
   after_create :set_confirmation
   after_save :index_patron
@@ -84,7 +85,7 @@ class User < ActiveRecord::Base
     time :created_at
     time :updated_at
     boolean :active do
-      active?
+      active_for_authentication?
     end
     time :confirmed_at
   end
@@ -127,9 +128,9 @@ class User < ActiveRecord::Base
   end
 
   def set_lock_information
-    if self.locked == '1' and self.active?
+    if self.locked == '1' and self.active_for_authentication?
       lock_access!
-    elsif self.locked == '0' and !self.active?
+    elsif self.locked == '0' and !self.active_for_authentication?
       unlock_access!
     end
   end
@@ -147,11 +148,11 @@ class User < ActiveRecord::Base
     end
   end
 
-  def set_expiration
+  def check_expiration
     return if self.has_role?('Administrator')
     if expired_at
       if expired_at.beginning_of_day < Time.zone.now.beginning_of_day
-        lock_access! if self.active?
+        lock_access! if self.active_for_authentication?
       end
     end
   end
@@ -192,7 +193,7 @@ class User < ActiveRecord::Base
 
   def self.lock_expired_users
     User.find_each do |user|
-      user.lock_access! if user.expired? and user.active?
+      user.lock_access! if user.expired? and user.active_for_authentication?
     end
   end
 
@@ -219,7 +220,7 @@ class User < ActiveRecord::Base
   end
 
   def reached_reservation_limit?(manifestation)
-    return true if self.user_group.user_group_has_checkout_types.available_for_carrier_type(manifestation.carrier_type).where(:user_group_id => self.user_group.id).collect(&:reservation_limit).max <= self.reserves.waiting.size
+    return true if self.user_group.user_group_has_checkout_types.available_for_carrier_type(manifestation.carrier_type).where(:user_group_id => self.user_group.id).collect(&:reservation_limit).max.to_i <= self.reserves.waiting.size
     false
   end
 
@@ -237,7 +238,7 @@ class User < ActiveRecord::Base
   def send_message(status, options = {})
     MessageRequest.transaction do
       request = MessageRequest.new
-      request.sender = User.find('admin')
+      request.sender = User.find(1)
       request.receiver = self
       request.message_template = MessageTemplate.localized_template(status, self.locale)
       request.save_message_body(options)
@@ -266,5 +267,19 @@ class User < ActiveRecord::Base
     unless self.operator
       Devise::Mailer.confirmation_instructions(self).deliver if self.email.present?
     end
+  end
+
+  def set_expired_at
+    if self.user_group.valid_period_for_new_user > 0
+      self.expired_at = self.user_group.valid_period_for_new_user.days.from_now.end_of_day
+    end
+  end
+
+  def check_expired_at
+    if self.expire_date
+      self.expired_at = Time.zone.parse(self.expire_date).try(:end_of_day)
+    end
+  rescue
+    errors[:base] << I18n.t('page.invalid_date')
   end
 end

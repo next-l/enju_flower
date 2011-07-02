@@ -22,7 +22,7 @@ module EnjuNdl
 
       date_of_publication, language, nbn = nil, nil, nil
 
-      publishers = get_publishers(doc)
+      publishers = get_publishers(doc).zip([]).map{|f,t| {:full_name => f, :full_name_transcription => t}}
 
       # title
       title = get_title(doc)
@@ -32,7 +32,7 @@ module EnjuNdl
 
       language = get_language(doc)
       nbn = doc.at('//dc:identifier[@xsi:type="dcndl:JPNO"]').content
-      ndc = doc.at('//dc:subject[@xsi:type="dcndl:NDC"]').content
+      ndc = doc.at('//dc:subject[@xsi:type="dcndl:NDC"]').try(:content)
 
       Patron.transaction do
         publisher_patrons = Patron.import_patrons(publishers)
@@ -157,54 +157,17 @@ module EnjuNdl
       end
     end
 
-    def get_title(doc)
-      title = {
-        :manifestation => doc.xpath('//item[1]/title').collect(&:content).join(' '), #.tr('ａ-ｚＡ-Ｚ０-９　', 'a-zA-Z0-9 ').squeeze(' ')
-        :transcription => doc.xpath('//item[1]/dcndl:titleTranscription').collect(&:content).join(' '), #.tr('ａ-ｚＡ-Ｚ０-９　', 'a-zA-Z0-9 ').squeeze(' ')
-        :original => doc.xpath('//dcterms:alternative').collect(&:content).join(' ') #.tr('ａ-ｚＡ-Ｚ０-９　', 'a-zA-Z0-9 ').squeeze(' ')
-      }
-    end
-
-    def get_authors(doc)
-      authors = []
-      doc.xpath('//item[1]/dc:creator[@xsi:type="dcndl:NDLNH"]').each do |creator|
-        authors << creator.content #.tr('ａ-ｚＡ-Ｚ０-９　‖', 'a-zA-Z0-9 ')
-      end
-      return authors
-    end
-
-    def get_subjects(doc)
-      subjects = []
-      doc.xpath('//item[1]/dc:subject[@xsi:type="dcndl:NDLSH"]').each do |subject|
-        subjects << subject.content #.tr('ａ-ｚＡ-Ｚ０-９　‖', 'a-zA-Z0-9 ')
-      end
-      return subjects
-    end
-
-    def get_language(doc)
-      # TODO: 言語が複数ある場合
-      language = doc.xpath('//item[1]/dc:language[@xsi:type="dcterms:ISO639-2"]').first.content.downcase
-    end
-
-    def get_publishers(doc)
-      publishers = []
-      doc.xpath('//item[1]/dc:publisher').each do |publisher|
-        publishers << publisher.content #.tr('ａ-ｚＡ-Ｚ０-９　‖', 'a-zA-Z0-9 ')
-      end
-      return publishers
-    end
-  
     def create_frbr_instance(doc, manifestation)
       title = get_title(doc)
-      authors = get_authors(doc)
+      creators = get_creators(doc).zip([]).map{|f,t| {:full_name => f, :full_name_transcription => t}}
       language = get_language(doc)
       subjects = get_subjects(doc)
 
       Patron.transaction do
-        author_patrons = Patron.import_patrons(authors)
+        creator_patrons = Patron.import_patrons(creators)
         language_id = Language.first(:conditions => {:iso_639_2 => language}).id rescue 1
         content_type_id = ContentType.first(:conditions => {:name => 'text'}).id rescue 1
-        manifestation.creators << author_patrons
+        manifestation.creators << creator_patrons
         subjects.each do |term|
           subject = Subject.first(:conditions => {:term => term})
           manifestation.subjects << subject if subject
@@ -245,6 +208,44 @@ module EnjuNdl
         end
       end
       Sunspot.commit
+    end
+
+    private
+    def get_title(doc)
+      title = {
+        :manifestation => doc.xpath('//item[1]/title').collect(&:content).join(' '), #.tr('ａ-ｚＡ-Ｚ０-９　', 'a-zA-Z0-9 ').squeeze(' ')
+        :transcription => doc.xpath('//item[1]/dcndl:titleTranscription').collect(&:content).join(' '), #.tr('ａ-ｚＡ-Ｚ０-９　', 'a-zA-Z0-9 ').squeeze(' ')
+        :original => doc.xpath('//dcterms:alternative').collect(&:content).join(' ') #.tr('ａ-ｚＡ-Ｚ０-９　', 'a-zA-Z0-9 ').squeeze(' ')
+      }
+    end
+
+    def get_creators(doc)
+      creators = []
+      doc.xpath('//item[1]/dc:creator[@xsi:type="dcndl:NDLNH"]').each do |creator|
+        creators << creator.content #.tr('ａ-ｚＡ-Ｚ０-９　‖', 'a-zA-Z0-9 ')
+      end
+      return creators
+    end
+
+    def get_subjects(doc)
+      subjects = []
+      doc.xpath('//item[1]/dc:subject[@xsi:type="dcndl:NDLSH"]').each do |subject|
+        subjects << subject.content #.tr('ａ-ｚＡ-Ｚ０-９　‖', 'a-zA-Z0-9 ')
+      end
+      return subjects
+    end
+
+    def get_language(doc)
+      # TODO: 言語が複数ある場合
+      language = doc.xpath('//item[1]/dc:language[@xsi:type="dcterms:ISO639-2"]').first.content.downcase
+    end
+
+    def get_publishers(doc)
+      publishers = []
+      doc.xpath('//item[1]/dc:publisher').each do |publisher|
+        publishers << publisher.content #.tr('ａ-ｚＡ-Ｚ０-９　‖', 'a-zA-Z0-9 ')
+      end
+      return publishers
     end
   end
 

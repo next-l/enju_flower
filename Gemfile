@@ -1,6 +1,6 @@
 source 'http://rubygems.org'
 
-gem 'rails', '3.0.8.rc4'
+gem 'rails', '3.0.9'
 
 # Bundle edge Rails instead:
 # gem 'rails', :git => 'git://github.com/rails/rails.git'
@@ -41,24 +41,22 @@ gem 'inherited_resources'
 gem 'has_scope'
 gem 'nokogiri'
 gem 'marc'
-gem 'strongbox', '>=0.4.6'
+gem 'strongbox', '>=0.4.7'
 gem 'acts-as-taggable-on'
 gem 'dalli'
-gem 'sitemap_generator', '>=1.5.2'
+gem 'sitemap_generator', '>=2.0.1'
 gem 'ri_cal'
 gem 'file_wrapper'
-gem 'paper_trail', '>=2.2.4'
 gem 'recurrence'
 gem 'prism'
-gem 'money'
-gem 'RedCloth', '>=4.2.7'
+gem 'paper_trail', '>=2.2.5'
 gem 'isbn-tools', :git => 'git://github.com/nabeta/isbn-tools.git', :require => 'isbn/tools'
 gem 'attribute_normalizer'
 gem 'configatron'
 gem 'extractcontent'
 gem 'cancan', '>=1.6.5'
 gem 'scribd_fu'
-gem 'devise', '>=1.3.4'
+gem 'devise', '>=1.4.2'
 gem 'omniauth'
 gem 'paperclip'
 gem 'whenever', :require => false
@@ -75,10 +73,9 @@ gem 'jpmobile', '>=1.0.0.pre.4'
 #gem 'geokit'
 gem 'geocoder'
 gem 'acts_as_list', :git => 'git://github.com/haihappen/acts_as_list.git'
-gem 'library_stdnums'
-gem 'client_side_validations'
 
-#gem 'oink', '>=0.9.1'
+gem 'oink', '>=0.9.2'
+
 group :development do
   gem 'parallel_tests'
   gem 'jquery-rails'
@@ -89,7 +86,7 @@ group :development, :test do
   gem 'rspec-rails'
   gem 'guard-rspec'
   gem 'factory_girl_rails'
-  gem 'spork', '~> 0.9.0.rc5'
+  gem 'spork', '~> 0.9.0.rc9'
   gem 'metric_fu'
 end
 
