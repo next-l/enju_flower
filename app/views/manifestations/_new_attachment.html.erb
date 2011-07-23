@@ -1,8 +1,8 @@
 <div id="content_detail" class="ui-corner-all">
-<h1 class="title"><%= t('page.new', :model => t('activerecord.models.resource')) -%></h1>
+<h1 class="title"><%= t('page.new', :model => t('activerecord.models.manifestation')) -%></h1>
 <div id="content_list">
 
-<%= form_for(manifestation, :html => { :multipart => true, :method => :post }) do |f| -%>
+<%= form_for(manifestation, :url => manifestations_path(:mode => 'attachment'), :html => { :multipart => true, :method => :post }) do |f| -%>
   <%= f.error_messages -%>
   <p>
     <%= f.label t('page.file') -%><br />

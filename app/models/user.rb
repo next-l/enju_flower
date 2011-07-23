@@ -43,8 +43,8 @@ class User < ActiveRecord::Base
 
   validates :username, :presence => true, :uniqueness => true
   validates_uniqueness_of :email, :scope => authentication_keys[1..-1], :case_sensitive => false, :allow_blank => true
-  EMAIL_REGEX = /^([\w\.%\+\-]+)@([\w\-]+\.)+([\w]{2,})$/i
-  validates_format_of     :email, :with  => EMAIL_REGEX, :allow_blank => true
+  validates :email, :format => {:with => /\A([\w\.%\+\-]+)@([\w\-]+\.)+([\w]{2,})\z/i}, :allow_blank => true
+  validates_date :expired_at, :allow_blank => true
 
   with_options :if => :password_required? do |v|
     v.validates_presence_of     :password
@@ -55,14 +55,13 @@ class User < ActiveRecord::Base
   validates_presence_of     :email, :email_confirmation, :on => :create, :if => proc{|user| !user.operator.try(:has_role?, 'Librarian')}
   validates_associated :patron, :user_group, :library
   validates_presence_of :user_group, :library, :locale #, :user_number
-  validates_uniqueness_of :user_number, :with=>/\A[0-9A-Za-z_]+\Z/, :allow_blank => true
+  validates :user_number, :uniqueness => true, :format => {:with => /\A[0-9A-Za-z_]+\Z/}, :allow_blank => true
   validates_confirmation_of :email, :email_confirmation, :on => :create, :if => proc{|user| !user.operator.try(:has_role?, 'Librarian')}
   before_validation :set_role_and_patron, :on => :create
   before_validation :set_lock_information
   before_destroy :check_item_before_destroy, :check_role_before_destroy
   before_save :check_expiration
   before_create :set_expired_at
-  before_save :check_expired_at
   after_destroy :remove_from_index
   after_create :set_confirmation
   after_save :index_patron
@@ -95,7 +94,7 @@ class User < ActiveRecord::Base
     :last_name_transcription, :full_name_transcription,
     :zip_code, :address, :telephone_number, :fax_number, :address_note,
     :role_id, :patron_id, :operator, :password_not_verified,
-    :update_own_account, :auto_generated_password, :current_password,
+    :update_own_account, :auto_generated_password,
     :locked
 
   def self.per_page
@@ -273,13 +272,5 @@ class User < ActiveRecord::Base
     if self.user_group.valid_period_for_new_user > 0
       self.expired_at = self.user_group.valid_period_for_new_user.days.from_now.end_of_day
     end
-  end
-
-  def check_expired_at
-    if self.expire_date
-      self.expired_at = Time.zone.parse(self.expire_date).try(:end_of_day)
-    end
-  rescue
-    errors[:base] << I18n.t('page.invalid_date')
   end
 end
