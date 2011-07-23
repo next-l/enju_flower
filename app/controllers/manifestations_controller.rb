@@ -109,6 +109,7 @@ class ManifestationsController < ApplicationController
       unless params[:mode] == 'add'
         manifestation = @manifestation if @manifestation
         subject = @subject if @subject
+        series_statement = @series_statement if @series_statement
         search.build do
           with(:creator_ids).equal_to patron[:creator].id if patron[:creator]
           with(:contributor_ids).equal_to patron[:contributor].id if patron[:contributor]
@@ -122,6 +123,12 @@ class ManifestationsController < ApplicationController
         order_by sort[:sort_by], sort[:order] unless oai_search
         order_by :updated_at, :desc if oai_search
         with(:subject_ids).equal_to subject.id if subject
+        if series_statement
+          with(:series_statement_id).equal_to series_statement.id
+          with(:periodical).equal_to true
+        else
+          with(:periodical).equal_to false
+        end
         facet :reservable
       end
       search = make_internal_query(search)
@@ -136,7 +143,11 @@ class ManifestationsController < ApplicationController
         :issue_number_list,
         :serial_number_list,
         :date_of_publication,
-        :pub_date
+        :pub_date,
+        :series_statement_id,
+        :periodical_master,
+        :language_id,
+        :carrier_type_id
       ] if params[:format] == 'html' or params[:format].nil?
       all_result = search.execute
       @count[:query_result] = all_result.total
@@ -161,9 +172,9 @@ class ManifestationsController < ApplicationController
       end
 
       if session[:manifestation_ids]
-        bookmark_ids = Bookmark.where(:manifestation_id => session[:manifestation_ids]).limit(1000).select(:id).collect(&:id)
-        @tags = Tag.bookmarked(bookmark_ids)
         if params[:view] == 'tag_cloud'
+          bookmark_ids = Bookmark.where(:manifestation_id => session[:manifestation_ids]).limit(1000).select(:id).collect(&:id)
+          @tags = Tag.bookmarked(bookmark_ids)
           render :partial => 'manifestations/tag_cloud'
           #session[:manifestation_ids] = nil
           return
@@ -241,12 +252,6 @@ class ManifestationsController < ApplicationController
       format.mods
       format.json { render :json => @manifestations }
       format.js
-      format.pdf {
-        prawnto :prawn => {
-          :page_layout => :landscape,
-          :page_size => "A4"},
-          :inline => true
-      }
     end
   #rescue QueryError => e
   #  render :template => 'manifestations/error.xml', :layout => false
@@ -286,8 +291,13 @@ class ManifestationsController < ApplicationController
 
     return if render_mode(params[:mode])
 
-    @reserved_count = Reserve.waiting.count(:all, :conditions => {:manifestation_id => @manifestation.id, :checked_out_at => nil})
+    @reserved_count = Reserve.waiting.where(:manifestation_id => @manifestation.id, :checked_out_at => nil).count
     @reserve = current_user.reserves.where(:manifestation_id => @manifestation.id).first if user_signed_in?
+
+    if @manifestation.periodical_master?
+      redirect_to series_statement_manifestations_url(@manifestation.series_statement)
+      return
+    end
 
     store_location
 
@@ -316,13 +326,7 @@ class ManifestationsController < ApplicationController
       format.json { render :json => @manifestation }
       #format.atom { render :template => 'manifestations/oai_ore' }
       #format.xml  { render :action => 'mods', :layout => false }
-      format.js
-      format.pdf {
-        prawnto :prawn => {
-          :page_layout => :portrait,
-          :page_size => "A4"},
-          :inline => true
-      }
+      #format.js
       format.download {
         if @manifestation.attachment.path
           if configatron.uploaded_file.storage == :s3
@@ -517,30 +521,8 @@ class ManifestationsController < ApplicationController
       query = "#{query} number_of_pages_i: [#{number_of_pages[:at_least]} TO #{number_of_pages[:at_most]}]"
     end
 
-    unless options[:pubdate_from].blank? and options[:pubdate_to].blank?
-      options[:pubdate_from].to_s.gsub!(/\D/, '')
-      options[:pubdate_to].to_s.gsub!(/\D/, '')
-
-      pubdate = {}
-      if options[:pubdate_from].blank?
-        pubdate[:from] = "*"
-      else
-        pubdate[:from] = Time.zone.parse(options[:pubdate_from]).beginning_of_day.utc.iso8601 rescue nil
-        unless pubdate[:from]
-          pubdate[:from] = Time.zone.parse(Time.mktime(options[:pubdate_from]).to_s).beginning_of_day.utc.iso8601
-        end
-      end
-
-      if options[:pubdate_to].blank?
-        pubdate[:to] = "*"
-      else
-        pubdate[:to] = Time.zone.parse(options[:pubdate_to]).beginning_of_day.utc.iso8601 rescue nil
-        unless pubdate[:to]
-          pubdate[:to] = Time.zone.parse(Time.mktime(options[:pubdate_to]).to_s).beginning_of_day.utc.iso8601
-        end
-      end
-      query = "#{query} date_of_publication_d: [#{pubdate[:from]} TO #{pubdate[:to]}]"
-    end
+    query = set_pubdate(query, options)
+    query = set_acquisition_date(query, options)
 
     query = query.strip
     if query == '[* TO *]'
@@ -651,5 +633,61 @@ class ManifestationsController < ApplicationController
     else
       @reservable = nil
     end
+  end
+
+  def set_pubdate(query, options)
+    unless options[:pubdate_from].blank? and options[:pubdate_to].blank?
+      options[:pubdate_from].to_s.gsub!(/\D/, '')
+      options[:pubdate_to].to_s.gsub!(/\D/, '')
+
+      pubdate = {}
+      if options[:pubdate_from].blank?
+        pubdate[:from] = "*"
+      else
+        pubdate[:from] = Time.zone.parse(options[:pubdate_from]).beginning_of_day.utc.iso8601 rescue nil
+        unless pubdate[:from]
+          pubdate[:from] = Time.zone.parse(Time.mktime(options[:pubdate_from]).to_s).beginning_of_day.utc.iso8601
+        end
+      end
+
+      if options[:pubdate_to].blank?
+        pubdate[:to] = "*"
+      else
+        pubdate[:to] = Time.zone.parse(options[:pubdate_to]).beginning_of_day.utc.iso8601 rescue nil
+        unless pubdate[:to]
+          pubdate[:to] = Time.zone.parse(Time.mktime(options[:pubdate_to]).to_s).beginning_of_day.utc.iso8601
+        end
+      end
+      query = "#{query} date_of_publication_d: [#{pubdate[:from]} TO #{pubdate[:to]}]"
+    end
+    query
+  end
+
+  def set_acquisition_date(query, options)
+    unless options[:acquired_from].blank? and options[:acquired_to].blank?
+      options[:acquired_from].to_s.gsub!(/\D/, '')
+      options[:acquired_to].to_s.gsub!(/\D/, '')
+
+      acquisition_date = {}
+      if options[:acquired_from].blank?
+        acquisition_date[:from] = "*"
+      else
+        acquisition_date[:from] = Time.zone.parse(options[:acquired_from]).beginning_of_day.utc.iso8601 rescue nil
+        unless acquisition_date[:from]
+          acquisition_date[:from] = Time.zone.parse(Time.mktime(options[:acquired_from]).to_s).beginning_of_day.utc.iso8601
+        end
+      end
+
+      if options[:acquired_to].blank?
+        acquisition_date[:to] = "*"
+      else
+        acquisition_date[:to] = Time.zone.parse(options[:acquired_to]).beginning_of_day.utc.iso8601 rescue nil
+        unless acquisition_date[:to]
+          acquisition_date[:to] = Time.zone.parse(Time.mktime(options[:acquired_to]).to_s).beginning_of_day.utc.iso8601
+        end
+      end
+      query = "#{query} acquired_at_d: [#{acquisition_date[:from]} TO #{acquisition_date[:to]}]"
+    end
+    query
   end
 end
