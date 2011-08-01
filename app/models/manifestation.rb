@@ -1,5 +1,6 @@
 class Manifestation < ActiveRecord::Base
   scope :periodical_master, where(:periodical_master => true)
+  scope :periodical_children, where(:periodical_master => false)
   has_many :creates, :dependent => :destroy, :foreign_key => 'work_id'
   has_many :creators, :through => :creates, :source => :patron
   has_many :realizes, :dependent => :destroy, :foreign_key => 'expression_id'
@@ -190,6 +191,7 @@ class Manifestation < ActiveRecord::Base
   before_validation :set_wrong_isbn, :check_issn, :check_lccn, :if => :during_import
   before_validation :convert_isbn
   before_create :set_digest
+  after_create :clear_cached_numdocs
   before_save :set_date_of_publication
   normalize_attributes :identifier, :pub_date, :isbn, :issn, :nbn, :lccn, :original_title
   attr_accessor :during_import
