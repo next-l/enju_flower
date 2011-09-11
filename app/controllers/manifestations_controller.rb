@@ -144,10 +144,10 @@ class ManifestationsController < ApplicationController
         :serial_number_list,
         :date_of_publication,
         :pub_date,
-        :series_statement_id,
         :periodical_master,
         :language_id,
-        :carrier_type_id
+        :carrier_type_id,
+        :created_at
       ] if params[:format] == 'html' or params[:format].nil?
       all_result = search.execute
       @count[:query_result] = all_result.total
@@ -182,6 +182,7 @@ class ManifestationsController < ApplicationController
       end
 
       page ||= params[:page] || 1
+      per_page ||= Manifestation.per_page
       if params[:format] == 'sru'
         search.query.start_record(params[:startRecord] || 1, params[:maximumRecords] || 200)
       else
@@ -191,12 +192,18 @@ class ManifestationsController < ApplicationController
           facet :library
           facet :language
           facet :subject_ids
-          paginate :page => page.to_i, :per_page => per_page || Manifestation.per_page
+          paginate :page => page.to_i, :per_page => per_page
         end
       end
       search_result = search.execute
-      @manifestations = search_result.results
-      @manifestations.total_entries = configatron.max_number_of_results if @count[:query_result] > configatron.max_number_of_results
+      if @count[:query_result] > configatron.max_number_of_results
+        max_count = configatron.max_number_of_results
+      else
+        max_count = @count[:query_result]
+      end
+      @manifestations = WillPaginate::Collection.create(page, per_page, max_count) do |pager|
+        pager.replace(search_result.results)
+      end
       get_libraries
 
       if params[:format].blank? or params[:format] == 'html'
@@ -282,7 +289,7 @@ class ManifestationsController < ApplicationController
       if user_signed_in?
         Notifier.delay.manifestation_info(current_user, @manifestation)
         flash[:notice] = t('page.sent_email')
-        redirect_to manifestation_url(@manifestation)
+        redirect_to @manifestation
         return
       else
         access_denied; return
@@ -576,11 +583,6 @@ class ManifestationsController < ApplicationController
       render :partial => 'manifestations/show_creators', :locals => {:manifestation => @manifestation}
     when 'pickup'
       render :partial => 'manifestations/pickup', :locals => {:manifestation => @manifestation}
-    when 'screen_shot'
-      if @manifestation.screen_shot
-        mime = FileWrapper.get_mime(@manifestation.screen_shot.path)
-        send_file @manifestation.screen_shot.path, :type => mime, :disposition => 'inline'
-      end
     when 'calil_list'
       render :partial => 'manifestations/calil_list', :locals => {:manifestation => @manifestation}
     else

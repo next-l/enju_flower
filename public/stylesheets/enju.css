@@ -389,6 +389,10 @@ input.date_text_field{
   width: 80px;
 }
 
+input.wide_date_text_field{
+  width: 160px;
+}
+
 input.short_name{
   ime-mode: disabled;
 }
@@ -520,4 +524,9 @@ table.holding{
 
 abbr[title="required"]{
   color: red;
+}
+
+div.book_jacket{
+  text-align: center;
+  width: 190px;
 }

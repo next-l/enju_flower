@@ -7,7 +7,7 @@ class ApplicationController < ActionController::Base
   rescue_from CanCan::AccessDenied, :with => :render_403
   rescue_from ActiveRecord::RecordNotFound, :with => :render_404
   rescue_from Errno::ECONNREFUSED, :with => :render_500
-  rescue_from RSolr::RequestError, :with => :render_500
+  rescue_from RSolr::Error::Http, :with => :render_500_solr
   rescue_from ActionView::MissingTemplate, :with => :render_404_invalid_format
 
   before_filter :get_library_group, :set_locale, :set_available_languages, :prepare_for_mobile
@@ -54,6 +54,16 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  def render_500_solr
+    return if performed?
+    #flash[:notice] = t('page.connection_failed')
+    respond_to do |format|
+      format.html {render :template => 'page/500', :status => 500}
+      format.mobile {render :template => 'page/500', :status => 500}
+      format.xml {render :template => 'page/500', :status => 500}
+    end
+  end
+
   def get_library_group
     @library_group = LibraryGroup.site_config
   end
@@ -90,7 +100,6 @@ class ApplicationController < ActionController::Base
     else
       @available_languages = Language.where(:iso_639_1 => I18n.available_locales.map{|l| l.to_s})
     end
-    @selectable_languages = @available_languages - Language.where(:iso_639_1 => @locale.to_s)
   end
 
   def reset_params_session
@@ -231,12 +240,12 @@ class ApplicationController < ActionController::Base
     when 'csv'
       return unless configatron.csv_charset_conversion
       # TODO: 他の言語
-      if @locale == 'ja'
+      if @locale.to_sym == :ja
         headers["Content-Type"] = "text/csv; charset=Shift_JIS"
         response.body = NKF::nkf('-Ws', response.body)
       end
     when 'xml'
-      if @locale == 'ja'
+      if @locale.to_sym == :ja
         headers["Content-Type"] = "application/xml; charset=Shift_JIS"
         response.body = NKF::nkf('-Ws', response.body)
       end

@@ -40,7 +40,7 @@ module EnjuFlower
     config.filter_parameters += [:password]
 
     #config.middleware.use '::ExceptionNotifier',
-    #  :email_prefix => "[Whatever] ",
+    #  :email_prefix => "[EnjuLeaf] ",
     #  :sender_address => %{"notifier" <notifier@example.com>},
     #  :exception_recipients => %w{exceptions@example.com}
     #config.middleware.use "Oink::Middleware"
@@ -49,4 +49,4 @@ module EnjuFlower
 end
 
 ActiveSupport::XmlMini.backend = 'Nokogiri'
-require 'enju_flower'
+require 'enju_leaf'
