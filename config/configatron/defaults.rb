@@ -8,8 +8,6 @@
 
 configatron.enju.web_hostname = 'localhost'
 configatron.enju.web_port_number = 3000
-configatron.enju.leaf_hostname = 'leaf.example.jp'
-configatron.enju.leaf_port_number = 80
 
 # パトロンの名前を入力する際、姓を先に表示する
 configatron.family_name_first = true
@@ -22,3 +20,9 @@ configatron.csv_charset_conversion = true
 #AMAZON_AWS_HOSTNAME = 'ecs.amazonaws.com'
 configatron.amazon.aws_hostname = 'ecs.amazonaws.jp'
 configatron.amazon.hostname = 'www.amazon.co.jp'
+
+# :google, :amazon
+configatron.book_jacket.source = :google
+
+# :mozshot, :simpleapi, :heartrails, :thumbalizr
+configatron.screenshot.generator = :mozshot

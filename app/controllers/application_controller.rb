@@ -2,11 +2,11 @@
 class ApplicationController < ActionController::Base
   protect_from_forgery
 
-  rescue_from CanCan::AccessDenied, :with => :render_403
-  rescue_from ActiveRecord::RecordNotFound, :with => :render_404
-  rescue_from Errno::ECONNREFUSED, :with => :render_500
-  rescue_from RSolr::Error::Http, :with => :render_500_solr
-  rescue_from ActionView::MissingTemplate, :with => :render_404_invalid_format
+  #rescue_from CanCan::AccessDenied, :with => :render_403
+  #rescue_from ActiveRecord::RecordNotFound, :with => :render_404
+  #rescue_from Errno::ECONNREFUSED, :with => :render_500
+  #rescue_from ActionView::MissingTemplate, :with => :render_404_invalid_format
+  #rescue_from ActionController::RoutingError, :with => :render_404
 
   before_filter :get_library_group, :set_locale, :set_available_languages, :prepare_for_mobile
   helper_method :mobile_device?
@@ -19,12 +19,14 @@ class ApplicationController < ActionController::Base
         format.html {render :template => 'page/403', :status => 403}
         format.mobile {render :template => 'page/403', :status => 403}
         format.xml {render :template => 'page/403', :status => 403}
+        format.json
       end
     else
       respond_to do |format|
         format.html {redirect_to new_user_session_url}
         format.mobile {redirect_to new_user_session_url}
         format.xml {render :template => 'page/403', :status => 403}
+        format.json
       end
     end
   end
@@ -35,6 +37,7 @@ class ApplicationController < ActionController::Base
       format.html {render :template => 'page/404', :status => 404}
       format.mobile {render :template => 'page/404', :status => 404}
       format.xml {render :template => 'page/404', :status => 404}
+      format.json
     end
   end
 
@@ -44,21 +47,14 @@ class ApplicationController < ActionController::Base
   end
 
   def render_500
+    Rails.logger.fatal("please confirm that the Solr is running.")
     return if performed?
     #flash[:notice] = t('page.connection_failed')
     respond_to do |format|
       format.html {render :file => "#{Rails.root.to_s}/public/500.html", :layout => false, :status => 500}
       format.mobile {render :file => "#{Rails.root.to_s}/public/500.html", :layout => false, :status => 500}
-    end
-  end
-
-  def render_500_solr
-    return if performed?
-    #flash[:notice] = t('page.connection_failed')
-    respond_to do |format|
-      format.html {render :template => 'page/500', :status => 500}
-      format.mobile {render :template => 'page/500', :status => 500}
       format.xml {render :template => 'page/500', :status => 500}
+      format.json
     end
   end
 
@@ -73,7 +69,7 @@ class ApplicationController < ActionController::Base
       end
     end
     if user_signed_in?
-      locale = params[:locale] || session[:locale] || current_user.locale.to_sym
+      locale = params[:locale] || session[:locale] || current_user.locale.try(:to_sym)
     else
       locale = params[:locale] || session[:locale]
     end
@@ -145,14 +141,6 @@ class ApplicationController < ActionController::Base
     @shelf = Shelf.find(params[:shelf_id], :include => :library) if params[:shelf_id]
   end
 
-  def get_basket
-    @basket = Basket.find(params[:basket_id]) if params[:basket_id]
-  end
-
-  def get_patron_merge_list
-    @patron_merge_list = PatronMergeList.find(params[:patron_merge_list_id]) if params[:patron_merge_list_id]
-  end
-
   def get_user
     @user = User.where(:username => params[:user_id]).first if params[:user_id]
     if @user
@@ -184,53 +172,75 @@ class ApplicationController < ActionController::Base
     @library_group = LibraryGroup.site_config
   end
 
-  def get_question
-    @question = Question.find(params[:question_id]) if params[:question_id]
-    authorize! :show, @question if @question
-  end
-
-  def get_event
-    @event = Event.find(params[:event_id]) if params[:event_id]
-  end
-
   def get_bookstore
     @bookstore = Bookstore.find(params[:bookstore_id]) if params[:bookstore_id]
   end
 
-  def get_subject
-    @subject = Subject.find(params[:subject_id]) if params[:subject_id]
-  end
-
-  def get_classification
-    @classification = Classification.find(params[:classification_id]) if params[:classification_id]
+  def get_series_statement
+    @series_statement = SeriesStatement.find(params[:series_statement_id]) if params[:series_statement_id]
   end
 
   def get_subscription
     @subscription = Subscription.find(params[:subscription_id]) if params[:subscription_id]
   end
 
-  def get_order_list
-    @order_list = OrderList.find(params[:order_list_id]) if params[:order_list_id]
+  if defined?(EnjuResourceMerge)
+    def get_patron_merge_list
+      @patron_merge_list = PatronMergeList.find(params[:patron_merge_list_id]) if params[:patron_merge_list_id]
+    end
   end
 
-  def get_purchase_request
-    @purchase_request = PurchaseRequest.find(params[:purchase_request_id]) if params[:purchase_request_id]
+  if defined?(EnjuQuestion)
+    def get_question
+      @question = Question.find(params[:question_id]) if params[:question_id]
+      authorize! :show, @question if @question
+    end
   end
 
-  def get_checkout_type
-    @checkout_type = CheckoutType.find(params[:checkout_type_id]) if params[:checkout_type_id]
+  if defined?(EnjuEvent)
+    def get_event
+      @event = Event.find(params[:event_id]) if params[:event_id]
+    end
   end
 
-  def get_inventory_file
-    @inventory_file = InventoryFile.find(params[:inventory_file_id]) if params[:inventory_file_id]
+  if defined?(EnjuPurchaseRequest)
+    def get_order_list
+      @order_list = OrderList.find(params[:order_list_id]) if params[:order_list_id]
+    end
+
+    def get_purchase_request
+      @purchase_request = PurchaseRequest.find(params[:purchase_request_id]) if params[:purchase_request_id]
+    end
   end
 
-  def get_subject_heading_type
-    @subject_heading_type = SubjectHeadingType.find(params[:subject_heading_type_id]) if params[:subject_heading_type_id]
+  if defined?(EnjuCirculation)
+    def get_basket
+      @basket = Basket.find(params[:basket_id]) if params[:basket_id]
+    end
+
+    def get_checkout_type
+      @checkout_type = CheckoutType.find(params[:checkout_type_id]) if params[:checkout_type_id]
+    end
   end
 
-  def get_series_statement
-    @series_statement = SeriesStatement.find(params[:series_statement_id]) if params[:series_statement_id]
+  if defined?(EnjuInventory)
+    def get_inventory_file
+      @inventory_file = InventoryFile.find(params[:inventory_file_id]) if params[:inventory_file_id]
+    end
+  end
+
+  if defined?(EnjuSubject)
+    def get_subject_heading_type
+      @subject_heading_type = SubjectHeadingType.find(params[:subject_heading_type_id]) if params[:subject_heading_type_id]
+    end
+
+    def get_subject
+      @subject = Subject.find(params[:subject_id]) if params[:subject_id]
+    end
+
+    def get_classification
+      @classification = Classification.find(params[:classification_id]) if params[:classification_id]
+    end
   end
 
   def convert_charset
@@ -250,42 +260,8 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  def my_networks?
-    return true if LibraryGroup.site_config.network_access_allowed?(request.remote_ip, :network_type => 'lan')
-    false
-  end
-
-  def admin_networks?
-    return true if LibraryGroup.site_config.network_access_allowed?(request.remote_ip, :network_type => 'admin')
-    false
-  end
-
-  def check_client_ip_address
-    access_denied unless my_networks?
-  end
-
-  def check_admin_network
-    access_denied unless admin_networks?
-  end
-
-  def check_dsbl
-    library_group = LibraryGroup.site_config
-    return true if library_group.network_access_allowed?(request.remote_ip, :network_type => 'lan')
-    begin
-      dsbl_hosts = library_group.dsbl_list.split.compact
-      reversed_address = request.remote_ip.split(/\./).reverse.join(".")
-      dsbl_hosts.each do |dsbl_host|
-        result = Socket.gethostbyname("#{reversed_address}.#{dsbl_host}.").last.unpack("C4").join(".")
-        raise SocketError unless result =~ /^127\.0\.0\./
-        access_denied
-      end
-    rescue SocketError
-      nil
-    end
-  end
-
   def store_page
-    flash[:page] = params[:page].to_i if params[:page]
+    flash[:page] = params[:page] if params[:page].to_i > 0
   end
 
   def store_location
@@ -313,9 +289,11 @@ class ApplicationController < ActionController::Base
       carrier_type = params[:carrier_type]
       library = params[:library]
       language = params[:language]
-      subject = params[:subject]
-      subject_by_term = Subject.where(:term => params[:subject]).first
-      @subject_by_term = subject_by_term
+      if defined?(EnjuSubject)
+        subject = params[:subject]
+        subject_by_term = Subject.where(:term => params[:subject]).first
+        @subject_by_term = subject_by_term
+      end
 
       search.build do
         with(:publisher_ids).equal_to patron.id if patron
@@ -338,8 +316,10 @@ class ApplicationController < ActionController::Base
             with(:language).equal_to language
           end
         end
-        unless subject.blank?
-          with(:subject).equal_to subject_by_term.term
+        if defined?(EnjuSubject)
+          unless subject.blank?
+            with(:subject).equal_to subject_by_term.term
+          end
         end
       end
     end
@@ -372,6 +352,14 @@ class ApplicationController < ActionController::Base
 
   def prepare_for_mobile
     request.format = :mobile if request.smart_phone?
+  end
+
+  def get_top_page_content
+    if defined?(EnjuNews)
+      @news_feeds = Rails.cache.fetch('news_feed_all'){NewsFeed.all}
+      @news_posts = NewsPost.limit(3)
+    end
+    @libraries = Library.real
   end
 end
 

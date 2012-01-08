@@ -1,19 +1,22 @@
 # -*- encoding: utf-8 -*-
 class PatronsController < ApplicationController
-  load_and_authorize_resource
+  load_and_authorize_resource :except => :index
+  authorize_resource :only => :index
   before_filter :get_user_if_nil
   helper_method :get_work, :get_expression
   helper_method :get_manifestation, :get_item
   helper_method :get_patron
-  helper_method :get_patron_merge_list
+  if defined?(EnjuResourceMerge)
+    helper_method :get_patron_merge_list
+  end
   before_filter :prepare_options, :only => [:new, :edit]
   before_filter :store_location
   before_filter :get_version, :only => [:show]
   after_filter :solr_commit, :only => [:create, :update, :destroy]
   cache_sweeper :patron_sweeper, :only => [:create, :update, :destroy]
-  
+
   # GET /patrons
-  # GET /patrons.xml
+  # GET /patrons.json
   def index
     #session[:params] = {} unless session[:params]
     #session[:params][:patron] = params
@@ -55,9 +58,14 @@ class PatronsController < ApplicationController
         fulltext query
       end
     end
+
+    get_work; get_expression; get_manifestation; get_patron
+    if defined?(EnjuResourceMerge)
+      get_patron_merge_list
+    end
+
     unless params[:mode] == 'add'
       user = @user
-      get_work; get_expression; get_manifestation; get_patron; get_patron_merge_list;
       work = @work
       expression = @expression
       manifestation = @manifestation
@@ -78,13 +86,11 @@ class PatronsController < ApplicationController
       with(:required_role_id).less_than role.id
     end
 
-    page = params[:page] || 1
-    begin
-      search.query.paginate(page.to_i, Patron.per_page)
-      @patrons = search.execute!.results
-    rescue RSolr::RequestError
-      @patrons = WillPaginate::Collection.create(1,1,0) do end
-    end
+    page =  params[:page] || 1
+    search.query.paginate(page.to_i, Patron.per_page)
+    @patrons = search.execute!.results
+
+    flash[:page_info] = {:page => page, :query => query}
 
     respond_to do |format|
       format.html # index.rhtml
@@ -94,14 +100,10 @@ class PatronsController < ApplicationController
       format.json { render :json => @patrons }
       format.mobile
     end
-  #rescue RSolr::RequestError
-  #  flash[:notice] = t('page.error_occured')
-  #  redirect_to patrons_url
-  #  return
   end
 
   # GET /patrons/1
-  # GET /patrons/1.xml
+  # GET /patrons/1.json
   def show
     get_work; get_expression; get_manifestation; get_item
     case
@@ -116,18 +118,16 @@ class PatronsController < ApplicationController
     else
       if @version
         @patron = @patron.versions.find(@version).item if @version
-      else
-        @patron = Patron.find(params[:id])
       end
     end
 
-    @works = @patron.works.paginate(:page => params[:work_list_page], :per_page => Manifestation.per_page)
-    @expressions = @patron.expressions.paginate(:page => params[:expression_list_page], :per_page => Manifestation.per_page)
-    @manifestations = @patron.manifestations.paginate(:page => params[:manifestation_list_page], :order => 'date_of_publication DESC', :per_page => Manifestation.per_page)
+    @works = @patron.works.page(params[:work_list_page]).per_page(Manifestation.per_page)
+    @expressions = @patron.expressions.page(params[:expression_list_page]).per_page(Manifestation.per_page)
+    @manifestations = @patron.manifestations.order('date_of_publication DESC').page(params[:manifestation_list_page]).per_page(Manifestation.per_page)
 
     respond_to do |format|
       format.html # show.rhtml
-      format.xml  { render :xml => @patron }
+      format.json { render :json => @patron }
       format.js
       format.mobile
     end
@@ -142,10 +142,10 @@ class PatronsController < ApplicationController
     end
     @patron = Patron.new
     if @user
-      @patron.user = @user
-      @patron.required_role = Role.find_by_name('Librarian')
+      @patron.user_username = @user.username
+      @patron.required_role = Role.where(:name => 'Librarian').first
     else
-      @patron.required_role = Role.find_by_name('Guest')
+      @patron.required_role = Role.where(:name => 'Guest').first
     end
     @patron.language = Language.where(:iso_639_1 => I18n.default_locale.to_s).first || Language.first
     @patron.country = current_user.library.country
@@ -153,18 +153,17 @@ class PatronsController < ApplicationController
 
     respond_to do |format|
       format.html # new.html.erb
-      format.xml  { render :xml => @patron }
+      format.json { render :json => @patron }
     end
   end
 
   # GET /patrons/1;edit
   def edit
-    #@patron = Patron.find(params[:id])
     prepare_options
   end
 
   # POST /patrons
-  # POST /patrons.xml
+  # POST /patrons.json
   def create
     @patron = Patron.new(params[:patron])
     if @patron.user_username
@@ -183,67 +182,56 @@ class PatronsController < ApplicationController
         when @work
           @work.creators << @patron
           format.html { redirect_to patron_work_url(@patron, @work) }
-          format.xml  { head :created, :location => patron_work_url(@patron, @work) }
+          format.json { head :created, :location => patron_work_url(@patron, @work) }
         when @expression
           @expression.contributors << @patron
           format.html { redirect_to patron_expression_url(@patron, @expression) }
-          format.xml  { head :created, :location => patron_expression_url(@patron, @expression) }
+          format.json { head :created, :location => patron_expression_url(@patron, @expression) }
         when @manifestation
           @manifestation.publishers << @patron
           format.html { redirect_to patron_manifestation_url(@patron, @manifestation) }
-          format.xml  { head :created, :location => patron_manifestation_url(@patron, @manifestation) }
+          format.json { head :created, :location => patron_manifestation_url(@patron, @manifestation) }
         when @item
           @item.patrons << @patron
           format.html { redirect_to patron_item_url(@patron, @item) }
-          format.xml  { head :created, :location => patron_manifestation_url(@patron, @manifestation) }
+          format.json { head :created, :location => patron_manifestation_url(@patron, @manifestation) }
         else
           format.html { redirect_to(@patron) }
-          format.xml  { render :xml => @patron, :status => :created, :location => @patron }
+          format.json { render :json => @patron, :status => :created, :location => @patron }
         end
       else
         prepare_options
         format.html { render :action => "new" }
-        format.xml  { render :xml => @patron.errors, :status => :unprocessable_entity }
+        format.json { render :json => @patron.errors, :status => :unprocessable_entity }
       end
     end
   end
 
   # PUT /patrons/1
-  # PUT /patrons/1.xml
+  # PUT /patrons/1.json
   def update
-    #@patron = Patron.find(params[:id])
-
     respond_to do |format|
       if @patron.update_attributes(params[:patron])
         flash[:notice] = t('controller.successfully_updated', :model => t('activerecord.models.patron'))
-        format.html { redirect_to patron_url(@patron) }
-        format.xml  { head :ok }
+        format.html { redirect_to(@patron) }
+        format.json { head :ok }
       else
         prepare_options
         format.html { render :action => "edit" }
-        format.xml  { render :xml => @patron.errors, :status => :unprocessable_entity }
+        format.json { render :json => @patron.errors, :status => :unprocessable_entity }
       end
     end
   end
 
   # DELETE /patrons/1
-  # DELETE /patrons/1.xml
+  # DELETE /patrons/1.json
   def destroy
-    #@patron = Patron.find(params[:id])
-
-    if @patron.user.try(:has_role?, 'Librarian')
-      unless current_user.has_role?('Administrator')
-        access_denied
-        return
-      end
-    end
-
     @patron.destroy
 
     respond_to do |format|
       flash[:notice] = t('controller.successfully_deleted', :model => t('activerecord.models.patron'))
       format.html { redirect_to patrons_url }
-      format.xml  { head :ok }
+      format.json { head :ok }
     end
   end
 
@@ -251,8 +239,8 @@ class PatronsController < ApplicationController
   def prepare_options
     @countries = Country.all_cache
     @patron_types = PatronType.all
-    @roles = Role.all_cache
+    @roles = Role.all
     @languages = Language.all_cache
+    @patron_type = PatronType.where(:name => 'Person').first
   end
-
 end

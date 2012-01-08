@@ -1,6 +1,7 @@
 # Methods added to this helper will be available to all templates in the application.
 module ApplicationHelper
   include PictureFilesHelper
+  include EnjuBookJacketHelper
 
   def form_icon(carrier_type)
     case carrier_type.name
@@ -165,15 +166,6 @@ module ApplicationHelper
     render :partial => 'page/position', :locals => {:object => object}
   end
 
-  def link_to_custom_book_jacket(object, picture_file)
-    case
-    when object.is_a?(Manifestation)
-      link_to t('page.other_view'), manifestation_picture_file_path(object, picture_file, :format => picture_file.extname), :rel => "manifestation_#{object.id}"
-    when object.is_a?(Patron)
-      link_to t('page.other_view'), patron_picture_file_path(object, picture_file, :format => picture_file.extname), :rel => "patron_#{object.id}"
-    end
-  end
-
   def localized_state(state)
     case state
     when 'pending'
@@ -205,12 +197,31 @@ module ApplicationHelper
     current_user.try(:role).try(:name) || 'Guest'
   end
 
-  def title(model_name)
+  def title(controller_name)
     string = ''
-    unless model_name == 'page'
-      string << t("activerecord.models.#{model_name.singularize}") + ' - '
+    unless ['page', 'routing_error', 'my_accounts'].include?(controller_name)
+      string << t("activerecord.models.#{controller_name.singularize}") + ' - '
     end
-    string << LibraryGroup.system_name + ' - Next-L Enju Flower'
+    if controller_name == 'routing_error'
+      string << t("page.routing_error") + ' - '
+    end
+    string << LibraryGroup.system_name + ' - Next-L Enju Leaf'
     string.html_safe
+  end
+
+  def back_to_index(options = {})
+    if options == nil
+      options = {}
+    else
+      options.reject!{|key, value| value.blank?}
+      options.delete(:page) if options[:page].to_i == 1
+    end
+    unless controller_name == 'test'
+      link_to t('page.listing', :model => t("activerecord.models.#{controller_name.singularize}")), url_for(params.merge(:controller => controller_name, :action => :index, :id => nil).merge(options))
+    end
+  end
+
+  def set_focus_on_search_form
+    javascript_tag("$('#search_form').focus()") if @query.blank?
   end
 end
