@@ -1,4 +1,4 @@
-xml.instruct! :xml, :version=>"1.0" 
+xml.instruct! :xml, :version=>"1.0"
 xml.rss('version' => "2.0",
         'xmlns:opensearch' => "http://a9.com/-/spec/opensearch/1.1/",
         'xmlns:dc' => "http://purl.org/dc/elements/1.1/",
@@ -9,7 +9,7 @@ xml.rss('version' => "2.0",
     xml.description "Next-L Enju, an open source integrated library system developed by Project Next-L"
     xml.language @locale.to_s
     xml.ttl "60"
-    xml.tag! "atom:link", :rel => 'self', :href => "#{request.protocol}#{request.host_with_port}#{url_for(params.merge(:format => "rss"))}"
+    xml.tag! "atom:link", :rel => 'self', :href => "#{request.protocol}#{request.host_with_port}#{url_for(params.merge(:format => :rss))}"
     xml.tag! "atom:link", :rel => 'alternate', :href => manifestations_url
     xml.tag! "atom:link", :rel => 'search', :type => 'application/opensearchdescription+xml', :href => page_opensearch_url
     unless params[:query].blank?
@@ -21,7 +21,7 @@ xml.rss('version' => "2.0",
     if @manifestations
       @manifestations.each do |manifestation|
           xml.item do
-            xml.title h(manifestation.original_title)
+            xml.title manifestation.original_title
             #xml.description(manifestation.original_title)
             # rfc822
             manifestation.creators.readable_by(current_user).each do |creator|
@@ -30,10 +30,12 @@ xml.rss('version' => "2.0",
             xml.pubDate manifestation.date_of_publication.try(:utc).try(:rfc822)
             xml.link manifestation_url(manifestation)
             xml.guid manifestation_url(manifestation), :isPermaLink => "true"
-            manifestation.tags.each do |tag|
-              xml.category h(tag)
+            if defined?(EnjuBookmark)
+              manifestation.tags.each do |tag|
+                xml.category tag
+              end
             end
-            xml.tag! "dc:Identifier", manifestation.isbn
+            xml.tag! "dc:identifier", manifestation.isbn
           end
         end
     end

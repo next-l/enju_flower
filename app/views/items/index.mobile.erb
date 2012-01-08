@@ -1,15 +1,15 @@
-<div data-role="header"> 
+<div data-role="header">
 <h1 class="title"><%= t('page.listing', :model => t('activerecord.models.item')) -%></h1>
 </div>
 <div data-role="content">
-<%= render :partial => 'manifestations/title', :locals => {:manifestation => @manifestation} if @manifestation -%>
+<%= render 'manifestations/title', :manifestation => @manifestation if @manifestation -%>
 <div data-role="detail">
 <%= form_for :items, :url => items_path, :html => {:method => 'get'} do -%>
   <p>
-    <%= t('page.search_term') -%>: <%= search_field_tag 'query', h(@query), {:id => 'search_form_top', :class => 'search_form'} -%>
+    <label for="search_form_top"><%= t('page.search_term') -%>:</label>
+    <%= search_field_tag 'query', h(@query), {:id => 'search_form_top', :class => 'search_form', :placeholder => t('page.search_term')} -%>
     <%= submit_tag t('page.search') -%>
   </p>
-  <%= javascript_tag("$('#search_form_top').focus()") -%>
 <%- end -%>
 
 <table class="index">
@@ -24,7 +24,7 @@
       <th></th>
     <%- end -%>
   </tr>
-  
+
   <%- @items.each do |item| -%>
     <tr class="line<%= cycle("0", "1") -%>">
       <td>
@@ -36,10 +36,10 @@
       </td>
       <td><%= item.call_number -%></td>
       <td>
-        <%= render :partial => 'manifestations/show_index', :locals => {:manifestation => item.manifestation} -%>
+        <%= render 'manifestations/show_index', :manifestation => item.manifestation -%>
       </td>
       <td><%= link_to item.shelf.library.display_name.localize, item.shelf.library -%></td>
-      <td><%= link_to item.shelf.display_name.localize, item.shelf -%></td>
+      <td><%= link_to item.shelf_display_name.localize, item.shelf -%></td>
       <td><%= item.circulation_status.display_name.localize -%></td>
       <%- if can? :destroy, item -%>
         <td><%= link_to t('page.edit'), edit_item_path(item) -%></td>

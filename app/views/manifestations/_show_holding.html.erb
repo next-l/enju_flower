@@ -1,25 +1,17 @@
 <div id="holding">
 <table class="holding">
   <tr>
+    <th><%= t('activerecord.attributes.item.item_identifier') -%></th>
     <th><%= t('activerecord.models.library') -%></th>
     <th><%= t('activerecord.models.shelf') -%></th>
     <th><%= t('activerecord.attributes.item.call_number') -%></th>
-    <th><%= t('activerecord.attributes.item.item_identifier') -%></th>
-    <th><%= t('activerecord.models.circulation_status') -%></th>
+    <% if defined?(EnjuCirculation) %>
+      <th><%= t('activerecord.models.circulation_status') -%></th>
+    <% end %>
   </tr>
-  <% cache(:controller => :manifestations, :action => :show, :id => manifestation.id, :page => 'holding', :role => current_user_role_name, :locale => @locale, :manifestation_id => nil) do %>
+  <% cache(:controller => :manifestations, :action => :show, :id => manifestation.id, :page => 'holding', :locale => @locale, :manifestation_id => nil) do %>
   <%- manifestation.items.on_shelf.each do |item| -%>
     <tr>
-      <td>
-        <%= link_to item.shelf.library.display_name.localize, item.shelf.library %>
-      </td>
-      <td>
-        <%= link_to item.shelf_display_name.localize, item.shelf -%>
-        <%= render :partial => 'items/shelf_picture', :locals => {:item => item} -%>
-      </td>
-      <td>
-        <%= item.call_number -%>
-      </td>
       <td>
         <%- if item.item_identifier? -%>
           <%= link_to item.item_identifier, item -%>
@@ -28,14 +20,26 @@
         <%- end -%>
       </td>
       <td>
-        <%= item.circulation_status.display_name.localize if item.circulation_status -%>
-        <%- if item.rent? -%>
-          (
-            <%= t('activerecord.attributes.checkout.due_date') -%>:
-            <%= l(item.checkouts.first.due_date, :format => :short) -%>
-          )
-        <%- end -%>
+        <%= link_to item.shelf.library.display_name.localize, item.shelf.library %>
       </td>
+      <td>
+        <%= link_to item.shelf_display_name.localize, item.shelf -%>
+        <%= render 'items/shelf_picture', :item => item -%>
+      </td>
+      <td>
+        <%= item.call_number -%>
+      </td>
+      <% if defined?(EnjuCirculation) %>
+        <td>
+          <%= item.circulation_status.display_name.localize if item.circulation_status -%>
+          <%- if item.rent? -%>
+            (
+              <%= t('activerecord.attributes.checkout.due_date') -%>:
+              <%= l(item.checkouts.first.due_date, :format => :short) -%>
+            )
+          <%- end -%>
+        </td>
+      <% end %>
     </tr>
   <%- end -%>
   <%- end -%>

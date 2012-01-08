@@ -16,7 +16,7 @@ if @sru
   @number_of_records = @manifestations.total_entries
   @next_record_position = @sru.start + @manifestations.size
 end
-  
+
 def search_retrieve_response!(xml)
   xml.searchRetrieveResponse :xmlns => "http://www.loc.gov/zing/srw/" do
     xml.version @version
@@ -69,7 +69,7 @@ def get_record(manifestation)
     'xmlns:srw_dc' => "info:srw/schema/1/dc-v1.1",
     'xmlns:xsi' => "http://www.w3.org/2001/XMLSchema-instance",
     'xsi:schemaLocation' => "info:srw/schema/1/dc-v1.1 http://www.loc.gov/standards/sru/dc-schema.xsd" do
-    cache(:controller => :manifestations, :action => :show, :id => manifestation.id, :page => 'sru', :role => current_user_role_name, :locale => @locale) do
+    cache(:controller => :manifestations, :action => :show, :id => manifestation.id, :page => 'sru', :role => current_user_role_name, :locale => @locale, :manifestation_id => nil) do
       xml.tag! 'dc:title', manifestation.original_title
       manifestation.creators.readable_by(current_user).each do |patron|
         xml.tag! 'dc:creator', patron.full_name
@@ -80,8 +80,10 @@ def get_record(manifestation)
       manifestation.publishers.each do |patron|
         xml.tag! 'dc:publisher', patron.full_name
       end
-      manifestation.subjects.each do |subject|
-        xml.tag! "dc:subject", subject.term
+      if defined?(EnjuSubject)
+        manifestation.subjects.each do |subject|
+          xml.tag! "dc:subject", subject.term
+        end
       end
       xml.tag! 'dc:description', manifestation.description
     end

@@ -1,4 +1,4 @@
-<div data-role="header"> 
+<div data-role="header">
   <h1 class="title"><%= t('page.showing', :model => t('activerecord.models.patron')) -%></h1>
 </div>
 <div data-role="content">
@@ -37,7 +37,7 @@
       <tr>
         <td><strong><%= t('activerecord.attributes.patron.url') -%>:</strong></td>
         <td>
-          <%= link_to @patron.url, @patron.url, :class => 'url' if @patron.url.present? -%>
+          <%= link_to @patron.url, @patron.url, :class => 'url' if @patron.url? -%>
         </td>
       </tr>
       <tr>

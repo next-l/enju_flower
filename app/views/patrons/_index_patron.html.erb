@@ -3,24 +3,20 @@
 <div id="content_list">
   <h2 class="resource_title">
     [P]
-    <%= link_to @patron.full_name, @patron -%>
+    <%= link_to patron.full_name, patron -%>
   </h2>
-<%= form_for :patrons, :url => patron_patrons_path(@patron), :html => {:method => 'get'} do -%>
+
+<div class="search_form">
+<%= form_for :patrons, :url => patron_patrons_path(patron), :html => {:method => 'get'} do -%>
   <p>
-    <%= t('page.search_term') -%>: <%= search_field_tag 'query', h(@query), {:id => 'search_form_top', :class => 'search_form'} -%>
-    <%- if can? :update, @patron -%>
-      <%- if params[:mode] == 'add' -%>
-        <%= radio_button_tag 'mode', 'show' -%> <%= t('page.show') -%>
-        <%= radio_button_tag 'mode', 'add', :checked => true -%> <%= t('page.add') -%>
-      <%- else -%>
-        <%= radio_button_tag 'mode', 'show', :checked => true -%> <%= t('page.show') -%>
-        <%= radio_button_tag 'mode', 'add' -%> <%= t('page.add') -%>
-      <%- end -%>
+    <%= t('page.search_term') -%>: <%= search_field_tag 'query', h(@query), {:id => 'search_form_top', :class => 'search_form', :placeholder => t('page.search_term')} -%>
+    <%- if can? :update, patron -%>
+      <%= render 'page/add' %>
     <%- end -%>
     <%= submit_tag t('page.search') -%>
   </p>
-  <%= javascript_tag("$('#search_form_top').focus()") -%>
 <%- end -%>
+</div>
 
 <table class="index">
   <tr>
@@ -50,9 +46,9 @@
       <td>
         <%- if can? :destroy, patron -%>
           <%- if params[:mode] == "add" -%>
-            <%= link_to t('page.add'), new_patron_patron_relationship_path(@patron, :child_id => patron.id) unless @patron.derived_patrons.include?(patron) or @patron == patron -%>
+            <%= link_to t('page.add'), new_patron_patron_relationship_path(patron, :child_id => patron.id) unless patron.derived_patrons.include?(patron) or patron == patron -%>
           <%- else -%>
-            <%- patron_relationship = @patron.to_patrons.find_by_child_id(patron.id) -%>
+            <%- patron_relationship = patron.to_patrons.where(:child_id => patron.id).first -%>
             <%= link_to t('page.destroy'), patron_relationship, :confirm => t('page.are_you_sure'), :method => :delete if patron_relationship -%>
           <%- end -%>
         <%- end -%>

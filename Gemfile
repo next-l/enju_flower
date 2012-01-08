@@ -1,13 +1,17 @@
-source 'http://rubygems.org'
+source 'https://rubygems.org'
 
-gem 'rails', '3.0.10'
+gem 'rails', '3.2.0.rc2'
 
 # Bundle edge Rails instead:
 # gem 'rails', :git => 'git://github.com/rails/rails.git'
 
+gem 'enju_bookmark', :git => 'git://github.com/nabeta/enju_bookmark.git'
+gem 'enju_oai', :git => 'git://github.com/nabeta/enju_oai.git'
+
 platforms :ruby do
   gem 'pg'
-  #gem 'mysql2', '~> 0.2.11'
+  #gem 'mysql2', '~> 0.3'
+  #gem 'sqlite3'
   gem 'ruby-prof', :group => [:development, :test]
   gem 'zipruby'
   gem 'kgio'
@@ -35,34 +39,32 @@ gem 'fastercsv' if RUBY_VERSION < '1.9'
 gem 'will_paginate', '~> 3.0'
 gem 'exception_notification', '~> 2.5.2'
 gem 'delayed_job', '>= 2.1.4'
-gem 'state_machine'
-gem 'sunspot_rails', '~> 1.3.0.rc4'
-gem 'sunspot_solr', '~> 1.3.0.rc4'
+gem 'state_machine', :git => 'git://github.com/pluginaweek/state_machine.git'
+gem 'sunspot_rails', '~> 1.3'
+gem 'sunspot_solr', '~> 1.3'
 gem 'progress_bar'
-gem "friendly_id", "~> 3.3"
+gem "friendly_id", "~> 4.0"
 gem 'inherited_resources', '~> 1.3'
 gem 'has_scope'
 gem 'nokogiri'
 gem 'marc'
-gem 'strongbox', '>= 0.4.8'
-gem 'acts-as-taggable-on', '~> 2.1'
+#gem 'strongbox', '>= 0.5.0'
 gem 'dalli', '~> 1.1'
-gem 'sitemap_generator', '~> 2.1'
+gem 'sitemap_generator', '~> 2.2'
 gem 'ri_cal'
 gem 'file_wrapper'
-gem 'paper_trail', '~> 2.3'
+gem 'paper_trail', '~> 2.5'
 gem 'recurrence'
-gem 'prism'
-gem 'money'
-gem 'RedCloth', '>= 4.2.8'
+gem 'RedCloth', '>= 4.2.9'
 gem 'isbn-tools', :git => 'git://github.com/nabeta/isbn-tools.git', :require => 'isbn/tools'
 gem 'attribute_normalizer'
 gem 'configatron'
 gem 'extractcontent'
-gem 'cancan', '>= 1.6.5'
+gem 'cancan', '>= 1.6.7'
 gem 'scribd_fu'
-gem 'devise', '~> 1.4'
-gem 'omniauth', '>= 0.2.6'
+gem 'devise', '~> 2.0.0.rc'
+gem 'omniauth', '~> 1.0'
+gem 'addressable'
 gem 'paperclip', '~> 2.4'
 gem 'whenever', '~> 0.6', :require => false
 gem 'amazon-ecs', '>= 2.2.0', :require => 'amazon/ecs'
@@ -70,10 +72,7 @@ gem 'aws-s3', :require => 'aws/s3'
 gem 'astrails-safe'
 gem 'dynamic_form'
 gem 'sanitize'
-gem 'barby', '~> 0.5'
-gem 'rqrcode'
-gem 'event-calendar', :require => 'event_calendar'
-gem 'jpmobile', '~> 1.0'
+gem 'jpmobile', '2.0.4'
 #gem 'geokit'
 gem 'geocoder'
 gem 'acts_as_list', :git => 'git://github.com/swanandp/acts_as_list.git'
@@ -91,21 +90,33 @@ group :development do
 end
 
 group :development, :test do
-  gem 'rspec-rails'
+  gem 'rspec-rails', '~> 2.8.1'
   gem 'guard-rspec'
-  gem 'factory_girl_rails', '~> 1.2'
+  gem 'factory_girl_rails', '~> 1.4'
   gem 'spork', '~> 0.9.0.rc9'
   gem 'metric_fu', '~> 2.1'
   gem 'timecop'
+  gem 'sunspot-rails-tester'
+  gem 'vcr', '~> 2.0.0.rc1'
+  gem 'fakeweb'
 end
 
 # Gems used only for assets and not required
 # in production environments by default.
-#group :assets do
-#  gem 'sass-rails', "  ~> 3.1.0"
-#  gem 'coffee-rails', "~> 3.1.0"
-#  gem 'uglifier'
-#end
+group :assets do
+  gem 'sass-rails',   '~> 3.2.3'
+  gem 'coffee-rails', '~> 3.2.0'
+
+  gem 'uglifier', '>= 1.0.3'
+end
+
+gem 'jquery-rails'
+
+# To use ActiveModel has_secure_password
+# gem 'bcrypt-ruby', '~> 3.0.0'
+
+# To use Jbuilder templates for JSON
+# gem 'jbuilder'
 
 # Use unicorn as the web server
 # gem 'unicorn'
@@ -113,19 +124,5 @@ end
 # Deploy with Capistrano
 # gem 'capistrano'
 
-# To use debugger (ruby-debug for Ruby 1.8.7+, ruby-debug19 for Ruby 1.9.2+)
-# gem 'ruby-debug'
-# gem 'ruby-debug19'
-
-# Bundle the extra gems:
-# gem 'bj'
-# gem 'nokogiri'
-# gem 'sqlite3-ruby', :require => 'sqlite3'
-# gem 'aws-s3', :require => 'aws/s3'
-
-# Bundle gems for the local environment. Make sure to
-# put test-only gems in this group so their generators
-# and rake tasks are available in development mode:
-# group :development, :test do
-#   gem 'webrat'
-# end
+# To use debugger
+# gem 'ruby-debug19', :require => 'ruby-debug'

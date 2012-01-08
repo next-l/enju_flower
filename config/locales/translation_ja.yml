@@ -7,18 +7,11 @@ ja:
       circulation_status: 貸出状態
       inventory: 蔵書点検
       patron: 人物・団体
-      feeds/app: フィード/アプリ
-      feeds/persistence: フィード/永続
-      feeds/shared: フィード/共有
-      feeds/instance: フィード/インスタンス
-      feeds/global: フィード/グローバル
-      feeds/activity: フィード/活動
       subject_as_object: 件名オブジェクトとして
       subject_as_place: 対象地として
       subject_has_classification: 件名と分類の関係
       expression: 協力した資料
       language: 言語
-      patron_merge_list: 人物・団体の併合リスト
       user: 利用者
       work_has_subject: 資料と件名の関係
       picture_file: 画像ファイル
@@ -26,14 +19,10 @@ ja:
       inter_library_loan: 相互貸借
       message: メッセージ
       classification: 分類
-      imported_object: インポートされたオブジェクト
       exemplify: 例証
       own: 所有関係
       search_history: 検索履歴
       shelf: 本棚
-      event_category: 催し物の種類
-      advertisement: 広告記事
-      porta_response: PORTAの応答
       donate: 寄贈
       basket: 貸出セッション
       subject_as_event: 対象イベントとして
@@ -54,24 +43,16 @@ ja:
       reify: 具体化
       subject_as_concept: 件名概念として
       frequency: 発行頻度
-      expression_merge_list: 協力した資料の併合リスト
       use_restriction: 利用制限
       subject: 件名
       content_type: 協力した資料の形態
-      work_merge: 書いた資料の併合
-      aaws_response: Aawsの応答
       patron_type: 人物・団体の種類
-      work_merge_list: 書いた資料の併合リスト
       order: 発注
       order_list: 発注リスト
       advertise: 広告
-      event: 開館日と催し物
       embody: 具体化
       item_has_use_restriction: 項目を制限している
-      expression_merge: 協力した資料の併合
       request_status_type: 依頼の状態の種類
-      news_feed: お知らせのフィード
-      news_post: 図書館からのお知らせ
       search_engine: 検索エンジン
       bookmark: ブックマーク
       create: 著作関係
@@ -82,10 +63,8 @@ ja:
       checkout: 貸出
       subscription: 購読
       message_template: メッセージテンプレート
-      patron_merge: 人物・団体の併合
       subject_related_term: 件名の関連語
       library_group: 図書館全体の設定
-      event_import_file: 催し物ファイルのインポート
       attachment_file: 添付ファイル
       reserve: 予約
       message_request: メッセージの送信リクエスト
@@ -94,7 +73,6 @@ ja:
       checkout_type: 貸出区分
       classification_type: 分類型
       country: 国と地域
-      manifestation_api_response: 資料APIの応答
       request_type: 依頼の種類
       inventory_file: 蔵書点検ファイル
       user_group_has_checkout_type: 利用者グループと貸出区分の関係
@@ -140,13 +118,11 @@ ja:
       reserve_stat_has_manifestation: 資料別予約統計
       reserve_stat_has_user: 利用者別予約統計
       import_request: インポートのリクエスト
-      resource: 資料
       user_has_role: 利用者と権限
       patron_relationship: 著者・編者・出版社の関係
       manifestation_relationship: 資料の関係
       resource_import_result: 資料情報インポートの結果
       patron_import_result: 人物・団体情報インポートの結果
-      event_import_result: 催し物情報インポートの結果
 
     attributes:
       library:
@@ -224,41 +200,6 @@ ja:
         language: 言語
         email: 電子メール
         url: URL
-      feeds/app:
-        source_url: ソースURL
-        title: タイトル
-        description: 説明
-        directory_title: ディレクトリタイトル
-        title_url: 作品のURL
-        author: 著者
-        author_email: 著者のメール
-        author_affiliation: 著者略歴
-        author_location: 著者のロケーション
-        screenshot: スクリーンショット
-        thumbnail: サムネイル
-        height: 高さ
-        width: 幅
-        scaling: スケーリング
-        scrolling: スクロール
-        singleton: シングルトン
-        author_photo: 著者写真
-        author_aboutme: 著者aboutme
-        author_link: 著者名
-        author_quote: 著者引用
-      feeds/persistence:
-        key: 鍵
-        value: 値
-      feeds/shared:
-        key: 鍵
-        value: 値
-      feeds/instance:
-        key: 鍵
-        value: 値
-      feeds/global:
-        key: 鍵
-        value: 値
-      feeds/activity:
-        title: タイトル
       subject_as_object:
         term: 用語
       subject_as_place:
@@ -284,8 +225,6 @@ ja:
         iso_639_3: ISO 639-3
         note: 注記
         position: 位置
-      patron_merge_list:
-        title: タイトル
       user:
         login: ユーザ名
         username: ユーザ名
@@ -360,12 +299,6 @@ ja:
         category: カテゴリー
         name: 名前
         note: 注記
-      imported_object:
-        imported_file: インポート用ファイル
-        imported_file_type: インポート用ファイルの種類
-        importable: インポートされた資料
-        importable_type: インポートされた資料の種類
-        line_number: 行番号
       exemplify:
         position: 位置
       own:
@@ -394,22 +327,6 @@ ja:
         note: 注記
         position: 位置
         deleted_at: 削除時刻
-      event_category:
-        name: 名前
-        display_name: 表示名
-        note: 注記
-        position: 位置
-      advertisement:
-        title: タイトル
-        url: URL
-        body: 本文
-        note: 注記
-        started_at: 開始時刻
-        ended_at: 終了時刻
-        deleted_at: 削除時刻
-        position: 位置
-      porta_response:
-        body: 本文
       donate:
       basket:
         user: 利用者
@@ -487,8 +404,6 @@ ja:
         display_name: 表示名
         note: 注記
         position: 位置
-      expression_merge_list:
-        title: タイトル
       use_restriction:
         name: 名前
         display_name: 表示名
@@ -505,9 +420,6 @@ ja:
         display_name: 表示名
         note: 注記
         position: 位置
-      work_merge:
-      aaws_response:
-        body: 本文
       patron_type:
         name: 名前
         display_name: 表示名
@@ -518,8 +430,6 @@ ja:
         display_name: 表示名
         note: 注記
         position: 位置
-      work_merge_list:
-        title: タイトル
       order:
         position: 位置
         state: 状態
@@ -531,36 +441,14 @@ ja:
         state: 状態
       advertise:
         position: 位置
-      event:
-        name: 名前
-        note: 注記
-        start_at: 開始時刻
-        end_at: 終了時刻
-        deleted_at: 削除時刻
-        all_day: 終日
       embody:
         position: 位置
       item_has_use_restriction:
-      expression_merge:
       request_status_type:
         name: 名前
         display_name: 表示名
         note: 注記
         position: 位置
-      news_feed:
-        title: タイトル
-        url: URL
-        body: 本文
-        note: 注記
-        position: 位置
-      news_post:
-        title: タイトル
-        body: 本文
-        note: 注記
-        position: 位置
-        start_date: 開始日
-        end_date: 終了日
-        draft: 下書き
       search_engine:
         name: 名前
         url: URL
@@ -642,7 +530,6 @@ ja:
         title: タイトル
         body: 本文
         position: 位置
-      patron_merge:
       subject_related_term:
       library_group:
         name: 名前
@@ -658,15 +545,6 @@ ja:
         post_to_union_catalog: 総合目録に登録する
         valid_period_for_new_user: 新規ユーザの有効日数
         allow_bookmark_external_url: 外部サイトのURLをブックマークできるようにする
-      event_import_file:
-        event_import_file_name: ファイル名
-        event_import_content_type: Content-Type
-        event_import_file_size: ファイルサイズ
-        file_hash: ファイルのハッシュ
-        note: 注記
-        imported_at: インポート時刻
-        event_import_updated_at: 更新時刻
-        state: 状態
       attachment_file:
         attachable_type: 添付可能な種類
         size: ファイルサイズ
@@ -723,8 +601,6 @@ ja:
         numeric_3: 数値3
         note: 注記
         position: 位置
-      manifestation_api_response:
-        body: 本文
       request_type:
         name: 名前
         display_name: 表示名
@@ -964,15 +840,6 @@ ja:
       import_request:
         isbn: ISBN
         state: 状態
-      resource:
-        iss_token: トークン
-        manifestation_id: 資料
-        dcndl_xml: DCNDL XML
-        work_token: 著作トークン
-        approve: 修正承認
-        publish: 公開承認
-        state: 状態
-        deleted_at: 削除時刻
       patron_relationship:
         parent_id: 派生元の人物・団体
         child_id: 派生先の人物・団体
@@ -1109,8 +976,6 @@ ja:
     number_of_days: "%{count} 日"
     require_login_as_librarian: "操作を進めるには、図書館員としてログインする必要があります。"
     read: "読み込み"
-    merge: "併合する（取り消しはできません）"
-    merge_resource: "%{model}を併合する"
     attachable: "添付先"
     under_construction: "開発中"
     sent_email: "電子メールを送信しました。"
@@ -1317,13 +1182,6 @@ ja:
     from_file: "ファイルから"
     from_isbn: "ISBNから"
     will_be_imported: "%{minute} 分以内にインポートされます。"
-  event:
-    library_group_event: "%{library_group_name} での催し物"
-    all_libraries: "全ての図書館"
-    import_event: "催し物のインポート"
-    all: "全ての催し物"
-    past: "過去の催し物"
-    upcoming: "今後の催し物"
   user:
     current_password: "現在のパスワード"
     new_password: "新しいパスワード"
@@ -1356,8 +1214,6 @@ ja:
     send_me_reset_password_instruction: "パスワードを再発行する"
     change_my_password: "パスワードを変更する"
     management: "利用者の管理"
-  news_post:
-    library_group_news_post: "%{library_group_name} からのお知らせ"
   reserve:
     user_reserve: "%{login_name} さんの予約資料"
     library_group_reserve: "%{library_group_name} での予約資料"
@@ -1441,25 +1297,6 @@ ja:
     completed: "完了"
     started: "開始"
     failed: "失敗"
-  resource:
-    select_all: すべてを選択
-    approve_selected_resources: 選択した資料を承認
-    approve_all_resources: すべての資料を承認
-    publish_selected_resources: 選択した資料を公開
-    publish_all_resources: すべての資料を公開
-    approve: 承認
-    approved: 承認済み
-    not_approved: 未承認
-    all_resources: すべての資料
-    resources_were_approved: 資料の修正は承認されました。
-    resources_were_published: 資料は公開されました。
-    select_resources: 資料を選択してください。
-    publish: 公開
-    published: 公開済み
-    reject: 却下
-    withdraw: 取り下げ
-  news_feed:
-    failed_to_fetch_feed: フィードの読み込みに失敗しました。
   import_request:
     record_not_found: 書誌レコードが見つかりませんでした。
     invalid_isbn: ISBNが正しくありません。

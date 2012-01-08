@@ -2,8 +2,11 @@
 class ItemsController < ApplicationController
   load_and_authorize_resource
   before_filter :get_user_if_nil
-  before_filter :get_patron, :get_manifestation, :get_inventory_file
-  helper_method :get_shelf
+  before_filter :get_patron, :get_manifestation
+  if defined?(EnjuInventory)
+    before_filter :get_inventory_file
+  end
+  before_filter :get_shelf
   helper_method :get_library
   helper_method :get_item
   before_filter :prepare_options, :only => [:new, :edit]
@@ -14,7 +17,7 @@ class ItemsController < ApplicationController
   cache_sweeper :item_sweeper, :only => [:create, :update, :destroy]
 
   # GET /items
-  # GET /items.xml
+  # GET /items.json
   def index
     query = params[:query].to_s.strip
     per_page = Item.per_page
@@ -29,26 +32,30 @@ class ItemsController < ApplicationController
       end
     end
 
-    if @inventory_file
-      if user_signed_in?
-        if current_user.has_role?('Librarian')
-          case params[:inventory]
-          when 'not_on_shelf'
-            mode = 'not_on_shelf'
-          when 'not_in_catalog'
-            mode = 'not_in_catalog'
+    if defined?(InventoryFile)
+      if @inventory_file
+        if user_signed_in?
+          if current_user.has_role?('Librarian')
+            case params[:inventory]
+            when 'not_in_catalog'
+              mode = 'not_in_catalog'
+            else
+              mode = 'not_on_shelf'
+            end
+            order = 'items.id'
+            @items = Item.inventory_items(@inventory_file, mode).order(order).page(params[:page]).per_page(per_page)
+          else
+            access_denied
+            return
           end
-          order = 'id'
-          @items = Item.inventory_items(@inventory_file, mode).paginate(:page => params[:page], :order => order, :per_page => per_page) rescue [].paginate
         else
-          access_denied
+          redirect_to new_user_session_url
           return
         end
-      else
-        redirect_to new_user_session_url
-        return
       end
-    else
+    end
+
+    unless @inventory_file
       search = Sunspot.new_search(Item)
       set_role_query(current_user, search)
 
@@ -61,7 +68,7 @@ class ItemsController < ApplicationController
 
       patron = @patron
       manifestation = @manifestation
-      shelf = get_shelf
+      shelf = @shelf
       unless params[:mode] == 'add'
         search.build do
           with(:patron_ids).equal_to patron.id if patron
@@ -81,41 +88,36 @@ class ItemsController < ApplicationController
 
       page = params[:page] || 1
       search.query.paginate(page.to_i, per_page)
-      begin
-        @items = search.execute!.results
-        @count[:total] = @items.total_entries
-      rescue
-        @items = WillPaginate::Collection.create(1,1,0) do end
-        @count[:total] = 0
+      @items = search.execute!.results
+      @count[:total] = @items.total_entries
+    end
+
+    if defined?(EnjuBarcode)
+      if params[:mode] == 'barcode'
+        render :action => 'barcode', :layout => false
+        return
       end
     end
 
-    if params[:mode] == 'barcode'
-      render :action => 'barcode', :layout => false
-      return
-    end
+    flash[:page_info] = {:page => page, :query => query}
 
     respond_to do |format|
       format.html # index.rhtml
-      format.xml  { render :xml => @items }
+      format.json { render :json => @items }
       format.csv  { render :layout => false }
       format.atom
     end
-  rescue RSolr::RequestError
-    flash[:notice] = t('page.error_occured')
-    redirect_to items_url
-    return
   end
 
   # GET /items/1
-  # GET /items/1.xml
+  # GET /items/1.json
   def show
     #@item = Item.find(params[:id])
     @item = @item.versions.find(@version).item if @version
 
     respond_to do |format|
       format.html # show.rhtml
-      format.xml  { render :xml => @item }
+      format.json { render :json => @item }
     end
   end
 
@@ -132,24 +134,38 @@ class ItemsController < ApplicationController
       return
     end
     @item = Item.new
+    @item.shelf_id = @library.shelves.first.id
     @item.manifestation_id = @manifestation.id
-    @circulation_statuses = CirculationStatus.all(:conditions => {:name => ['In Process', 'Available For Pickup', 'Available On Shelf', 'Claimed Returned Or Never Borrowed', 'Not Available']}, :order => :position)
-    @item.circulation_status = CirculationStatus.first(:conditions => {:name => 'In Process'})
-    @item.checkout_type = @manifestation.carrier_type.checkout_types.first
+    if defined?(EnjuCirculation)
+      @circulation_statuses = CirculationStatus.where(
+        :name => [
+          'In Process',
+          'Available For Pickup',
+          'Available On Shelf',
+          'Claimed Returned Or Never Borrowed',
+          'Not Available']
+      ).order(:position)
+      @item.circulation_status = CirculationStatus.where(:name => 'In Process').first
+      @item.checkout_type = @manifestation.carrier_type.checkout_types.first
+      @item.use_restriction_id = UseRestriction.where(:name => 'Limited Circulation, Normal Loan Period').select(:id).first.id
+    end
 
     respond_to do |format|
       format.html # new.html.erb
-      format.xml  { render :xml => @item }
+      format.json { render :json => @item }
     end
   end
 
   # GET /items/1;edit
   def edit
-    #@item = Item.find(params[:id])
+    @item.library_id = @item.shelf.library_id
+    if defined?(EnjuCirculation)
+      @item.use_restriction_id = @item.use_restriction.id if @item.use_restriction
+    end
   end
 
   # POST /items
-  # POST /items.xml
+  # POST /items.json
   def create
     @item = Item.new(params[:item])
     manifestation = Manifestation.find(@item.manifestation_id)
@@ -161,59 +177,50 @@ class ItemsController < ApplicationController
           if @item.shelf
             @item.shelf.library.patron.items << @item
           end
-          if @item.reserved?
-            #ReservationNotifier.deliver_reserved(@item.manifestation.next_reservation.user)
-            flash[:message] = t('item.this_item_is_reserved')
-            @item.retain(current_user)
+          if defined?(EnjuCirculation)
+            if @item.reserved?
+              flash[:message] = t('item.this_item_is_reserved')
+              @item.retain(current_user)
+            end
           end
         end
         flash[:notice] = t('controller.successfully_created', :model => t('activerecord.models.item'))
         @item.post_to_union_catalog if LibraryGroup.site_config.post_to_union_catalog
         if @patron
           format.html { redirect_to patron_item_url(@patron, @item) }
-          format.xml  { render :xml => @item, :status => :created, :location => @item }
+          format.json { render :json => @item, :status => :created, :location => @item }
         else
           format.html { redirect_to(@item) }
-          format.xml  { render :xml => @item, :status => :created, :location => @item }
+          format.json { render :json => @item, :status => :created, :location => @item }
         end
       else
         prepare_options
         format.html { render :action => "new" }
-        format.xml  { render :xml => @item.errors, :status => :unprocessable_entity }
+        format.json { render :json => @item.errors, :status => :unprocessable_entity }
       end
     end
   end
 
   # PUT /items/1
-  # PUT /items/1.xml
+  # PUT /items/1.json
   def update
     #@item = Item.find(params[:id])
 
     respond_to do |format|
       if @item.update_attributes(params[:item])
-        if @item.shelf
-          #if @item.owns.blank?
-          #  @item.owns.create(:patron_id => @item.shelf.library.patron_id)
-          #else
-          #  @item.owns.first.update_attribute(:patron_id, @item.shelf.library.patron_id)
-          #end
-        end
-        use_restrictions = UseRestriction.all(:conditions => ['id IN (?)', params[:use_restriction_id]])
-        ItemHasUseRestriction.delete_all(['item_id = ?', @item.id])
-        @item.use_restrictions << use_restrictions
         flash[:notice] = t('controller.successfully_updated', :model => t('activerecord.models.item'))
         format.html { redirect_to item_url(@item) }
-        format.xml  { head :ok }
+        format.json { head :ok }
       else
         prepare_options
         format.html { render :action => "edit" }
-        format.xml  { render :xml => @item.errors, :status => :unprocessable_entity }
+        format.json { render :json => @item.errors, :status => :unprocessable_entity }
       end
     end
   end
 
   # DELETE /items/1
-  # DELETE /items/1.xml
+  # DELETE /items/1.json
   def destroy
     #@item = Item.find(params[:id])
     manifestation = @item.manifestation
@@ -223,28 +230,33 @@ class ItemsController < ApplicationController
       flash[:notice] = t('controller.successfully_deleted', :model => t('activerecord.models.item'))
       if @item.manifestation
         format.html { redirect_to manifestation_items_url(manifestation) }
-        format.xml  { head :ok }
+        format.json { head :ok }
       else
         format.html { redirect_to items_url }
-        format.xml  { head :ok }
+        format.json { head :ok }
       end
     end
   end
 
   private
   def prepare_options
-    @libraries = Library.real
-    @library = Library.real.first(:order => :position, :include => :shelves) if @library.blank?
-    @shelves = @library.shelves
-    @circulation_statuses = CirculationStatus.all
-    @bookstores = Bookstore.all
-    @use_restrictions = UseRestriction.all
-    if @manifestation
-      @checkout_types = CheckoutType.available_for_carrier_type(@manifestation.carrier_type)
+    @libraries = Library.real << Library.web
+    if @item.new_record?
+      @library = Library.real.first(:order => :position, :include => :shelves)
     else
-      @checkout_types = CheckoutType.all
+      @library = @item.shelf.library
     end
-    @roles = Role.all_cache
+    @shelves = @library.shelves
+    @bookstores = Bookstore.all
+    @roles = Role.all
+    if defined?(EnjuCirculation)
+      @circulation_statuses = CirculationStatus.all
+      @use_restrictions = UseRestriction.available
+      if @manifestation
+        @checkout_types = CheckoutType.available_for_carrier_type(@manifestation.carrier_type)
+      else
+        @checkout_types = CheckoutType.all
+      end
+    end
   end
-
 end

@@ -18,13 +18,15 @@ module ExpireEditableFragment
   end
 
   def expire_manifestation_cache(manifestation, fragments = [], formats = [])
-    fragments = %w[detail pickup book_jacket title picture_file show_list edit_list reserve_list] if fragments.size == 1 and fragments.first == 'detail'
+    fragments = %w[detail pickup title show_list show_index sru] if fragments.size == 1 and fragments.first == 'detail'
     expire_fragment(:controller => :manifestations, :action => :index, :page => 'numdocs')
     fragments.uniq.each do |fragment|
       expire_manifestation_fragment(manifestation, fragment, formats)
     end
-    manifestation.bookmarks.each do |bookmark|
-      expire_tag_cloud(bookmark)
+    if defined?(EnjuBookmark)
+      manifestation.bookmarks.each do |bookmark|
+        expire_tag_cloud(bookmark)
+      end
     end
   end
 
@@ -32,10 +34,17 @@ module ExpireEditableFragment
     formats = ['atom', 'csv', 'html', 'mods', 'mobile', 'oai_list_identifiers', 'oai_list_records', 'rdf', 'rss'] if formats.empty?
     if manifestation
       I18n.available_locales.each do |locale|
-        Role.all_cache.each do |role|
-          expire_fragment(:controller => :manifestations, :action => :show, :id => manifestation.id, :page => fragment, :role => role.name, :locale => locale, :manifestation_id => nil)
+        if fragment == 'holding'
+          expire_fragment(:controller => :manifestations, :action => :show, :id => manifestation.id, :page => fragment, :locale => locale, :manifestation_id => nil)
           formats.each do |format|
-            expire_fragment(:controller => :manifestations, :action => :show, :id => manifestation.id, :page => fragment, :role => role.name, :locale => locale, :format => format, :manifestation_id => nil)
+            expire_fragment(:controller => :manifestations, :action => :show, :id => manifestation.id, :page => fragment, :locale => locale, :format => format, :manifestation_id => nil)
+          end
+        else
+          Role.all_cache.each do |role|
+            expire_fragment(:controller => :manifestations, :action => :show, :id => manifestation.id, :page => fragment, :role => role.name, :locale => locale, :manifestation_id => nil)
+            formats.each do |format|
+              expire_fragment(:controller => :manifestations, :action => :show, :id => manifestation.id, :page => fragment, :role => role.name, :locale => locale, :format => format, :manifestation_id => nil)
+            end
           end
         end
       end
@@ -50,5 +59,4 @@ module ExpireEditableFragment
       end
     end
   end
-
 end

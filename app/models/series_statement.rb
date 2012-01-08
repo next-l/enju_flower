@@ -1,16 +1,20 @@
 class SeriesStatement < ActiveRecord::Base
-  has_many :manifestations
+  has_many :series_has_manifestations, :dependent => :destroy
+  has_many :manifestations, :through => :series_has_manifestations
+  belongs_to :root_manifestation, :foreign_key => :root_manifestation_id, :class_name => 'Manifestation'
   validates_presence_of :original_title
   validate :check_issn
-  after_create :create_initial_manifestation
+  after_save :create_root_manifestation
 
   acts_as_list
   searchable do
     text :title do
-      original_title
+      titles
     end
     text :numbering, :title_subseries, :numbering_subseries
-    integer :manifestation_ids, :multiple => true
+    integer :manifestation_ids, :multiple => true do
+      series_has_manifestations.collect(&:manifestation_id)
+    end
     integer :position
     boolean :periodical
   end
@@ -22,7 +26,7 @@ class SeriesStatement < ActiveRecord::Base
   end
 
   def last_issue
-    manifestations.where('date_of_publication IS NOT NULL').order('date_of_publication DESC').first || manifestations.first
+    manifestations.where('date_of_publication IS NOT NULL').order('date_of_publication DESC').first || manifestations.order(:id).last
   end
 
   def check_issn
@@ -34,18 +38,12 @@ class SeriesStatement < ActiveRecord::Base
     end
   end
 
-  def create_initial_manifestation
-    return nil if initial_manifestation
+  def create_root_manifestation
     return nil unless periodical
-    manifestation = Manifestation.new(
+    return nil if root_manifestation
+    self.root_manifestation = Manifestation.new(
       :original_title => original_title
     )
-    manifestation.periodical_master = true
-    self.manifestations << manifestation
-  end
-
-  def initial_manifestation
-    manifestations.where(:periodical_master => true).first
   end
 
   def first_issue
@@ -55,4 +53,36 @@ class SeriesStatement < ActiveRecord::Base
   def latest_issue
     manifestations.order(:date_of_publication).last
   end
+
+  def manifestation_included(manifestation)
+    series_has_manifestations.where(:manifestation_id => manifestation.id).first
+  end
+
+  def titles
+    [original_title, title_transcription]
+  end
 end
+
+
+
+# == Schema Information
+#
+# Table name: series_statements
+#
+#  id                          :integer         not null, primary key
+#  original_title              :text
+#  numbering                   :text
+#  title_subseries             :text
+#  numbering_subseries         :text
+#  position                    :integer
+#  created_at                  :datetime
+#  updated_at                  :datetime
+#  title_transcription         :text
+#  title_alternative           :text
+#  series_statement_identifier :string(255)
+#  issn                        :string(255)
+#  periodical                  :boolean
+#  root_manifestation_id       :integer
+#  note                        :text
+#
+

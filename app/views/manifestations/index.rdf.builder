@@ -1,4 +1,4 @@
-xml.instruct! :xml, :version=>"1.0" 
+xml.instruct! :xml, :version=>"1.0"
 xml.rdf(:RDF,
         'xmlns'  => "http://purl.org/rss/1.0/",
         'xmlns:rdf'  => "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
@@ -23,6 +23,6 @@ xml.rdf(:RDF,
     end
   }
   @manifestations.each do |manifestation|
-    xml << render(:partial => 'manifestations/show', :locals => {:manifestation => manifestation})
+    xml << render('manifestations/show', :manifestation => manifestation)
   end
 }

@@ -13,7 +13,8 @@ class Library < ActiveRecord::Base
   belongs_to :country
 
   #acts_as_soft_deletable
-  has_friendly_id :name
+  extend FriendlyId
+  friendly_id :name
   geocoded_by :address
   #enju_calil_library
 

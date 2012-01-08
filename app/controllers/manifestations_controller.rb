@@ -13,7 +13,7 @@ class ManifestationsController < ApplicationController
   after_filter :convert_charset, :only => :index
   cache_sweeper :manifestation_sweeper, :only => [:create, :update, :destroy]
   #include WorldcatController
-  include OaiController
+  include EnjuOai::OaiController if defined?(EnjuOai)
 
   # GET /manifestations
   # GET /manifestations.xml
@@ -139,15 +139,22 @@ class ManifestationsController < ApplicationController
         :required_role_id,
         :carrier_type_id,
         :access_address,
-        :volume_number_list,
-        :issue_number_list,
-        :serial_number_list,
+        :volume_number_string,
+        :issue_number_string,
+        :serial_number_string,
         :date_of_publication,
         :pub_date,
-        :periodical_master,
         :language_id,
         :carrier_type_id,
-        :created_at
+        :created_at,
+        :updated_at,
+        :volume_number_string,
+        :volume_number,
+        :issue_number_string,
+        :issue_number,
+        :serial_number,
+        :edition_string,
+        :edition
       ] if params[:format] == 'html' or params[:format].nil?
       all_result = search.execute
       @count[:query_result] = all_result.total
@@ -599,7 +606,6 @@ class ManifestationsController < ApplicationController
   end
 
   def save_search_history(query, offset = 0, total = 0, user = nil)
-    check_dsbl if LibraryGroup.site_config.use_dsbl
     if configatron.write_search_log_to_file
       write_search_log(query, total, user)
     else

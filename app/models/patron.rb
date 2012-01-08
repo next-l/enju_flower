@@ -16,8 +16,10 @@ class Patron < ActiveRecord::Base
   has_many :donated_items, :through => :donates, :source => :item
   has_many :owns, :dependent => :destroy
   has_many :items, :through => :owns
-  #has_many :patron_merges, :dependent => :destroy
-  #has_many :patron_merge_lists, :through => :patron_merges
+  if defined?(EnjuResourceMerge)
+    has_many :patron_merges, :dependent => :destroy
+    has_many :patron_merge_lists, :through => :patron_merges
+  end
   belongs_to :user
   belongs_to :patron_type
   belongs_to :required_role, :class_name => 'Role', :foreign_key => 'required_role_id', :validate => true
@@ -59,7 +61,7 @@ class Patron < ActiveRecord::Base
     integer :work_ids, :multiple => true
     integer :expression_ids, :multiple => true
     integer :manifestation_ids, :multiple => true
-    #integer :patron_merge_list_ids, :multiple => true
+    integer :patron_merge_list_ids, :multiple => true if defined?(EnjuResourceMerge)
     integer :original_patron_ids, :multiple => true
     integer :required_role_id
     integer :patron_type_id
@@ -247,3 +249,63 @@ class Patron < ActiveRecord::Base
     self.original_patrons + self.derived_patrons
   end
 end
+
+
+
+
+
+
+
+# == Schema Information
+#
+# Table name: patrons
+#
+#  id                                  :integer         not null, primary key
+#  user_id                             :integer
+#  last_name                           :string(255)
+#  middle_name                         :string(255)
+#  first_name                          :string(255)
+#  last_name_transcription             :string(255)
+#  middle_name_transcription           :string(255)
+#  first_name_transcription            :string(255)
+#  corporate_name                      :string(255)
+#  corporate_name_transcription        :string(255)
+#  full_name                           :string(255)
+#  full_name_transcription             :text
+#  full_name_alternative               :text
+#  created_at                          :datetime
+#  updated_at                          :datetime
+#  deleted_at                          :datetime
+#  zip_code_1                          :string(255)
+#  zip_code_2                          :string(255)
+#  address_1                           :text
+#  address_2                           :text
+#  address_1_note                      :text
+#  address_2_note                      :text
+#  telephone_number_1                  :string(255)
+#  telephone_number_2                  :string(255)
+#  fax_number_1                        :string(255)
+#  fax_number_2                        :string(255)
+#  other_designation                   :text
+#  place                               :text
+#  street                              :text
+#  locality                            :text
+#  region                              :text
+#  date_of_birth                       :datetime
+#  date_of_death                       :datetime
+#  language_id                         :integer         default(1), not null
+#  country_id                          :integer         default(1), not null
+#  patron_type_id                      :integer         default(1), not null
+#  lock_version                        :integer         default(0), not null
+#  note                                :text
+#  required_role_id                    :integer         default(1), not null
+#  required_score                      :integer         default(0), not null
+#  state                               :string(255)
+#  email                               :text
+#  url                                 :text
+#  full_name_alternative_transcription :text
+#  title                               :string(255)
+#  birth_date                          :string(255)
+#  death_date                          :string(255)
+#
+
