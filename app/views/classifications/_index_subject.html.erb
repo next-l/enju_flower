@@ -45,7 +45,7 @@
           <%= link_to t('page.add'), new_subject_subject_has_classification_path(@subject, :classification_id => classification.id) unless @subject.classifications.include?(classification) -%>
         <%- else -%>
           <%- has_classification = @subject.subject_has_classifications.find_by_classification_id(classification) -%>
-          <%= link_to t('page.destroy'), subject_subject_has_classification_path(@subject, has_classification), :confirm => t('page.are_you_sure'), :method => :delete if has_classification -%>
+          <%= link_to t('page.destroy'), subject_subject_has_classification_path(@subject, has_classification), :data => {:confirm => t('page.are_you_sure')}, :method => :delete if has_classification -%>
         <%- end -%>
       <%- end -%>
     </td>

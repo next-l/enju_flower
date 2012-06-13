@@ -46,7 +46,7 @@
     <%- if user_signed_in? -%>
       <ul>
         <%- if current_user.email.present? -%>
-          <li><%= link_to t('manifestation.send_email'), manifestation_path(:mode => 'send_email'), :confirm => t('page.are_you_sure') -%></li>
+          <li><%= link_to t('manifestation.send_email'), manifestation_path(:mode => 'send_email'), :data => {:confirm => t('page.are_you_sure')} -%></li>
         <%- end -%>
         <% if defined?(EnjuBookmark) %>
           <li><%= link_to_bookmark(@manifestation) %></li>
@@ -77,7 +77,7 @@
             <%- else -%>
               <%= link_to t('page.edit'), edit_manifestation_path(@manifestation) -%>
               <% if can? :destroy, @manifestation %>
-                <li><%= link_to t('page.destroy'), @manifestation, :confirm => t('page.are_you_sure'), :method => :delete -%></li>
+                <li><%= link_to t('page.destroy'), @manifestation, :data => {:confirm => t('page.are_you_sure')}, :method => :delete -%></li>
               <% end %>
             <%- end -%>
             <ul>
