@@ -2,16 +2,24 @@
 class ApplicationController < ActionController::Base
   protect_from_forgery
 
-  #rescue_from CanCan::AccessDenied, :with => :render_403
-  #rescue_from ActiveRecord::RecordNotFound, :with => :render_404
-  #rescue_from Errno::ECONNREFUSED, :with => :render_500
-  #rescue_from ActionView::MissingTemplate, :with => :render_404_invalid_format
+  rescue_from CanCan::AccessDenied, :with => :render_403
+  rescue_from ActiveRecord::RecordNotFound, :with => :render_404
+  rescue_from Errno::ECONNREFUSED, :with => :render_500
+  rescue_from ActionView::MissingTemplate, :with => :render_404_invalid_format
   #rescue_from ActionController::RoutingError, :with => :render_404
 
-  before_filter :get_library_group, :set_locale, :set_available_languages, :prepare_for_mobile
-  helper_method :mobile_device?
+  enju_biblio
+  enju_library
+  before_filter :get_library_group, :set_locale, :set_available_languages, :set_mobile_request
+  has_mobile_fu
+  before_filter :set_request_format
 
   private
+  def after_sign_in_path_for(resource)
+    session[:locale] = nil
+    super
+  end
+
   def render_403
     return if performed?
     if user_signed_in?
@@ -19,14 +27,14 @@ class ApplicationController < ActionController::Base
         format.html {render :template => 'page/403', :status => 403}
         format.mobile {render :template => 'page/403', :status => 403}
         format.xml {render :template => 'page/403', :status => 403}
-        format.json
+        format.json { render :text => '{"error": "forbidden"}' }
       end
     else
       respond_to do |format|
         format.html {redirect_to new_user_session_url}
         format.mobile {redirect_to new_user_session_url}
         format.xml {render :template => 'page/403', :status => 403}
-        format.json
+        format.json { render :text => '{"error": "forbidden"}' }
       end
     end
   end
@@ -37,7 +45,7 @@ class ApplicationController < ActionController::Base
       format.html {render :template => 'page/404', :status => 404}
       format.mobile {render :template => 'page/404', :status => 404}
       format.xml {render :template => 'page/404', :status => 404}
-      format.json
+      format.json { render :text => '{"error": "not_found"}' }
     end
   end
 
@@ -54,12 +62,8 @@ class ApplicationController < ActionController::Base
       format.html {render :file => "#{Rails.root.to_s}/public/500.html", :layout => false, :status => 500}
       format.mobile {render :file => "#{Rails.root.to_s}/public/500.html", :layout => false, :status => 500}
       format.xml {render :template => 'page/500', :status => 500}
-      format.json
+      format.json { render :text => '{"error": "server_error"}' }
     end
-  end
-
-  def get_library_group
-    @library_group = LibraryGroup.site_config
   end
 
   def set_locale
@@ -108,139 +112,13 @@ class ApplicationController < ActionController::Base
     raise CanCan::AccessDenied
   end
 
-  def get_patron
-    @patron = Patron.find(params[:patron_id]) if params[:patron_id]
-    authorize! :show, @patron if @patron
-  end
-
-  def get_work
-    @work = Manifestation.find(params[:work_id]) if params[:work_id]
-    authorize! :show, @work if @work
-  end
-
-  def get_expression
-    @expression = Manifestation.find(params[:expression_id]) if params[:expression_id]
-    authorize! :show, @expression if @expression
-  end
-
-  def get_manifestation
-    @manifestation = Manifestation.find(params[:manifestation_id]) if params[:manifestation_id]
-    authorize! :show, @manifestation if @manifestation
-  end
-
-  def get_item
-    @item = Item.find(params[:item_id]) if params[:item_id]
-    authorize! :show, @item if @item
-  end
-
-  def get_carrier_type
-    @carrier_type = CarrierType.find(params[:carrier_type_id]) if params[:carrier_type_id]
-  end
-
-  def get_shelf
-    @shelf = Shelf.find(params[:shelf_id], :include => :library) if params[:shelf_id]
-  end
-
   def get_user
-    @user = User.where(:username => params[:user_id]).first if params[:user_id]
-    if @user
-      authorize! :show, @user
-    else
-      raise ActiveRecord::RecordNotFound
-    end
-    return @user
-  end
-
-  def get_user_if_nil
     @user = User.where(:username => params[:user_id]).first if params[:user_id]
     #authorize! :show, @user if @user
   end
 
   def get_user_group
     @user_group = UserGroup.find(params[:user_group_id]) if params[:user_group_id]
-  end
-
-  def get_library
-    @library = Library.find(params[:library_id]) if params[:library_id]
-  end
-
-  def get_libraries
-    @libraries = Library.all_cache
-  end
-
-  def get_library_group
-    @library_group = LibraryGroup.site_config
-  end
-
-  def get_bookstore
-    @bookstore = Bookstore.find(params[:bookstore_id]) if params[:bookstore_id]
-  end
-
-  def get_series_statement
-    @series_statement = SeriesStatement.find(params[:series_statement_id]) if params[:series_statement_id]
-  end
-
-  def get_subscription
-    @subscription = Subscription.find(params[:subscription_id]) if params[:subscription_id]
-  end
-
-  if defined?(EnjuResourceMerge)
-    def get_patron_merge_list
-      @patron_merge_list = PatronMergeList.find(params[:patron_merge_list_id]) if params[:patron_merge_list_id]
-    end
-  end
-
-  if defined?(EnjuQuestion)
-    def get_question
-      @question = Question.find(params[:question_id]) if params[:question_id]
-      authorize! :show, @question if @question
-    end
-  end
-
-  if defined?(EnjuEvent)
-    def get_event
-      @event = Event.find(params[:event_id]) if params[:event_id]
-    end
-  end
-
-  if defined?(EnjuPurchaseRequest)
-    def get_order_list
-      @order_list = OrderList.find(params[:order_list_id]) if params[:order_list_id]
-    end
-
-    def get_purchase_request
-      @purchase_request = PurchaseRequest.find(params[:purchase_request_id]) if params[:purchase_request_id]
-    end
-  end
-
-  if defined?(EnjuCirculation)
-    def get_basket
-      @basket = Basket.find(params[:basket_id]) if params[:basket_id]
-    end
-
-    def get_checkout_type
-      @checkout_type = CheckoutType.find(params[:checkout_type_id]) if params[:checkout_type_id]
-    end
-  end
-
-  if defined?(EnjuInventory)
-    def get_inventory_file
-      @inventory_file = InventoryFile.find(params[:inventory_file_id]) if params[:inventory_file_id]
-    end
-  end
-
-  if defined?(EnjuSubject)
-    def get_subject_heading_type
-      @subject_heading_type = SubjectHeadingType.find(params[:subject_heading_type_id]) if params[:subject_heading_type_id]
-    end
-
-    def get_subject
-      @subject = Subject.find(params[:subject_id]) if params[:subject_id]
-    end
-
-    def get_classification
-      @classification = Classification.find(params[:classification_id]) if params[:classification_id]
-    end
   end
 
   def convert_charset
@@ -261,7 +139,9 @@ class ApplicationController < ActionController::Base
   end
 
   def store_page
-    flash[:page] = params[:page] if params[:page].to_i > 0
+    if request.get? and request.format.try(:html?) and !request.xhr?
+      flash[:page] = params[:page] if params[:page].to_i > 0
+    end
   end
 
   def store_location
@@ -301,14 +181,12 @@ class ApplicationController < ActionController::Base
         with(:reservable).equal_to reservable unless reservable.nil?
         unless carrier_type.blank?
           with(:carrier_type).equal_to carrier_type
-          with(:carrier_type).equal_to carrier_type
         end
         unless library.blank?
           library_list = library.split.uniq
           library_list.each do |library|
             with(:library).equal_to library
           end
-          #search.query.keywords = "#{search.query.to_params[:q]} library_s: (#{library_list})"
         end
         unless language.blank?
           language_list = language.split.uniq
@@ -350,16 +228,42 @@ class ApplicationController < ActionController::Base
     @current_ability ||= Ability.new(current_user, request.remote_ip)
   end
 
-  def prepare_for_mobile
-    request.format = :mobile if request.smart_phone?
-  end
-
   def get_top_page_content
     if defined?(EnjuNews)
       @news_feeds = Rails.cache.fetch('news_feed_all'){NewsFeed.all}
       @news_posts = NewsPost.limit(3)
     end
     @libraries = Library.real
+  end
+
+  def set_mobile_request
+    if params[:mobile_view]
+      if params[:mobile_view] == 'false'
+        session[:mobile_view] = false
+      else
+        session[:mobile_view] = true
+      end
+    else
+      if is_mobile_device?
+        session[:mobile_view] = true
+      end
+    end
+  end
+
+  def set_request_format
+    if session[:mobile_view]
+      request.format = :mobile if is_mobile_device?
+    end
+  end
+
+  def move_position(resource, direction, redirect = true)
+    if ['higher', 'lower'].include?(direction)
+      resource.send("move_#{direction}")
+      if redirect
+        redirect_to url_for(:controller => resource.class.to_s.pluralize.underscore)
+        return
+      end
+    end
   end
 end
 

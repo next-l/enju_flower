@@ -6,26 +6,42 @@ class MyAccountsController < ApplicationController
 
     respond_to do |format|
       format.html
-      format.json { render :json => @user.to_json }
+      format.json { render :json => @user }
     end
   end
 
   def edit
     @user = current_user
-    @user.role_id = @user.role.id
+    if defined?(EnjuCirculation)
+      if params[:mode] == 'feed_token'
+        if params[:disable] == 'true'
+          @user.delete_checkout_icalendar_token
+        else
+          @user.reset_checkout_icalendar_token
+        end
+        render :partial => 'feed_token'
+        return
+      end
+    end
     prepare_options
   end
 
   def update
-    current_user.update_with_params(params[:user], current_user)
     @user = current_user
 
     respond_to do |format|
-      if current_user.update_with_password(params[:user])
-        sign_in(current_user, :bypass => true)
-        format.html { redirect_to(my_account_url, :notice => t('controller.successfully_updated', :model => t('activerecord.models.user'))) }
-        format.json { head :ok }
+      if current_user.has_role?('Librarian')
+        saved = current_user.update_with_password(params[:user], :as => :admin)
       else
+        saved = current_user.update_with_password(params[:user])
+      end
+
+      if saved
+        sign_in(current_user, :bypass => true)
+        format.html { redirect_to my_account_url, :notice => t('controller.successfully_updated', :model => t('activerecord.models.user')) }
+        format.json { head :no_content }
+      else
+        @user = current_user
         prepare_options
         format.html { render :action => "edit" }
         format.json { render :json => current_user.errors, :status => :unprocessable_entity }
@@ -38,11 +54,12 @@ class MyAccountsController < ApplicationController
     @user.destroy
 
     respond_to do |format|
-      format.html { redirect_to(my_account_url, :notice => 'devise.registrations.destroyed') }
-      format.json { head :ok }
+      format.html { redirect_to my_account_url, :notice => 'devise.registrations.destroyed' }
+      format.json { head :no_content }
     end
   end
 
+  private
   def prepare_options
     @user_groups = UserGroup.all
     @roles = Role.all

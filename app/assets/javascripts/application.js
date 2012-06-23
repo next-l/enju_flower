@@ -1,9 +1,9 @@
 //= require jquery
+//= require jquery_ujs
 //= require jquery-ui
 //= require jquery.colorbox
-//= require jquery_ujs
-//= require jquery.highlight-3
-//= require jquery.hotkeys
+//= require jquery.highlight
+//= require jquery.shortcut
 //= require jquery.cookie
 //= require fg.menu
 //= require fg.menu.enju
@@ -13,3 +13,4 @@
 //= require tab_view
 //= require event_calendar
 //= require rails.validations
+//= require jquery.qtip

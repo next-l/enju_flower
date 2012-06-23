@@ -1,77 +1,16 @@
 EnjuFlower::Application.routes.draw do
   devise_for :users, :path => 'accounts'
 
-  resources :patrons, :only => [:index, :show] do
-    resources :manifestations
-    resources :works, :controller => 'manifestations'
-    resources :expressions, :controller => 'manifestations'
-    resources :patrons
-  end
+  resource :my_account
 
-  resources :creators, :controller => 'patrons' do
-    resources :manifestations
-  end
-  
-  resources :contributors, :controller => 'patrons' do
-    resources :manifestations
-  end
-  
-  resources :publishers, :controller => 'patrons' do
-    resources :manifestations
-  end
-  
-  resources :manifestations, :only => [:index, :show, :edit] do
-    resources :manifestations
-    resources :picture_files
-    resources :patrons
-    resources :picture_files
-    resources :items
-  end
+  #resources :users do
+  #  resource :patron
+  #end
+  resources :users
 
-  resources :works, :controller => 'manifestations' do
-    resources :patrons
-    resources :subjects
-  end
+  resources :roles, :except => [:new, :create, :destroy]
 
-  resources :expressions, :controller => 'manifestations' do
-    resources :patrons
-  end
-
-  resources :items do
-    resources :lending_policies
-    resources :patrons
-  end
-
-  resources :tags
-
-  resources :bookmarks
-
-  resources :users do
-    resources :messages
-    resources :bookmarks
-    resources :reserves
-    resources :questions
-    resources :purchase_requests
-  end
-
-  resources :items
-  resources :series_statements
-  resources :subjects
-  resources :libraries do
-    resources :events
-    resources :shelves
-  end
-  resources :shelves
-  resources :classifications
-  resources :questions
-  resources :reserves
-  resources :checkouts
-  resources :purchase_requests
-  resources :events
-  resources :checkout_types
-  resources :circulation_statuses
-  resources :picture_files
-  resources :lending_policies
+  resources :user_groups
 
   # The priority is based upon order of creation:
   # first created -> highest priority.
@@ -128,10 +67,7 @@ EnjuFlower::Application.routes.draw do
 
   # This is a legacy wild controller route that's not recommended for RESTful applications.
   # Note: This route will make all actions in every controller accessible via GET requests.
-  # match ':controller(/:action(/:id(.:format)))'
-  match '/isbn/:isbn' => 'manifestations#show'
-  match '/calendar(/:year(/:month))' => 'calendar#index', :as => :calendar, :constraints => {:year => /\d{4}/, :month => /\d{1,2}/}
-  match "/calendar/:year/:month/:day" => "calendar#show"
+  # match ':controller(/:action(/:id))(.:format)'
   match '/page/about' => 'page#about'
   match '/page/configuration' => 'page#configuration'
   match '/page/advanced_search' => 'page#advanced_search'
@@ -142,7 +78,4 @@ EnjuFlower::Application.routes.draw do
   match '/page/opensearch' => 'page#opensearch'
   match '/page/statistics' => 'page#statistics'
   match '/page/routing_error' => 'page#routing_error'
-
-  # http://techoctave.com/c7/posts/36-rails-3-0-rescue-from-routing-error-solution
-  match '*a', :to => 'page#routing_error' unless Rails.application.config.consider_all_requests_local
 end
