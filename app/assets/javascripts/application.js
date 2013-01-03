@@ -1,13 +1,12 @@
 //= require jquery
 //= require jquery_ujs
-//= require jquery-ui
+//= require jquery.ui.all
 //= require jquery.colorbox
 //= require jquery.highlight
 //= require jquery.shortcut
 //= require jquery.cookie
 //= require fg.menu
 //= require fg.menu.enju
-//= require pagination
 //= require select_locale
 //= require portlets
 //= require tab_view
