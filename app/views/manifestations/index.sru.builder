@@ -13,8 +13,8 @@ if @sru
 
   @version = @sru.version
   @packing = @sru.packing
-  @number_of_records = @manifestations.total_entries
-  @next_record_position = @sru.start + @manifestations.size
+  @number_of_records = @manifestations.total_count
+  @next_record_position = @sru.start + @manifestations.limit_value
 end
 
 def search_retrieve_response!(xml)
@@ -69,7 +69,7 @@ def get_record(manifestation)
     'xmlns:srw_dc' => "info:srw/schema/1/dc-v1.1",
     'xmlns:xsi' => "http://www.w3.org/2001/XMLSchema-instance",
     'xsi:schemaLocation' => "info:srw/schema/1/dc-v1.1 http://www.loc.gov/standards/sru/dc-schema.xsd" do
-    cache(:controller => :manifestations, :action => :show, :id => manifestation.id, :page => 'sru', :role => current_user_role_name, :locale => @locale, :manifestation_id => nil) do
+    cache([:manifestation => manifestation.id, :fragment => 'index_sru', :role => current_user_role_name, :locale => @locale]) do
       xml.tag! 'dc:title', manifestation.original_title
       manifestation.creators.readable_by(current_user).each do |patron|
         xml.tag! 'dc:creator', patron.full_name

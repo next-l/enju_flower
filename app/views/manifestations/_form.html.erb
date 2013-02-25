@@ -3,24 +3,27 @@
   <%= f.error_messages -%>
 
   <div class="field">
-    <%- if !@manifestation.new_record? and @manifestation.series_statement -%>
+    <%- if @manifestation.series_has_manifestation.try(:series_statement) -%>
       <%= f.label t('activerecord.models.series_statement') -%>
-      <% if @series_statement %>
-        <%= link_to @series_statement.original_title, @series_statement -%>
+      <%= link_to @manifestation.series_has_manifestation.series_statement.original_title, @manifestation.series_has_manifestation.series_statement -%>
+      <% if @manifestation.new_record? %>
+        (<%= link_to t('series_statement.edit'), series_statements_path %>)
       <% else %>
-        <%= link_to @manifestation.series_statement.original_title, @manifestation.series_statement -%>
+        (<%= link_to t('series_statement.edit'), series_statements_path(:manifestation_id => @manifestation.id) -%>)
       <% end %>
-      (<%= link_to t('series_statement.edit'), series_statements_path(:manifestation_id => @manifestation.id) -%>)
     <%- else -%>
       <%= f.label t('activerecord.models.series_statement') -%>
-      <%= link_to @series_statement.original_title, @series_statement if @series_statement -%>
       <% if @manifestation.new_record? %>
         (<%= link_to t('page.listing', :model => t('activerecord.models.series_statement')), series_statements_path -%>)
       <% else %>
         (<%= link_to t('page.listing', :model => t('activerecord.models.series_statement')), manifestation_series_statements_path(@manifestation) -%>)
       <%- end -%>
     <%- end -%>
-    <%= f.hidden_field :series_statement_id, :value => @manifestation.series_statement_id %>
+    <% if @series_statement %>
+      <%= f.fields_for :series_has_manifestation do |s| %>
+        <%= s.hidden_field :series_statement_id %>
+      <% end %>
+    <% end %>
   </div>
 
   <div class="field">
@@ -36,7 +39,7 @@
     <%= f.text_field :title_alternative, :class => 'resource_title' -%>
   </div>
 
-  <%- if @manifestation.periodical? -%>
+  <%- if @series_statement.try(:periodical?) -%>
     <%= render :partial => 'manifestations/serial_form', :locals => {:f => f, :manifestation => @manifestation} -%>
   <%- else -%>
     <div class="field">
@@ -58,8 +61,13 @@
   </div>
 
   <div class="field">
+    <%= f.label t('activerecord.models.content_type') -%>
+    <%= f.select(:content_type_id, @content_types.collect{|c| [c.display_name.localize, c.id]}) -%>
+  </div>
+
+  <div class="field">
     <%= f.label t('activerecord.models.carrier_type') -%>
-    <%= f.select(:carrier_type_id, @carrier_types.collect{|m| [m.display_name.localize, m.id]}) -%>
+    <%= f.select(:carrier_type_id, @carrier_types.collect{|c| [c.display_name.localize, c.id]}) -%>
     <!-- TODO: Formの切り替え時に入力項目をAjaxで書き換える -->
   </div>
 
@@ -87,7 +95,7 @@
   <div class="field">
     <%= f.label :lccn -%>
     <%= f.text_field :lccn, :class => 'resource_isbn_issn', :style => 'ime-mode: disabled' -%>
-    <% if @manifestation.periodical? %>
+    <%- if @series_statement.try(:periodical?) -%>
       <%= f.label :issn -%>
       <%= f.text_field :issn, :class => 'resource_isbn_issn', :style => 'ime-mode: disabled' -%>
     <% end %>
@@ -144,5 +152,5 @@
     <%= hidden_field_tag :manifestation_id, @original_manifestation.id if @original_manifestation -%>
     <%= f.submit %>
   </div>
-  <%= javascript_tag("$('#manifestation_original_title').focus()") -%>
+  <%= javascript_tag("$(function(){$('#query').focus()})") %>
 <%- end -%>

@@ -5,7 +5,7 @@
 <div data-role="content">
   <div data-role="fieldcontain">
     <%= form_for :manifestations, :html => {:method => 'get'} do -%>
-      <label for="search_form_top"><%= t('page.search_term') -%>:</label>
+      <%= label_tag :search_form_top, t('page.search_term') -%>:
       <%= search_field_tag 'query', h(@query), {:id => 'search_form_top', :class => 'search_form', :placeholder => t('page.search_term')} -%>
       <%= submit_tag t('page.search') -%>
     <% end %>
@@ -18,4 +18,4 @@
 <% end %>
 </ul>
 
-<%= paginate(@manifestations, :renderer => WillPaginateJqueryMobileRenderer) %>
+<%= paginate(@manifestations, :window => 0) %>

@@ -1,4 +1,4 @@
-<table class="index" id="manifestation_list">
+<table class="table table-striped index" id="manifestation_list">
   <%= render manifestations %>
 </table>
 
@@ -6,10 +6,10 @@
 <br />
 
 <div>
-  <%- if manifestations and manifestations.size > Manifestation.per_page.div(2) -%>
+  <%- if manifestations and manifestations.size > @manifestations.limit_value.div(2) -%>
     <%= form_for :manifestations, :html => {:method => 'get'} do -%>
       <p>
-        <%= t('page.search_term') -%>:
+        <%= label_tag :search_form_bottom, t('page.search_term') -%>:
         <%= search_field_tag 'query', h(@query), {:id => 'search_form_bottom', :class => 'search_form', :placeholder => t('page.search_term')} -%>
         <%= hidden_field_tag 'reservable', h(@reservable) if @reservable -%>
         <%= submit_tag t('page.search') -%>

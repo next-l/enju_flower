@@ -1,5 +1,5 @@
-<div id="holding">
-<table class="holding">
+<div class="holding">
+<table class="table table-striped holding">
   <tr>
     <th><%= t('activerecord.attributes.item.item_identifier') -%></th>
     <th><%= t('activerecord.models.library') -%></th>
@@ -9,21 +9,20 @@
       <th><%= t('activerecord.models.circulation_status') -%></th>
     <% end %>
   </tr>
-  <% cache(:controller => :manifestations, :action => :show, :id => manifestation.id, :page => 'holding', :locale => @locale, :manifestation_id => nil) do %>
   <%- manifestation.items.on_shelf.each do |item| -%>
     <tr>
       <td>
         <%- if item.item_identifier? -%>
-          <%= link_to item.item_identifier, item -%>
+          <%= link_to(item.item_identifier, item, :id => "item_identifier_item_#{item.id}") -%>
         <%- else -%>
           (<%= link_to t('item.no_number'), item -%>)
         <%- end -%>
       </td>
       <td>
-        <%= link_to item.shelf.library.display_name.localize, item.shelf.library %>
+        <%= link_to(item.shelf.library.display_name.localize, item.shelf.library, :id => "library_item_#{item.id}") %>
       </td>
       <td>
-        <%= link_to item.shelf_display_name.localize, item.shelf -%>
+        <%= link_to(item.shelf_display_name.localize, item.shelf, :id => "shelf_item_#{item.id}")-%>
         <%= render 'items/shelf_picture', :item => item -%>
       </td>
       <td>
@@ -41,7 +40,21 @@
         </td>
       <% end %>
     </tr>
-  <%- end -%>
+    <% if can? :update, item %>
+      <script>
+        $(function(){
+          $('a#item_identifier_item_<%= item.id %>').data(
+            'powertip',
+            'item_identifier: <%= item.item_identifier %>'
+          );
+          $('a#item_identifier_item_<%= item.id %>').powerTip({
+            placement: 'e',
+            mouseOnToPopup: true
+          });
+        });
+      </script>
+      <%= render 'items/tooltip', :item => item %>
+    <% end %>
   <%- end -%>
 </table>
 </div>

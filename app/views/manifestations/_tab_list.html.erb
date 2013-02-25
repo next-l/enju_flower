@@ -1,7 +1,7 @@
 <%- if manifestation.original_manifestations.first or manifestation.derived_manifestations.first -%>
   <%= render 'manifestations/manifestation_list', :manifestation => manifestation -%>
 <%- end -%>
-<%- if defined?(EnjuQuestion) -%>
+<%-if defined?(EnjuQuestion) -%>
   <%- unless manifestation.questions(:user => current_user).empty? -%>
     <%= render 'manifestations/question_list', :manifestation => manifestation -%>
   <%- end -%>

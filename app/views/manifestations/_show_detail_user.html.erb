@@ -1,25 +1,24 @@
   <div id="tabs">
     <%= render 'manifestations/tab_menu', :manifestation => manifestation %>
     <div id="detail">
-      <%- if manifestation.isbn -%>
-        <%= google_book_search_preview(manifestation.isbn) -%>
-      <%- end -%>
-    <% cache(:controller => :manifestations, :action => :show, :id => manifestation.id, :page => 'detail', :role => current_user_role_name, :locale => @locale, :manifestation_id => nil) do %>
-      <table id="resource_detail">
+    <% cache([:manifestation => manifestation.id, :fragment => 'show_detail_user_html', :role => current_user_role_name, :locale => @locale]) do %>
+      <table class="table table-striped" id="resource_detail">
         <%= embed_content(manifestation) -%>
         <% if manifestation.title_alternative? %>
           <tr>
             <td style="width: 200px"><%= t('activerecord.attributes.manifestation.title_alternative') -%>:</td>
-            <td style="width: 490px"><%= manifestation.title_alternative -%></td>
+            <td style="width: 500px"><%= manifestation.title_alternative -%></td>
           </tr>
         <% end %>
         <%- if manifestation.series_statement -%>
           <tr>
             <td style="width: 200px"><%= t('activerecord.models.series_statement') -%>:</td>
-            <td style="width: 490px"><%= link_to manifestation.series_statement.original_title, manifestation.series_statement -%>
-            <%- if manifestation.issn.present? -%>
-              (<%= t('activerecord.attributes.manifestation.issn') -%>: <%= manifestation.issn -%>)
-            <%- end -%>
+            <td style="width: 500px">
+              <%= link_to manifestation.series_statement.original_title, manifestation.series_statement -%>
+              <%= manifestation.volume_number_string %>
+              <%- if manifestation.issn.present? -%>
+                (<%= t('activerecord.attributes.manifestation.issn') -%>: <%= manifestation.issn -%>)
+              <%- end -%>
             </td>
           </tr>
         <% end %>
@@ -27,7 +26,8 @@
         <tr>
           <td style="width: 200px"><%= t('page.form') -%>:</td>
           <td style="width: 500px">
-            <%= form_icon(manifestation.carrier_type) -%> <%= manifestation.carrier_type.display_name.localize -%>
+            <%= form_icon(manifestation.carrier_type) -%> <%= manifestation.carrier_type.display_name.localize -%> /
+            <%= content_type_icon(manifestation.manifestation_content_type) -%> <%= manifestation.manifestation_content_type.display_name.localize if manifestation.manifestation_content_type -%>
           </td>
         </tr>
         <tr>
@@ -47,6 +47,12 @@
             <%- end -%>
           </td>
         </tr>
+        <% if manifestation.price.present? %>
+          <tr>
+            <td><%= t('activerecord.attributes.manifestation.price') -%>:</td>
+            <td><%= manifestation.price -%></td>
+          </tr>
+        <% end %>
         <% if defined?(EnjuSubject) %>
           <%- unless manifestation.subjects.empty? -%>
             <tr>
@@ -65,12 +71,6 @@
             <td>
               <%= render 'manifestations/tag_list', :manifestation => manifestation -%>
             </td>
-          </tr>
-        <% end %>
-        <% if manifestation.price.present? %>
-          <tr>
-            <td><%= t('activerecord.attributes.manifestation.price') -%></td>
-            <td><%= manifestation.price -%></td>
           </tr>
         <% end %>
         <%- unless manifestation.periodical? -%>
@@ -97,7 +97,7 @@
           <%= render 'manifestations/attachment_file', :manifestation => manifestation -%>
         <%- end -%>
         <tr>
-          <td><%= t('manifestation.date_of_acquisition') -%>:</td>
+          <td><%= t('page.created_at') -%>:</td>
           <td><%=l manifestation.created_at if manifestation.created_at -%></td>
         </tr>
         <tr>
