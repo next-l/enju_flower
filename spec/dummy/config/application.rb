@@ -59,6 +59,5 @@ end
 
 require 'enju_biblio'
 require 'enju_library'
-require 'lisbn'
 require 'mobylette'
 require 'plugins'
