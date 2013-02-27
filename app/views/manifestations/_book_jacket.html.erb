@@ -1,5 +1,5 @@
 <div id="manifestation_book_jacket">
-  <%- if manifestation -%>
+  <%- if manifestation and defined?(EnjuBookJacket) -%>
     <%= book_jacket(manifestation) -%>
   <%- end -%>
 </div>
