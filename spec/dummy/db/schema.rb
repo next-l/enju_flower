@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121119153944) do
+ActiveRecord::Schema.define(:version => 20121116033446) do
 
   create_table "baskets", :force => true do |t|
     t.integer  "user_id"
@@ -429,7 +429,6 @@ ActiveRecord::Schema.define(:version => 20121119153944) do
     t.datetime "acquired_at"
     t.integer  "bookstore_id"
     t.integer  "budget_type_id"
-    t.integer  "manifestation_id"
   end
 
   add_index "items", ["bookstore_id"], :name => "index_items_on_bookstore_id"
@@ -677,7 +676,7 @@ ActiveRecord::Schema.define(:version => 20121119153944) do
     t.text     "title",                        :null => false
     t.text     "body",                         :null => false
     t.integer  "position"
-    t.string   "locale",     :default => "en"
+    t.string   "locale",     :default => "ja"
     t.datetime "created_at",                   :null => false
     t.datetime "updated_at",                   :null => false
   end
