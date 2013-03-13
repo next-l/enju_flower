@@ -94,7 +94,7 @@
               <%- end -%>
             </ul>
           </li>
-          <% if can? :destroy, @manifestation %>
+          <% if can? :delete, @manifestation %>
             <li><%= link_to t('page.destroy'), @manifestation, :data => {:confirm => t('page.are_you_sure')}, :method => :delete -%></li>
           <% end %>
           <li><%= link_to t('manifestation.add_derivation'), manifestation_manifestations_path(@manifestation, :mode => 'add') -%></li>
