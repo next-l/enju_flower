@@ -51,10 +51,6 @@ class ApplicationController < ActionController::Base
     Sunspot.commit
   end
 
-  def current_ability
-    @current_ability ||= Ability.new(current_user, request.remote_ip)
-  end
-
   def move_position(resource, direction, redirect = true)
     if ['higher', 'lower'].include?(direction)
       resource.send("move_#{direction}")
