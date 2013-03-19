@@ -1,10 +1,10 @@
-          <tr class="line<%= cycle("0", "1") -%>">
-            <td style="width: 30px"><%= @manifestations.offset_value + 1 + manifestation_counter -%></td>
+        <tr class="line<%= cycle("0", "1") -%>">
+          <td style="width: 30px"><%= @manifestations.offset_value + 1 + manifestation_counter -%></td>
+          <% cache([:manifestation => manifestation.id, :fragment => 'manifestation_html', :role => current_user_role_name, :locale => @locale]) do %>
             <td style="480px">
               <% if manifestation.root_of_series? %>
                 <%= render 'manifestations/show_series_index', :manifestation => manifestation -%>
               <% else %>
-                <% cache([:manifestation => manifestation.id, :fragment => 'manifestation_html', :role => current_user_role_name, :locale => @locale]) do %>
                   <%= render 'manifestations/show_index', :manifestation => manifestation -%>
                   <div class="access_address">
                     <%= link_to manifestation.access_address, manifestation.access_address if manifestation.access_address.present? -%>
@@ -19,7 +19,6 @@
                     <%= render 'manifestations/show_tag', :manifestation => manifestation -%>
                   <% end %>
                   <%= render 'manifestations/holding', :manifestation => manifestation -%>
-                <% end %>
               <% end %>
             </td>
             <% if signed_in? %>
@@ -68,4 +67,5 @@
                 <%- end -%>
               </td>
             <% end %>
-          </tr>
+          <% end %>
+        </tr>
