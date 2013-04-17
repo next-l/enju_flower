@@ -28,4 +28,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency "enju_biblio", "~> 0.1.0.pre31"
   s.add_development_dependency "enju_library", "~> 0.1.0.pre21"
   s.add_development_dependency "mobylette"
+  s.add_development_dependency "sunspot-rails-tester"
 end
