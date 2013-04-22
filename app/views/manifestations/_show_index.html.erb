@@ -1,15 +1,15 @@
 <strong>
   <% if manifestation.root_of_series? %>
-    <%= link_to manifestation.series_statement.original_title, series_statement_manifestations_path(manifestation.series_statement, :query => @query) %>
+    <%= link_to manifestation.root_series_statement.original_title, series_statement_manifestations_path(manifestation.root_series_statement, :query => @query) %>
   <% else %>
     <%= link_to title_with_volume_number(manifestation), manifestation -%>
   <% end %>
 </strong>
   <% if manifestation.periodical_master? %>
-    <%- if manifestation.series_statement.try(:first_issue) and manifestation.series_statement.try(:latest_issue) -%>
-      <%= manifestation.series_statement.first_issue.date_of_publication.try(:year) -%>
+    <%- if manifestation.root_series_statement.try(:first_issue) and manifestation.root_series_statement.try(:latest_issue) -%>
+      <%= manifestation.root_series_statement.first_issue.date_of_publication.try(:year) -%>
       -
-      <%= manifestation.series_statement.latest_issue.date_of_publication.try(:year) -%>
+      <%= manifestation.root_series_statement.latest_issue.date_of_publication.try(:year) -%>
     <%- end -%>
     <%= image_tag('icons/newspaper.png', :size => '16x16', :alt => t('manifestation.serial')) -%>
   <%- end -%>

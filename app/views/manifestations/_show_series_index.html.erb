@@ -1,9 +1,9 @@
-  <strong><%= link_to manifestation.series_statement.original_title, series_statement_manifestations_path(manifestation.series_statement, :query => @query) -%></strong>
-  <% if manifestation.periodical_master? %>
-    <%- if manifestation.series_statement.try(:first_issue) and manifestation.series_statement.try(:latest_issue) -%>
-      <%= manifestation.series_statement.first_issue.date_of_publication.try(:year) -%>
+  <strong><%= link_to series_statement.original_title, series_statement_manifestations_path(series_statement, :query => @query) -%></strong>
+  <% if series_statement.periodical? %>
+    <%- if series_statement.first_issue and series_statement.latest_issue -%>
+      <%= series_statement.first_issue.date_of_publication.try(:year) -%>
       -
-      <%= manifestation.series_statement.latest_issue.date_of_publication.try(:year) -%>
+      <%= series_statement.latest_issue.date_of_publication.try(:year) -%>
     <%- end -%>
     <%= image_tag('icons/newspaper.png', :size => '16x16', :alt => t('manifestation.serial')) -%>
   <%- end -%>

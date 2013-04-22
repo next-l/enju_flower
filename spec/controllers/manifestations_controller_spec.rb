@@ -150,39 +150,10 @@ describe ManifestationsController do
         assigns(:query).should eq '2005 date_of_publication_d:[* TO 2000-12-31T14:59:59Z]'
       end
 
-      it "should get index_all_facet" do
-        get :index, :query => '2005', :view => 'all_facet'
+      it "should get tag_cloud" do
+        get :index, :query => '2005', :view => 'tag_cloud'
         response.should be_success
-        assigns(:carrier_type_facet).should_not be_empty
-        assigns(:language_facet).should_not be_empty
-        assigns(:library_facet).should_not be_empty
-      end
-
-      it "should get index_carrier_type_facet" do
-        get :index, :query => '2005', :view => 'carrier_type_facet'
-        response.should be_success
-        assigns(:carrier_type_facet).should_not be_empty
-      end
-
-      it "should get index_language_facet" do
-        get :index, :query => '2005', :view => 'language_facet'
-        response.should be_success
-        assigns(:language_facet).should_not be_empty
-      end
-
-      it "should get index_library_facet" do
-        get :index, :query => '2005', :view => 'library_facet'
-        response.should be_success
-        assigns(:library_facet).should_not be_empty
-      end
-
-      it "should get index_pub_year_facet" do
-        get :index, :view => 'pub_year_facet'
-        response.should be_success
-        assigns(:pub_year_facet).first.value.should eq 2010.0..2020.0
-        assigns(:pub_year_facet).first.count.should eq 1
-        assigns(:pub_year_facet).last.value.should eq 2000.0..2010.0
-        assigns(:pub_year_facet).last.count.should eq 1
+        response.should render_template("manifestations/_tag_cloud")
       end
     end
   end
@@ -261,6 +232,18 @@ describe ManifestationsController do
 
       it "should show manifestation with holding" do
         get :show, :id => 1, :mode => 'holding'
+        response.should be_success
+      end
+
+      it "should show manifestation with tag_edit" do
+        get :show, :id => 1, :mode => 'tag_edit'
+        response.should render_template('manifestations/_tag_edit')
+        response.should be_success
+      end
+
+      it "should show manifestation with tag_list" do
+        get :show, :id => 1, :mode => 'tag_list'
+        response.should render_template('manifestations/_tag_list')
         response.should be_success
       end
 
@@ -402,9 +385,9 @@ describe ManifestationsController do
         end
 
         it "assigns a series_statement" do
-          post :create, :manifestation => @attrs.merge(:series_has_manifestation_attributes => {:series_statement_id => 1})
+          post :create, :manifestation => @attrs.merge(:series_statements_attributes => {[0] => {:original_title => SeriesStatement.find(1).original_title}})
           assigns(:manifestation).reload
-          assigns(:manifestation).series_statement.should eq SeriesStatement.find(1)
+          assigns(:manifestation).series_statements.pluck(:original_title).include?(series_statements(:one).original_title).should be_true
         end
 
         it "redirects to the created manifestation" do
@@ -512,7 +495,7 @@ describe ManifestationsController do
   describe "PUT update" do
     before(:each) do
       @manifestation = FactoryGirl.create(:manifestation)
-      @manifestation.series_statement = SeriesStatement.find(1)
+      @manifestation.series_statements = [SeriesStatement.find(1)]
       @attrs = valid_attributes
       @invalid_attrs = {:original_title => ''}
     end
@@ -526,9 +509,9 @@ describe ManifestationsController do
         end
 
         it "assigns a series_statement" do
-          put :update, :id => @manifestation.id, :manifestation => @attrs.merge(:series_has_manifestation_attributes => {:series_statement_id => 2})
+          put :update, :id => @manifestation.id, :manifestation => @attrs.merge(:series_statements_attributes => {[0] => {:original_title => series_statements(:two).original_title, "_destroy"=>"false"}})
           assigns(:manifestation).reload
-          assigns(:manifestation).series_statement.should eq SeriesStatement.find(2)
+          assigns(:manifestation).series_statements.pluck(:original_title).include?(series_statements(:two).original_title).should be_true
         end
 
         it "assigns the requested manifestation as @manifestation" do

@@ -15,7 +15,7 @@
         end
         can [:read, :create, :update], Manifestation
         can [:destroy, :delete], Manifestation do |manifestation|
-          manifestation.items.empty? and !manifestation.periodical_master?
+          manifestation.items.empty? and !manifestation.series_master?
         end
         can :manage, [
           Create,
@@ -74,7 +74,7 @@
         can :index, Manifestation
         can [:show, :create, :update], Manifestation
         can [:destroy, :delete], Manifestation do |manifestation|
-          manifestation.items.empty? and !manifestation.periodical_master?
+          manifestation.items.empty? and !manifestation.series_master?
         end
         can [:index, :create], Patron
         can :show, Patron do |patron|

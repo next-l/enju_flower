@@ -3,7 +3,7 @@
           <% cache([:manifestation => manifestation.id, :fragment => 'manifestation_html', :role => current_user_role_name, :locale => @locale]) do %>
             <td style="480px">
               <% if manifestation.root_of_series? %>
-                <%= render 'manifestations/show_series_index', :manifestation => manifestation -%>
+                <%= render 'manifestations/show_series_index', :manifestation => manifestation, :series_statement => manifestation.root_series_statement -%>
               <% else %>
                   <%= render 'manifestations/show_index', :manifestation => manifestation -%>
                   <div class="access_address">
@@ -40,8 +40,8 @@
                   <% unless params[:mode] == 'add' %>
                     <%= link_to image_tag('icons/book_edit.png', :size => '16x16', :alt => t('page.edit')), edit_manifestation_path(manifestation) -%>
                     <% if @series_statement %>
-                      <% if manifestation.series_statement == @series_statement %>
-                        <%= link_to t('page.destroy'), series_statement_series_has_manifestation_path(manifestation.series_statement, manifestation.series_has_manifestation), :data => {:confirm => t('page.are_you_sure')}, :method => :delete -%>
+                      <% if manifestation.root_series_statement == @series_statement %>
+                        <%= link_to t('page.destroy'), series_statement_series_has_manifestation_path(manifestation.root_series_statement, manifestation.series_has_manifestation), :data => {:confirm => t('page.are_you_sure')}, :method => :delete -%>
                       <% end %>
                     <% end %>
                   <% else %>
@@ -53,7 +53,7 @@
                     <% when @index_patron[:publisher] %>
                       <%= link_to t('page.add'), new_patron_produce_path(@index_patron[:publisher], :manifestation_id => manifestation.id) unless manifestation.publishers.include?(@index_patron[:publisher]) -%>
                     <% when @series_statement %>
-                      <% unless manifestation.series_statement -%>
+                      <% unless manifestation.series_statements.exists? -%>
                         <%= link_to t('page.add'), new_series_has_manifestation_path(:series_statement_id => @series_statement.id, :manifestation_id => manifestation.id) -%>
                       <% end %>
                     <% when @manifestation %>
