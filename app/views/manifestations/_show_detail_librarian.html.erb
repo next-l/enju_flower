@@ -17,9 +17,15 @@
               <ul>
                 <% manifestation.series_statements.each do |series_statement| %>
                   <% if series_statement.root_manifestation %>
-                    <li><%= link_to series_statement.original_title, series_statement.root_manifestation -%></li>
+                    <li>
+                      <%= link_to series_statement.original_title, series_statement.root_manifestation -%>
+                      <%= series_statement.volume_number_string %>
+                    </li>
                   <% else %>
-                    <li><%= series_statement.original_title -%></li>
+                    <li>
+                      <%= series_statement.original_title -%>
+                      <%= series_statement.volume_number_string %>
+                    </li>
                   <% end %>
                 <% end %>
               </ul>
