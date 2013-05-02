@@ -37,8 +37,7 @@
           RealizeType,
           ResourceImportFile,
           SeriesStatement,
-          SeriesStatementRelationship,
-          SeriesHasManifestation
+          SeriesStatementRelationship
         ]
         can :update, [
           ContentType,
@@ -97,8 +96,7 @@
           Realize,
           ResourceImportFile,
           SeriesStatement,
-          SeriesStatementRelationship,
-          SeriesHasManifestation
+          SeriesStatementRelationship
         ]
         can :read, [
           CarrierType,
@@ -165,8 +163,7 @@
           PatronRelationshipType,
           Produce,
           Realize,
-          SeriesStatement,
-          SeriesHasManifestation
+          SeriesStatement
         ]
       else
         can :index, Manifestation
@@ -198,8 +195,7 @@
           PictureFile,
           Produce,
           Realize,
-          SeriesStatement,
-          SeriesHasManifestation
+          SeriesStatement
         ]
       end
     end
