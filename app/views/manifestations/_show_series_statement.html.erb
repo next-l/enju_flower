@@ -12,8 +12,8 @@
           </td>
         </tr>
         <tr>
-          <td><%= t('activerecord.attributes.series_statement.periodical') -%></td>
-          <td><%= localized_boolean(@series_statement.periodical) %></td>
+          <td><%= t('activerecord.attributes.series_statement.root_manifestation_id') -%></td>
+          <td><%= link_to @series_statement.root_manifestation.original_title, @series_statement.root_manifestation %></td>
         </tr>
         <tr>
           <td><%= t('activerecord.attributes.series_statement.issn') -%></td>

@@ -14,15 +14,15 @@
     <%= render 'index_form_manifestation' %>
   <% when @item %>
     <%= render 'index_form_item' %>
-  <% when @series_statement %>
-    <%= render 'index_form_series_statement' %>
+  <% when @parent %>
+    <%= render 'index_form_parent' %>
   <% else %>
     <%= render 'index_form' %>
   <% end %>
   <%= set_focus_on_search_form %>
 
-  <% if @series_statement %>
-    <%= render 'show_series_statement' %>
+  <% if @parent %>
+    <%= render 'show_parent' %>
   <% end %>
 
   <%- if @manifestations.total_count > 0 -%>
@@ -66,10 +66,6 @@
       </div>
     <% end %>
   <%- else -%>
-    <!-- TODO: 検索結果が少ない場合にも表示させる -->
-    <%- if @suggested_tag -%>
-      <p><%= t('page.did_you_mean') -%>: <%= link_to @suggested_tag.name, manifestations_path(:tag => @suggested_tag.name) -%></p>
-    <%- end -%>
     <%= render 'manifestations/not_found' -%>
   <%- end -%>
 
@@ -79,8 +75,8 @@
 </div>
 
 <div id="submenu" class="ui-corner-all">
-  <% if @series_statement and can?(:update, @series_statement) %>
-    <%= render 'submenu_series_statement' %>
+  <% if @parent and can?(:update, @parent) %>
+    <%= render 'submenu_parent' %>
   <% end %>
   <h3><%= link_to h("#{t('page.total')}: #{@count[:query_result]}"), url_for(params.merge(:action => 'index', :view => nil, :carrier_type => nil, :library => nil, :language => nil, :subject => nil, :only_path => true))  -%></h3>
     <%- if @manifestations.total_count > 0 -%>

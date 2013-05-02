@@ -1,12 +1,4 @@
-  <strong><%= link_to series_statement.original_title, series_statement_manifestations_path(series_statement, :query => @query) -%></strong>
-  <% if series_statement.periodical? %>
-    <%- if series_statement.first_issue and series_statement.latest_issue -%>
-      <%= series_statement.first_issue.date_of_publication.try(:year) -%>
-      -
-      <%= series_statement.latest_issue.date_of_publication.try(:year) -%>
-    <%- end -%>
-    <%= image_tag('icons/newspaper.png', :size => '16x16', :alt => t('manifestation.serial')) -%>
-  <%- end -%>
+<strong><%= link_to manifestation.original_title, manifestations_path(:parent_id => manifestation.id, :query => @query) -%></strong>
   <%= link_to form_icon(manifestation.carrier_type), manifestation -%>
   <%= link_to image_tag('icons/world_go.png', :size => '16x16', :alt => t('manifestation.web')), manifestation.access_address unless manifestation.access_address.blank? -%>
   <br />

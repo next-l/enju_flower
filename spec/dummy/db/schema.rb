@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130421164124) do
+ActiveRecord::Schema.define(:version => 20130429020822) do
 
   create_table "baskets", :force => true do |t|
     t.integer  "user_id"
@@ -1078,9 +1078,11 @@ ActiveRecord::Schema.define(:version => 20130421164124) do
     t.text     "volume_number_string"
     t.text     "volume_number_transcription_string"
     t.boolean  "series_master"
+    t.integer  "root_manifestation_id"
   end
 
   add_index "series_statements", ["manifestation_id"], :name => "index_series_statements_on_manifestation_id"
+  add_index "series_statements", ["root_manifestation_id"], :name => "index_series_statements_on_root_manifestation_id"
   add_index "series_statements", ["series_statement_identifier"], :name => "index_series_statements_on_series_statement_identifier"
 
   create_table "shelves", :force => true do |t|
