@@ -36,8 +36,7 @@
           Realize,
           RealizeType,
           ResourceImportFile,
-          SeriesStatement,
-          SeriesStatementRelationship
+          SeriesStatement
         ]
         can :update, [
           ContentType,
@@ -95,8 +94,7 @@
           Produce,
           Realize,
           ResourceImportFile,
-          SeriesStatement,
-          SeriesStatementRelationship
+          SeriesStatement
         ]
         can :read, [
           CarrierType,
