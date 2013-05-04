@@ -10,30 +10,15 @@
             <td style="width: 500px"><%= manifestation.title_alternative -%></td>
           </tr>
         <% end %>
-        <%- if manifestation.series_statements.exists? -%>
           <tr>
             <td style="width: 200px"><%= t('activerecord.models.series_statement') -%>:</td>
             <td style="width: 500px">
-              <ul>
-                <% manifestation.original_manifestations.each do |m| %>
-                  <li>
-                    <%= link_to m.original_title, m if m.root_series_statement %>
-                  </li>
-                <% end %>
-                <% manifestation.series_statements.each do |series_statement| %>
-                  <li>
-                    <%= series_statement.original_title %>
-                    <%= series_statement.volume_number_string %>
-                  </li>
-                <% end %>
-              </ul>
-              <%= manifestation.volume_number_string %>
+              <%= render 'show_series_detail', :manifestation => manifestation %>
               <%- if manifestation.issn.present? -%>
                 (<%= t('activerecord.attributes.manifestation.issn') -%>: <%= manifestation.issn -%>)
               <%- end -%>
             </td>
           </tr>
-        <% end %>
         <%= render 'edition_and_number', :manifestation => manifestation %>
         <tr>
           <td style="width: 200px"><%= t('page.form') -%>:</td>
@@ -64,31 +49,8 @@
           <td><%= manifestation.price -%></td>
         </tr>
         <% if defined?(EnjuSubject) %>
-          <tr>
-            <td><%= t('activerecord.models.subject') -%>:</td>
-            <td>
-              <%- unless manifestation.subjects.empty? -%>
-                <ul>
-                  <%- manifestation.subjects.each do |subject| -%>
-                    <li>
-                      <%= link_to subject.term, subject -%>
-                      <%- unless subject.classifications.empty? -%>
-                        (
-                        <%- subject.classifications.each do |classification| -%>
-                          <%= classification.classification_type.name -%>: <%= link_to classification.category, classification -%>
-                        <%- end -%>
-                        )
-                      <%- end -%>
-                    </li>
-                  <%- end -%>
-                </ul>
-              <%- end -%>
-            </td>
-          </tr>
-          <tr>
-            <td><%= t('activerecord.attributes.classification.category') %>:</td>
-            <td></td>
-          </tr>
+          <%= render 'manifestations/subject_detail', :manifestation => manifestation %>
+          <%= render 'manifestations/classification_detail', :manifestation => manifestation %>
         <% end %>
         <% if defined?(EnjuBookmark) %>
           <tr>

@@ -76,33 +76,7 @@
       </ul>
 
       <%- if current_user.try(:has_role?, 'Librarian') -%>
-        <ul>
-          <li>
-            <%- case when @expression -%>
-              <%= link_to t('page.edit'), edit_expression_manifestation_path(@expression, @manifestation) -%>
-            <%- when @patron -%>
-              <%= link_to t('page.edit'), edit_publisher_manifestation_path(@patron, @manifestation) -%>
-            <%- else -%>
-              <%= link_to t('page.edit'), edit_manifestation_path(@manifestation) -%>
-            <%- end -%>
-            <ul>
-              <li><%= link_to t('manifestation.edit_creator'), work_patrons_path(@manifestation) -%></li>
-              <li><%= link_to t('manifestation.edit_contributor'), expression_patrons_path(@manifestation) -%></li>
-              <li><%= link_to t('manifestation.edit_publisher'), manifestation_patrons_path(@manifestation) -%></li>
-              <%- if @manifestation.periodical? -%>
-                <li><%= link_to t('manifestation.add_next_issue'), new_series_statement_manifestation_path(@manifestation.root_series_statement) if @manifestation.root_series_statement -%></li>
-              <%- end -%>
-            </ul>
-          </li>
-          <% if can? :delete, @manifestation %>
-            <li><%= link_to t('page.destroy'), @manifestation, :data => {:confirm => t('page.are_you_sure')}, :method => :delete -%></li>
-          <% end %>
-          <li><%= link_to t('manifestation.add_derivation'), manifestation_manifestations_path(@manifestation, :mode => 'add') -%></li>
-          <% if defined?(EnjuSubject) %>
-            <li><%= link_to t('page.listing', :model => t('activerecord.models.subject')), work_subjects_path(@manifestation) -%></li>
-          <% end %>
-          <li><%= link_to t('manifestation.edit_item'), manifestation_items_path(@manifestation) -%></li>
-        </ul>
+        <%= render 'manifestations/edit_detail' %>
       <% end %>
   </div>
 </div>
