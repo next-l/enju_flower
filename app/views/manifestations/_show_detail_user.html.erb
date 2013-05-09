@@ -14,8 +14,8 @@
             <td style="width: 200px"><%= t('activerecord.models.series_statement') -%>:</td>
             <td style="width: 500px">
               <%= render 'show_series_detail', :manifestation => manifestation %>
-              <%- if manifestation.issn.present? -%>
-                (<%= t('activerecord.attributes.manifestation.issn') -%>: <%= manifestation.issn -%>)
+              <%- unless manifestation.identifier_contents(:issn).empty? -%>
+                (<%= t('activerecord.attributes.manifestation.issn') -%>: <%= manifestation.identifier_contents(:issn).join(" ") -%>)
               <%- end -%>
             </td>
           </tr>
