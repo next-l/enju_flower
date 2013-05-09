@@ -155,6 +155,18 @@ describe ManifestationsController do
         response.should be_success
         response.should render_template("manifestations/_tag_cloud")
       end
+
+      it "should show manifestation with isbn", :solr => true do
+        get :index, :isbn => "4798002062"
+        response.should be_success
+        assigns(:manifestations).count.should eq 1
+      end
+
+      it "should not show missing manifestation with isbn", :solr => true do
+        get :index, :isbn => "47980020620"
+        response.should be_success
+        assigns(:manifestations).should be_empty
+      end
     end
   end
 
@@ -218,16 +230,6 @@ describe ManifestationsController do
         get :show, :id => 22, :format => 'rdf'
         assigns(:manifestation).should eq Manifestation.find(22)
         response.should render_template("manifestations/show")
-      end
-
-      it "should show_manifestation with isbn" do
-        get :show, :isbn => "4798002062"
-        response.should redirect_to manifestation_url(assigns(:manifestation))
-      end
-
-      it "should not show missing manifestation with isbn" do
-        get :show, :isbn => "47980020620"
-        response.should be_missing
       end
 
       it "should show manifestation with holding" do

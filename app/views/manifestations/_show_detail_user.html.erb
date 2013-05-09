@@ -66,19 +66,9 @@
           <tr>
             <td><%= t('page.identifier') -%>:</td>
             <td>
-              <%- if manifestation.isbn.present? -%>
-                ISBN: <span itemprop="isbn"><%= manifestation.isbn -%></span>
-                <%- if manifestation.isbn10.present? -%>
-                  ( <%= manifestation.isbn10 -%> )
-                <%- end -%>
-              <%- end -%>
-              <%- if manifestation.nbn.present? -%>
-                NBN: <%= manifestation.nbn -%>
-              <%- end -%>
-              <%- if manifestation.lccn.present? -%>
-                <br />
-                LCCN: <%= manifestation.lccn -%>
-              <%- end -%>
+              <% manifestation.identifiers.each do |identifier| %>
+                <%= "#{identifier.identifier_type.display_name.localize}: #{identifier.body}" %>
+              <% end %>
             </td>
           </tr>
         <%- end -%>

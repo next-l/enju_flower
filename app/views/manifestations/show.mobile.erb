@@ -7,7 +7,7 @@
 <table class="table table-striped">
 <tr>
 <th>ISBN</th>
-<td><%= @manifestation.isbn %></td>
+<td><%= @manifestation.identifier_contents(:isbn).join(' ') %></td>
 </tr>
 <tr>
 <th><%= t('activerecord.attributes.manifestation.price') %></th>

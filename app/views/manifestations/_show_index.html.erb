@@ -1,6 +1,6 @@
 <strong>
   <% if manifestation.root_series_statement %>
-    <%= link_to manifestation.root_series_statement.original_title, series_statement_manifestations_path(manifestation.root_series_statement, :query => @query) %>
+    <%= link_to manifestation.original_title, manifestations_path(:parent => manifestation.id, :query => @query) %>
   <% else %>
     <%= link_to title_with_volume_number(manifestation), manifestation -%>
   <% end %>
