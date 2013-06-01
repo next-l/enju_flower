@@ -6,6 +6,3 @@
     <%= render 'manifestations/question_list', :manifestation => manifestation -%>
   <%- end -%>
 <%- end -%>
-<%- if current_user.try(:has_role?, 'Librarian') -%>
-  <%= render 'manifestations/history_list', :manifestation => manifestation -%>
-<%- end -%>
