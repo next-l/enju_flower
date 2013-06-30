@@ -13,6 +13,125 @@
 
 ActiveRecord::Schema.define(:version => 20130509185724) do
 
+  create_table "agent_import_files", :force => true do |t|
+    t.integer  "parent_id"
+    t.string   "content_type"
+    t.integer  "size"
+    t.integer  "user_id"
+    t.text     "note"
+    t.datetime "executed_at"
+    t.string   "state"
+    t.string   "agent_import_file_name"
+    t.string   "agent_import_content_type"
+    t.integer  "agent_import_file_size"
+    t.datetime "agent_import_updated_at"
+    t.datetime "created_at",                :null => false
+    t.datetime "updated_at",                :null => false
+    t.string   "agent_import_fingerprint"
+    t.text     "error_message"
+    t.string   "edit_mode"
+  end
+
+  add_index "agent_import_files", ["parent_id"], :name => "index_agent_import_files_on_parent_id"
+  add_index "agent_import_files", ["state"], :name => "index_agent_import_files_on_state"
+  add_index "agent_import_files", ["user_id"], :name => "index_agent_import_files_on_user_id"
+
+  create_table "agent_import_results", :force => true do |t|
+    t.integer  "agent_import_file_id"
+    t.integer  "agent_id"
+    t.integer  "user_id"
+    t.text     "body"
+    t.datetime "created_at",           :null => false
+    t.datetime "updated_at",           :null => false
+  end
+
+  create_table "agent_relationship_types", :force => true do |t|
+    t.string   "name",         :null => false
+    t.text     "display_name"
+    t.text     "note"
+    t.integer  "position"
+    t.datetime "created_at",   :null => false
+    t.datetime "updated_at",   :null => false
+  end
+
+  create_table "agent_relationships", :force => true do |t|
+    t.integer  "parent_id"
+    t.integer  "child_id"
+    t.integer  "agent_relationship_type_id"
+    t.datetime "created_at",                 :null => false
+    t.datetime "updated_at",                 :null => false
+    t.integer  "position"
+  end
+
+  add_index "agent_relationships", ["child_id"], :name => "index_agent_relationships_on_child_id"
+  add_index "agent_relationships", ["parent_id"], :name => "index_agent_relationships_on_parent_id"
+
+  create_table "agent_types", :force => true do |t|
+    t.string   "name",         :null => false
+    t.text     "display_name"
+    t.text     "note"
+    t.integer  "position"
+    t.datetime "created_at",   :null => false
+    t.datetime "updated_at",   :null => false
+  end
+
+  create_table "agents", :force => true do |t|
+    t.integer  "user_id"
+    t.string   "last_name"
+    t.string   "middle_name"
+    t.string   "first_name"
+    t.string   "last_name_transcription"
+    t.string   "middle_name_transcription"
+    t.string   "first_name_transcription"
+    t.string   "corporate_name"
+    t.string   "corporate_name_transcription"
+    t.string   "full_name"
+    t.text     "full_name_transcription"
+    t.text     "full_name_alternative"
+    t.datetime "created_at",                                         :null => false
+    t.datetime "updated_at",                                         :null => false
+    t.datetime "deleted_at"
+    t.string   "zip_code_1"
+    t.string   "zip_code_2"
+    t.text     "address_1"
+    t.text     "address_2"
+    t.text     "address_1_note"
+    t.text     "address_2_note"
+    t.string   "telephone_number_1"
+    t.string   "telephone_number_2"
+    t.string   "fax_number_1"
+    t.string   "fax_number_2"
+    t.text     "other_designation"
+    t.text     "place"
+    t.string   "postal_code"
+    t.text     "street"
+    t.text     "locality"
+    t.text     "region"
+    t.datetime "date_of_birth"
+    t.datetime "date_of_death"
+    t.integer  "language_id",                         :default => 1, :null => false
+    t.integer  "country_id",                          :default => 1, :null => false
+    t.integer  "agent_type_id",                       :default => 1, :null => false
+    t.integer  "lock_version",                        :default => 0, :null => false
+    t.text     "note"
+    t.integer  "required_role_id",                    :default => 1, :null => false
+    t.integer  "required_score",                      :default => 0, :null => false
+    t.string   "state"
+    t.text     "email"
+    t.text     "url"
+    t.text     "full_name_alternative_transcription"
+    t.string   "birth_date"
+    t.string   "death_date"
+    t.string   "agent_identifier"
+  end
+
+  add_index "agents", ["agent_identifier"], :name => "index_agents_on_agent_identifier"
+  add_index "agents", ["country_id"], :name => "index_agents_on_country_id"
+  add_index "agents", ["full_name"], :name => "index_agents_on_full_name"
+  add_index "agents", ["language_id"], :name => "index_agents_on_language_id"
+  add_index "agents", ["required_role_id"], :name => "index_agents_on_required_role_id"
+  add_index "agents", ["user_id"], :name => "index_agents_on_user_id", :unique => true
+
   create_table "baskets", :force => true do |t|
     t.integer  "user_id"
     t.text     "note"
@@ -226,7 +345,7 @@ ActiveRecord::Schema.define(:version => 20130509185724) do
   end
 
   create_table "creates", :force => true do |t|
-    t.integer  "patron_id",      :null => false
+    t.integer  "agent_id",       :null => false
     t.integer  "work_id",        :null => false
     t.integer  "position"
     t.datetime "created_at",     :null => false
@@ -234,7 +353,7 @@ ActiveRecord::Schema.define(:version => 20130509185724) do
     t.integer  "create_type_id"
   end
 
-  add_index "creates", ["patron_id"], :name => "index_creates_on_patron_id"
+  add_index "creates", ["agent_id"], :name => "index_creates_on_agent_id"
   add_index "creates", ["work_id"], :name => "index_creates_on_work_id"
 
   create_table "delayed_jobs", :force => true do |t|
@@ -254,14 +373,14 @@ ActiveRecord::Schema.define(:version => 20130509185724) do
   add_index "delayed_jobs", ["priority", "run_at"], :name => "delayed_jobs_priority"
 
   create_table "donates", :force => true do |t|
-    t.integer  "patron_id",  :null => false
+    t.integer  "agent_id",   :null => false
     t.integer  "item_id",    :null => false
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
   end
 
+  add_index "donates", ["agent_id"], :name => "index_donates_on_agent_id"
   add_index "donates", ["item_id"], :name => "index_donates_on_item_id"
-  add_index "donates", ["patron_id"], :name => "index_donates_on_patron_id"
 
   create_table "event_categories", :force => true do |t|
     t.string   "name",         :null => false
@@ -378,6 +497,7 @@ ActiveRecord::Schema.define(:version => 20130509185724) do
   end
 
   add_index "identifiers", ["body", "identifier_type_id"], :name => "index_identifiers_on_body_and_identifier_type_id"
+  add_index "identifiers", ["manifestation_id"], :name => "index_identifiers_on_manifestation_id"
 
   create_table "import_requests", :force => true do |t|
     t.string   "isbn"
@@ -724,145 +844,26 @@ ActiveRecord::Schema.define(:version => 20130509185724) do
   add_index "messages", ["sender_id"], :name => "index_messages_on_sender_id"
 
   create_table "owns", :force => true do |t|
-    t.integer  "patron_id",  :null => false
+    t.integer  "agent_id",   :null => false
     t.integer  "item_id",    :null => false
     t.integer  "position"
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
   end
 
+  add_index "owns", ["agent_id"], :name => "index_owns_on_agent_id"
   add_index "owns", ["item_id"], :name => "index_owns_on_item_id"
-  add_index "owns", ["patron_id"], :name => "index_owns_on_patron_id"
 
   create_table "participates", :force => true do |t|
-    t.integer  "patron_id",  :null => false
+    t.integer  "agent_id",   :null => false
     t.integer  "event_id",   :null => false
     t.integer  "position"
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
   end
 
+  add_index "participates", ["agent_id"], :name => "index_participates_on_agent_id"
   add_index "participates", ["event_id"], :name => "index_participates_on_event_id"
-  add_index "participates", ["patron_id"], :name => "index_participates_on_patron_id"
-
-  create_table "patron_import_files", :force => true do |t|
-    t.integer  "parent_id"
-    t.string   "content_type"
-    t.integer  "size"
-    t.integer  "user_id"
-    t.text     "note"
-    t.datetime "executed_at"
-    t.string   "state"
-    t.string   "patron_import_file_name"
-    t.string   "patron_import_content_type"
-    t.integer  "patron_import_file_size"
-    t.datetime "patron_import_updated_at"
-    t.datetime "created_at",                 :null => false
-    t.datetime "updated_at",                 :null => false
-    t.string   "patron_import_fingerprint"
-    t.text     "error_message"
-    t.string   "edit_mode"
-  end
-
-  add_index "patron_import_files", ["parent_id"], :name => "index_patron_import_files_on_parent_id"
-  add_index "patron_import_files", ["state"], :name => "index_patron_import_files_on_state"
-  add_index "patron_import_files", ["user_id"], :name => "index_patron_import_files_on_user_id"
-
-  create_table "patron_import_results", :force => true do |t|
-    t.integer  "patron_import_file_id"
-    t.integer  "patron_id"
-    t.integer  "user_id"
-    t.text     "body"
-    t.datetime "created_at",            :null => false
-    t.datetime "updated_at",            :null => false
-  end
-
-  create_table "patron_relationship_types", :force => true do |t|
-    t.string   "name",         :null => false
-    t.text     "display_name"
-    t.text     "note"
-    t.integer  "position"
-    t.datetime "created_at",   :null => false
-    t.datetime "updated_at",   :null => false
-  end
-
-  create_table "patron_relationships", :force => true do |t|
-    t.integer  "parent_id"
-    t.integer  "child_id"
-    t.integer  "patron_relationship_type_id"
-    t.datetime "created_at",                  :null => false
-    t.datetime "updated_at",                  :null => false
-    t.integer  "position"
-  end
-
-  add_index "patron_relationships", ["child_id"], :name => "index_patron_relationships_on_child_id"
-  add_index "patron_relationships", ["parent_id"], :name => "index_patron_relationships_on_parent_id"
-
-  create_table "patron_types", :force => true do |t|
-    t.string   "name",         :null => false
-    t.text     "display_name"
-    t.text     "note"
-    t.integer  "position"
-    t.datetime "created_at",   :null => false
-    t.datetime "updated_at",   :null => false
-  end
-
-  create_table "patrons", :force => true do |t|
-    t.integer  "user_id"
-    t.string   "last_name"
-    t.string   "middle_name"
-    t.string   "first_name"
-    t.string   "last_name_transcription"
-    t.string   "middle_name_transcription"
-    t.string   "first_name_transcription"
-    t.string   "corporate_name"
-    t.string   "corporate_name_transcription"
-    t.string   "full_name"
-    t.text     "full_name_transcription"
-    t.text     "full_name_alternative"
-    t.datetime "created_at",                                         :null => false
-    t.datetime "updated_at",                                         :null => false
-    t.datetime "deleted_at"
-    t.string   "zip_code_1"
-    t.string   "zip_code_2"
-    t.text     "address_1"
-    t.text     "address_2"
-    t.text     "address_1_note"
-    t.text     "address_2_note"
-    t.string   "telephone_number_1"
-    t.string   "telephone_number_2"
-    t.string   "fax_number_1"
-    t.string   "fax_number_2"
-    t.text     "other_designation"
-    t.text     "place"
-    t.string   "postal_code"
-    t.text     "street"
-    t.text     "locality"
-    t.text     "region"
-    t.datetime "date_of_birth"
-    t.datetime "date_of_death"
-    t.integer  "language_id",                         :default => 1, :null => false
-    t.integer  "country_id",                          :default => 1, :null => false
-    t.integer  "patron_type_id",                      :default => 1, :null => false
-    t.integer  "lock_version",                        :default => 0, :null => false
-    t.text     "note"
-    t.integer  "required_role_id",                    :default => 1, :null => false
-    t.integer  "required_score",                      :default => 0, :null => false
-    t.string   "state"
-    t.text     "email"
-    t.text     "url"
-    t.text     "full_name_alternative_transcription"
-    t.string   "birth_date"
-    t.string   "death_date"
-    t.string   "patron_identifier"
-  end
-
-  add_index "patrons", ["country_id"], :name => "index_patrons_on_country_id"
-  add_index "patrons", ["full_name"], :name => "index_patrons_on_full_name"
-  add_index "patrons", ["language_id"], :name => "index_patrons_on_language_id"
-  add_index "patrons", ["patron_identifier"], :name => "index_patrons_on_patron_identifier"
-  add_index "patrons", ["required_role_id"], :name => "index_patrons_on_required_role_id"
-  add_index "patrons", ["user_id"], :name => "index_patrons_on_user_id", :unique => true
 
   create_table "picture_files", :force => true do |t|
     t.integer  "picture_attachable_id"
@@ -893,7 +894,7 @@ ActiveRecord::Schema.define(:version => 20130509185724) do
   end
 
   create_table "produces", :force => true do |t|
-    t.integer  "patron_id",        :null => false
+    t.integer  "agent_id",         :null => false
     t.integer  "manifestation_id", :null => false
     t.integer  "position"
     t.datetime "created_at",       :null => false
@@ -901,8 +902,8 @@ ActiveRecord::Schema.define(:version => 20130509185724) do
     t.integer  "produce_type_id"
   end
 
+  add_index "produces", ["agent_id"], :name => "index_produces_on_agent_id"
   add_index "produces", ["manifestation_id"], :name => "index_produces_on_manifestation_id"
-  add_index "produces", ["patron_id"], :name => "index_produces_on_patron_id"
 
   create_table "realize_types", :force => true do |t|
     t.string   "name"
@@ -914,7 +915,7 @@ ActiveRecord::Schema.define(:version => 20130509185724) do
   end
 
   create_table "realizes", :force => true do |t|
-    t.integer  "patron_id",       :null => false
+    t.integer  "agent_id",        :null => false
     t.integer  "expression_id",   :null => false
     t.integer  "position"
     t.datetime "created_at",      :null => false
@@ -922,8 +923,8 @@ ActiveRecord::Schema.define(:version => 20130509185724) do
     t.integer  "realize_type_id"
   end
 
+  add_index "realizes", ["agent_id"], :name => "index_realizes_on_agent_id"
   add_index "realizes", ["expression_id"], :name => "index_realizes_on_expression_id"
-  add_index "realizes", ["patron_id"], :name => "index_realizes_on_patron_id"
 
   create_table "request_status_types", :force => true do |t|
     t.string   "name",         :null => false
@@ -977,7 +978,7 @@ ActiveRecord::Schema.define(:version => 20130509185724) do
     t.datetime "expired_at"
     t.datetime "deleted_at"
     t.string   "state"
-    t.boolean  "expiration_notice_to_patron",  :default => false
+    t.boolean  "expiration_notice_to_agent",   :default => false
     t.boolean  "expiration_notice_to_library", :default => false
   end
 
@@ -1221,14 +1222,6 @@ ActiveRecord::Schema.define(:version => 20130509185724) do
   add_index "user_reserve_stats", ["state"], :name => "index_user_reserve_stats_on_state"
 
   create_table "users", :force => true do |t|
-    t.integer  "user_group_id"
-    t.integer  "required_role_id"
-    t.string   "username"
-    t.text     "note"
-    t.string   "locale"
-    t.string   "user_number"
-    t.integer  "library_id"
-    t.datetime "locked_at"
     t.datetime "created_at",                                  :null => false
     t.datetime "updated_at",                                  :null => false
     t.string   "email",                    :default => "",    :null => false
@@ -1244,11 +1237,30 @@ ActiveRecord::Schema.define(:version => 20130509185724) do
     t.boolean  "save_checkout_history",    :default => false, :null => false
     t.string   "checkout_icalendar_token"
     t.boolean  "share_bookmarks"
+    t.string   "username"
+    t.string   "user_number"
+    t.string   "state"
+    t.string   "locale"
+    t.datetime "deleted_at"
+    t.datetime "expired_at"
+    t.integer  "library_id",               :default => 1,     :null => false
+    t.integer  "required_role_id",         :default => 1,     :null => false
+    t.integer  "user_group_id",            :default => 1,     :null => false
+    t.text     "note"
+    t.text     "keyword_list"
+    t.integer  "failed_attempts"
+    t.string   "unlock_token"
+    t.datetime "locked_at"
+    t.datetime "confirmed_at"
   end
 
   add_index "users", ["checkout_icalendar_token"], :name => "index_users_on_checkout_icalendar_token", :unique => true
   add_index "users", ["email"], :name => "index_users_on_email"
   add_index "users", ["reset_password_token"], :name => "index_users_on_reset_password_token", :unique => true
+  add_index "users", ["unlock_token"], :name => "index_users_on_unlock_token", :unique => true
+  add_index "users", ["user_group_id"], :name => "index_users_on_user_group_id"
+  add_index "users", ["user_number"], :name => "index_users_on_user_number", :unique => true
+  add_index "users", ["username"], :name => "index_users_on_username", :unique => true
 
   create_table "versions", :force => true do |t|
     t.string   "item_type",  :null => false

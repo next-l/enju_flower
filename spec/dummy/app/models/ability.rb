@@ -26,10 +26,10 @@
           ManifestationRelationship,
           ManifestationRelationshipType,
           Own,
-          Patron,
-          PatronImportFile,
-          PatronRelationship,
-          PatronRelationshipType,
+          Agent,
+          AgentImportFile,
+          AgentRelationship,
+          AgentRelationshipType,
           PictureFile,
           Produce,
           ProduceType,
@@ -47,7 +47,7 @@
           Language,
           License,
           MediumOfPerformance,
-          PatronType,
+          AgentType,
           RequestStatusType,
           RequestType
         ] if LibraryGroup.site_config.network_access_allowed?(ip_address)
@@ -61,8 +61,8 @@
           Language,
           License,
           MediumOfPerformance,
-          PatronImportResult,
-          PatronType,
+          AgentImportResult,
+          AgentType,
           RequestStatusType,
           RequestType,
           ResourceImportResult
@@ -74,12 +74,12 @@
         can [:destroy, :delete], Manifestation do |manifestation|
           manifestation.items.empty? and !manifestation.series_master?
         end
-        can [:index, :create], Patron
-        can :show, Patron do |patron|
-          patron.required_role_id <= 3
+        can [:index, :create], Agent
+        can :show, Agent do |agent|
+          agent.required_role_id <= 3
         end
-        can [:update, :destroy, :delete], Patron do |patron|
-          !patron.user.try(:has_role?, 'Librarian') and patron.required_role_id <= 3
+        can [:update, :destroy, :delete], Agent do |agent|
+          !agent.user.try(:has_role?, 'Librarian') and agent.required_role_id <= 3
         end
         can :manage, [
           Create,
@@ -88,8 +88,8 @@
           ImportRequest,
           ManifestationRelationship,
           Own,
-          PatronImportFile,
-          PatronRelationship,
+          AgentImportFile,
+          AgentRelationship,
           PictureFile,
           Produce,
           Realize,
@@ -106,9 +106,9 @@
           Language,
           License,
           ManifestationRelationshipType,
-          PatronImportResult,
-          PatronRelationshipType,
-          PatronType,
+          AgentImportResult,
+          AgentRelationshipType,
+          AgentType,
           RequestStatusType,
           RequestType,
           ResourceImportResult,
@@ -123,15 +123,15 @@
         can [:show, :edit], Manifestation do |manifestation|
           manifestation.required_role_id <= 2
         end
-        can :index, Patron
-        can :update, Patron do |patron|
-          patron.user == user
+        can :index, Agent
+        can :update, Agent do |agent|
+          agent.user == user
         end
-        can :show, Patron do |patron|
-          #if patron.user == user
+        can :show, Agent do |agent|
+          #if agent.user == user
           #  true
-          #elsif patron.user != user
-            true if patron.required_role_id <= 2 #name == 'Administrator'
+          #elsif agent.user != user
+            true if agent.required_role_id <= 2 #name == 'Administrator'
           #end
         end
         can :index, PictureFile
@@ -157,8 +157,8 @@
           ManifestationRelationshipType,
           MediumOfPerformance,
           Own,
-          PatronRelationship,
-          PatronRelationshipType,
+          AgentRelationship,
+          AgentRelationshipType,
           Produce,
           Realize,
           SeriesStatement
@@ -168,9 +168,9 @@
         can :show, Manifestation do |manifestation|
           manifestation.required_role_id == 1
         end
-        can :index, Patron
-        can :show, Patron do |patron|
-          patron.required_role_id == 1 #name == 'Guest'
+        can :index, Agent
+        can :show, Agent do |agent|
+          agent.required_role_id == 1 #name == 'Guest'
         end
         can :read, [
           CarrierType,
@@ -188,8 +188,8 @@
           ManifestationRelationshipType,
           MediumOfPerformance,
           Own,
-          PatronRelationship,
-          PatronRelationshipType,
+          AgentRelationship,
+          AgentRelationshipType,
           PictureFile,
           Produce,
           Realize,
