@@ -1,4 +1,3 @@
-<% cache([:manifestation => manifestation.id, :fragment => 'title_html', :role => current_user_role_name, :locale => @locale]) do %>
   <h2 class="resource_title">
     [M]
     <%= link_to title_with_volume_number(manifestation), manifestation, :itemprop => 'name' -%>
@@ -25,4 +24,3 @@
       <%= link_to image_tag('icons/world_go.png', :size => '16x16', :alt => ('Web')), manifestation.access_address -%>
     <%- end -%>
   </p>
-<% end %>
