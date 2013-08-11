@@ -1,7 +1,7 @@
   <div id="tabs">
     <%= render 'manifestations/tab_menu', :manifestation => manifestation %>
     <div id="detail">
-    <% cache(current_user_role_name, @locale, manifestation]) do %>
+    <% cache([current_user_role_name, @locale, manifestation]) do %>
       <table class="table table-striped" id="resource_detail">
         <%= embed_content(manifestation) -%>
         <% if manifestation.title_alternative? %>
