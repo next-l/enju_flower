@@ -318,7 +318,7 @@ agent_00202:
 #  date_of_death                       :datetime
 #  language_id                         :integer          default(1), not null
 #  country_id                          :integer          default(1), not null
-#  agent_type_id                      :integer          default(1), not null
+#  agent_type_id                       :integer          default(1), not null
 #  lock_version                        :integer          default(0), not null
 #  note                                :text
 #  required_role_id                    :integer          default(1), not null
@@ -329,6 +329,6 @@ agent_00202:
 #  full_name_alternative_transcription :text
 #  birth_date                          :string(255)
 #  death_date                          :string(255)
-#  agent_identifier                   :string(255)
+#  agent_identifier                    :string(255)
 #
 

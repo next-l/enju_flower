@@ -9,13 +9,25 @@ two:
   title_transcription: テスト
   position: 2
   manifestation_id: 202
-  series_master: true
 
 three:
   id: 3
   original_title: テスト雑誌
   position: 3
-  manifestation_id: 201
+  root_manifestation_id: 201
+
+four:
+  id: 4
+  original_title: テスト雑誌
+  position: 4
+  root_manifestation_id: 202
+
+five:
+  id: 5
+  original_title: テスト雑誌
+  position: 5
+  manifestation_id: 204
+  root_manifestation_id: 202
 
 # == Schema Information
 #
@@ -39,5 +51,6 @@ three:
 #  volume_number_string               :text
 #  volume_number_transcription_string :text
 #  series_master                      :boolean
+#  root_manifestation_id              :integer
 #
 
