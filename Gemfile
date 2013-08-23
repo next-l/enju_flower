@@ -19,8 +19,8 @@ gem "enju_library", github: "next-l/enju_library", branch: "rails4"
 gem "enju_manifestation_viewer", github: "next-l/enju_manifestation_viewer", branch: "rails4"
 gem "enju_bookmark", github: "next-l/enju_bookmark", branch: "rails4"
 gem "paper_trail", github: "airblade/paper_trail", branch: "rails4"
-gem "sunspot_rails", github: "sunspot/sunspot", branch: "rails4"
-gem "sunspot_solr", github: "sunspot/sunspot", branch: "rails4"
+gem "sunspot_rails", github: "sunspot/sunspot"
+gem "sunspot_solr", github: "sunspot/sunspot"
 
 # To use debugger
 # gem 'debugger'
