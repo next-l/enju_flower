@@ -1,0 +1,27 @@
+            <% cache([current_user_role_name, @locale, manifestation]) do %>
+                  <% unless params[:mode] == 'add' %>
+                    <% if manifestation.is_reservable_by?(current_user) %>
+                      <%- reserve = manifestation.is_reserved_by?(current_user) -%>
+                      <%- if reserve -%>
+                        <%= link_to t('reserve.show'), reserve -%>
+                      <%- else -%>
+                        <%= link_to t('activerecord.models.reserve'), new_reserve_path(:manifestation_id => manifestation.id) if can? :create, Reserve -%>
+                      <%- end -%>
+                    <% end %>
+                    <br />
+                  <% end %>
+                <%- if can? :update, manifestation -%>
+                  <% unless params[:mode] == 'add' %>
+                    <%= link_to image_tag('icons/book_edit.png', :size => '16x16', :alt => t('page.edit')), edit_manifestation_path(manifestation) -%>
+                  <% else %>
+                    <% case %>
+                    <% when @parent %>
+                      <%= link_to t('page.add'), new_manifestation_manifestation_relationship_path(@parent, :child_id => manifestation.id) unless @parent.derived_manifestations.include?(manifestation) or @parent == manifestation -%>
+                    <% when @item %>
+                      <%= link_to t('page.change'), edit_exemplify_path(@item.exemplify, :manifestation_id => manifestation.id) unless @item.manifestation == manifestation -%>
+                    <% else %>
+                      <%= link_to image_tag('icons/arrow_divide.png', :size => '16x16', :alt => t('manifestation.add_derivation')), new_manifestation_path(:parent_id => manifestation.id) -%>
+                    <% end %>
+                  <%- end -%>
+                <% end %>
+              <% end %>
