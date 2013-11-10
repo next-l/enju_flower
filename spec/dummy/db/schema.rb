@@ -553,24 +553,28 @@ ActiveRecord::Schema.define(:version => 20130509185724) do
   create_table "items", :force => true do |t|
     t.string   "call_number"
     t.string   "item_identifier"
-    t.datetime "created_at",                             :null => false
-    t.datetime "updated_at",                             :null => false
+    t.datetime "created_at",                               :null => false
+    t.datetime "updated_at",                               :null => false
     t.datetime "deleted_at"
-    t.integer  "shelf_id",            :default => 1,     :null => false
-    t.boolean  "include_supplements", :default => false, :null => false
+    t.integer  "shelf_id",              :default => 1,     :null => false
+    t.boolean  "include_supplements",   :default => false, :null => false
     t.text     "note"
     t.string   "url"
     t.integer  "price"
-    t.integer  "lock_version",        :default => 0,     :null => false
-    t.integer  "required_role_id",    :default => 1,     :null => false
+    t.integer  "lock_version",          :default => 0,     :null => false
+    t.integer  "required_role_id",      :default => 1,     :null => false
     t.string   "state"
-    t.integer  "required_score",      :default => 0,     :null => false
+    t.integer  "required_score",        :default => 0,     :null => false
     t.datetime "acquired_at"
     t.integer  "bookstore_id"
     t.integer  "budget_type_id"
+    t.integer  "circulation_status_id", :default => 5,     :null => false
+    t.integer  "checkout_type_id",      :default => 1,     :null => false
   end
 
   add_index "items", ["bookstore_id"], :name => "index_items_on_bookstore_id"
+  add_index "items", ["checkout_type_id"], :name => "index_items_on_checkout_type_id"
+  add_index "items", ["circulation_status_id"], :name => "index_items_on_circulation_status_id"
   add_index "items", ["item_identifier"], :name => "index_items_on_item_identifier"
   add_index "items", ["required_role_id"], :name => "index_items_on_required_role_id"
   add_index "items", ["shelf_id"], :name => "index_items_on_shelf_id"
@@ -1056,22 +1060,6 @@ ActiveRecord::Schema.define(:version => 20130509185724) do
 
   add_index "series_has_manifestations", ["manifestation_id"], :name => "index_series_has_manifestations_on_manifestation_id"
   add_index "series_has_manifestations", ["series_statement_id"], :name => "index_series_has_manifestations_on_series_statement_id"
-
-  create_table "series_statement_merge_lists", :force => true do |t|
-    t.string   "title"
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
-  end
-
-  create_table "series_statement_merges", :force => true do |t|
-    t.integer  "series_statement_id",            :null => false
-    t.integer  "series_statement_merge_list_id", :null => false
-    t.datetime "created_at",                     :null => false
-    t.datetime "updated_at",                     :null => false
-  end
-
-  add_index "series_statement_merges", ["series_statement_id"], :name => "index_series_statement_merges_on_series_statement_id"
-  add_index "series_statement_merges", ["series_statement_merge_list_id"], :name => "index_series_statement_merges_on_series_statement_merge_list_id"
 
   create_table "series_statement_relationships", :force => true do |t|
     t.integer  "parent_id"
