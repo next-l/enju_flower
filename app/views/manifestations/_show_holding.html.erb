@@ -57,4 +57,7 @@
     <% end %>
   <%- end -%>
 </table>
+<%- if can? :create, Item -%>
+<p><%= link_to t('page.new', :model => t('activerecord.models.item')), new_manifestation_item_path(manifestation) -%></p>
+<%- end -%>
 </div>
