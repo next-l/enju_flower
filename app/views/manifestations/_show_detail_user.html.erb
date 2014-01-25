@@ -10,6 +10,7 @@
             <td style="width: 500px"><%= manifestation.title_alternative -%></td>
           </tr>
         <% end %>
+        <%- if manifestation.series_statements.exists? -%>
           <tr>
             <td style="width: 200px"><%= t('activerecord.models.series_statement') -%>:</td>
             <td style="width: 500px">
@@ -19,6 +20,7 @@
               <%- end -%>
             </td>
           </tr>
+        <% end %>
         <%= render 'edition_and_number', :manifestation => manifestation %>
         <tr>
           <td style="width: 200px"><%= t('page.form') -%>:</td>
