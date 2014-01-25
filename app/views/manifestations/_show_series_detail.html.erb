@@ -1,5 +1,5 @@
 <ul>
-  <% manifestation.original_manifestations.each do |m| %>
+  <% manifestation.series_statements.each do |series_statement| %>
     <li>
       <% if series_statement.manifestation and manifestation.series_master? %>
         <%= link_to series_statement.original_title, series_statement.manifestation %>
@@ -8,11 +8,5 @@
       <% end %>
       <%= series_statement.volume_number_string %>
     </li>
-  <% end %>
-</ul>
-
-<ul>
-  <% manifestation.series_statements.each do |series_statement| %>
-    <li><%= link_to series_statement.original_title, manifestations_path(:query => series_statement.original_title) %></li>
   <% end %>
 </ul>
