@@ -6,7 +6,7 @@
     <br />
     Developed by <a href="http://mwr.mediacom.keio.ac.jp/~tanabe/">Kosuke Tanabe</a> and <a href="http://www.next-l.jp/">Project Next-L</a> | 
     <%= link_to t('page.report_bugs'), "https://github.com/nabeta/enju_leaf/issues" -%>
-    <% if is_mobile_request? %>
+    <% if browser.mobile? %>
       | <%= link_to t('page.mobile_view'), url_for(:mobile_view => 'true') %>
     <% end %>
   </div>
