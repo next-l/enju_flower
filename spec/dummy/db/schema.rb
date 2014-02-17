@@ -653,6 +653,7 @@ ActiveRecord::Schema.define(version: 20130519065837) do
     t.integer  "country_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.text     "admin_networks"
     t.boolean  "allow_bookmark_external_url", default: false,                    null: false
     t.string   "url",                         default: "http://localhost:3000/"
   end
