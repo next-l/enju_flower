@@ -16,7 +16,7 @@ Gem::Specification.new do |s|
   s.files = Dir["{app,config,db,lib,vendor}/**/*"] + ["MIT-LICENSE", "Rakefile", "README.rdoc"]
   s.test_files = Dir["spec/**/*"] - Dir["spec/dummy/log/*"] - Dir["spec/dummy/solr/{data,pids}/*"]
 
-  s.add_dependency "rails", "~> 4.0"
+  s.add_dependency "rails", "~> 4.1.0.rc1"
 
   s.add_development_dependency "sqlite3"
   s.add_development_dependency "rspec-rails"
@@ -26,6 +26,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency "sunspot_solr", "~> 2.1"
   #s.add_development_dependency "enju_leaf", "~> 1.2.0.pre1"
   #s.add_development_dependency "enju_bookmark", "~> 0.2.0.pre1"
-  s.add_development_dependency "mobylette", "~> 3.5"
   s.add_development_dependency "sunspot-rails-tester"
 end
