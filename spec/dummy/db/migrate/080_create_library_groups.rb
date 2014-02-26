@@ -6,12 +6,10 @@ class CreateLibraryGroups < ActiveRecord::Migration
       t.string :short_name, :null => false
       t.string :email
       t.text :my_networks
-      t.boolean :use_dsbl, :default => false, :null => false
-      t.text :dsbl_list
       t.text :login_banner
       t.text :note
-      t.integer :valid_period_for_new_user, :default => 365, :null => false
       t.integer :country_id
+      t.integer :position
 
       t.timestamps
     end

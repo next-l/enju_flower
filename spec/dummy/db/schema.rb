@@ -646,11 +646,10 @@ ActiveRecord::Schema.define(version: 20130519065837) do
     t.string   "short_name",                                                     null: false
     t.string   "email"
     t.text     "my_networks"
-    t.boolean  "use_dsbl",                    default: false,                    null: false
-    t.text     "dsbl_list"
     t.text     "login_banner"
     t.text     "note"
     t.integer  "country_id"
+    t.integer  "position"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.text     "admin_networks"
