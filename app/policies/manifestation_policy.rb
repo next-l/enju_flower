@@ -2,6 +2,8 @@ class ManifestationPolicy < AdminPolicy
   def show?
     if user
       user.role.id >= record.required_role.id
+    else
+      true if record.required_role.name == 'Guest'
     end
   end
 
