@@ -75,7 +75,7 @@
 </div>
 
 <div id="submenu" class="ui-corner-all ui-widget-content">
-  <% if @parent and can?(:update, @parent) %>
+  <% if @parent and policy(@parent).update? %>
     <%= render 'submenu_parent' %>
   <% end %>
   <h3><%= link_to h("#{t('page.total')}: #{@count[:query_result]}"), url_for(params.merge(:action => 'index', :view => nil, :carrier_type => nil, :library => nil, :language => nil, :subject => nil, :only_path => true))  -%></h3>
