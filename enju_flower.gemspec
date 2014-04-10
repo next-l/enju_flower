@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.name        = "enju_flower"
   s.version     = EnjuFlower::VERSION
   s.authors     = ["Kosuke Tanabe"]
-  s.email       = ["kosuke@e23.jp"]
+  s.email       = ["nabeta@fastmail.fm"]
   s.homepage    = "https://github.com/next-l/enju_flower"
   s.summary     = "Next-L Enju Flower"
   s.description = "User interface for Next-L Enju"
@@ -16,7 +16,7 @@ Gem::Specification.new do |s|
   s.files = Dir["{app,config,db,lib,vendor}/**/*"] + ["MIT-LICENSE", "Rakefile", "README.rdoc"]
   s.test_files = Dir["spec/**/*"] - Dir["spec/dummy/log/*"] - Dir["spec/dummy/solr/{data,pids}/*"]
 
-  s.add_dependency "rails", "~> 4.1.0.beta2"
+  s.add_dependency "rails", "~> 4.1.0"
 
   s.add_development_dependency "sqlite3"
   s.add_development_dependency "rspec-rails"
