@@ -40,7 +40,7 @@
         </td>
       <% end %>
     </tr>
-    <% if can? :update, item %>
+    <% if policy(item).update? %>
       <script>
         $(function(){
           $('a#item_identifier_item_<%= item.id %>').data(
@@ -57,7 +57,7 @@
     <% end %>
   <%- end -%>
 </table>
-<%- if can? :create, Item -%>
+<%- if policy(Item).create? -%>
 <p><%= link_to t('page.new', :model => t('activerecord.models.item')), new_manifestation_item_path(manifestation) -%></p>
 <%- end -%>
 </div>

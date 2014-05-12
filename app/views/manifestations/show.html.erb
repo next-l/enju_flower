@@ -1,4 +1,4 @@
-<div id="content_detail" class="ui-corner-all" itemscope="itemscope" itemtype="http://schema.org/Book">
+<div id="content_detail" class="ui-corner-all ui-widget-content" itemscope="itemscope" itemtype="http://schema.org/Book">
   <h1 class="title"><%= t('page.showing', :model => t('activerecord.models.manifestation')) -%></h1>
   <div id="content_list">
     <p id="notice"><%= notice %></p>
@@ -16,14 +16,14 @@
   </div>
 </div>
 
-<div id="submenu" class="ui-corner-all">
+<div id="submenu" class="ui-corner-all ui-widget-content">
   <%= render 'manifestations/book_jacket', :manifestation => @manifestation -%>
   <ul>
     <%- if @manifestation.picture_files.exists? -%>
       <li><%= t('page.total') %>: <%= @manifestation.picture_files.count %> <%= t('page.number_of_pictures', :count => @manifestation.picture_files.count) %></li>
       <li><%= link_to t('page.listing', :model => t('activerecord.models.picture_file')), manifestation_picture_files_path(@manifestation) -%></li>
     <% end %>
-    <%- if can? :create, PictureFile -%>
+    <%- if policy(PictureFile).create? -%>
       <li><%= link_to t('page.new', :model => t('activerecord.models.picture_file')), new_manifestation_picture_file_path(@manifestation) -%></li>
     <%- end -%>
   </ul>

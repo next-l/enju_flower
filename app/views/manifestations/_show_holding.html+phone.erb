@@ -29,7 +29,7 @@
         <%- if item.rent? -%>
           (
             <%= t('activerecord.attributes.checkout.due_date') -%>:
-            <%= l(item.last_checkout.due_date, :format => :short) -%>
+            <%= l(item.latest_checkout.due_date, :format => :short) -%>
           )
         <%- end -%>
       </td>
