@@ -1,4 +1,8 @@
 class ManifestationPolicy < AdminPolicy
+  def index?
+    true
+  end
+
   def show?
     if user
       user.role.id >= record.required_role.id
