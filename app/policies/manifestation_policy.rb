@@ -20,6 +20,8 @@ class ManifestationPolicy < AdminPolicy
   end
 
   def destroy?
-    user.try(:has_role?, 'Librarian')
+    if user.try(:has_role?, 'Librarian')
+      return true if record.items.empty?
+    end
   end
 end
