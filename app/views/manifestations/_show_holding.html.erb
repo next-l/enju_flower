@@ -9,7 +9,7 @@
       <th><%= t('activerecord.models.circulation_status') -%></th>
     <% end %>
   </tr>
-  <%- manifestation.items.on_shelf.for_checkout.each do |item| -%>
+  <%- manifestation.items.for_checkout.on_shelf.each do |item| -%>
     <tr>
       <td>
         <%- if item.item_identifier? -%>
