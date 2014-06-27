@@ -9,8 +9,12 @@
                 <div class="access_address">
                   <%= link_to manifestation.access_address, manifestation.access_address if manifestation.access_address.present? -%>
                 </div>
-                <%- unless manifestation.items.for_checkout.on_shelf.empty? -%>
+                <% if current_user.try(:has_role?, 'Librarian') %>
                   (<%= link_to "#", {:onclick => "$('#holding_#{manifestation.id}').toggle(); return false;"} do t('page.holding') end %>)
+                <% else %>
+                  <%- unless manifestation.items.for_checkout.on_shelf.empty? -%>
+                    (<%= link_to "#", {:onclick => "$('#holding_#{manifestation.id}').toggle(); return false;"} do t('page.holding') end %>)
+                  <%- end -%>
                 <%- end -%>
                 <% if defined?(EnjuBookmark) %>
                   <%- if manifestation.tags.first -%>
