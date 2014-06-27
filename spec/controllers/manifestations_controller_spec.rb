@@ -9,7 +9,8 @@ describe ManifestationsController do
 
   describe "GET index", :solr => true do
     before do
-      Manifestation.reindex
+      Manifestation.__elasticsearch__.create_index!
+      Manifestation.import
     end
 
     describe "When logged in as Administrator" do
