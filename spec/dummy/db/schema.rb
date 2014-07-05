@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130509185724) do
+ActiveRecord::Schema.define(:version => 20140529014410) do
 
   create_table "agent_import_files", :force => true do |t|
     t.integer  "parent_id"
@@ -238,11 +238,12 @@ ActiveRecord::Schema.define(:version => 20130509185724) do
   add_index "checked_items", ["item_id"], :name => "index_checked_items_on_item_id"
 
   create_table "checkins", :force => true do |t|
-    t.integer  "item_id",      :null => false
+    t.integer  "item_id",                     :null => false
     t.integer  "librarian_id"
     t.integer  "basket_id"
-    t.datetime "created_at",   :null => false
-    t.datetime "updated_at",   :null => false
+    t.datetime "created_at",                  :null => false
+    t.datetime "updated_at",                  :null => false
+    t.integer  "lock_version", :default => 0, :null => false
   end
 
   add_index "checkins", ["basket_id"], :name => "index_checkins_on_basket_id"
@@ -550,6 +551,18 @@ ActiveRecord::Schema.define(:version => 20130509185724) do
   add_index "item_has_use_restrictions", ["item_id"], :name => "index_item_has_use_restrictions_on_item_id"
   add_index "item_has_use_restrictions", ["use_restriction_id"], :name => "index_item_has_use_restrictions_on_use_restriction_id"
 
+  create_table "item_transitions", :force => true do |t|
+    t.string   "to_state"
+    t.text     "metadata",   :default => "{}"
+    t.integer  "sort_key"
+    t.integer  "item_id"
+    t.datetime "created_at",                   :null => false
+    t.datetime "updated_at",                   :null => false
+  end
+
+  add_index "item_transitions", ["item_id"], :name => "index_item_transitions_on_item_id"
+  add_index "item_transitions", ["sort_key", "item_id"], :name => "index_item_transitions_on_sort_key_and_item_id", :unique => true
+
   create_table "items", :force => true do |t|
     t.string   "call_number"
     t.string   "item_identifier"
@@ -665,6 +678,18 @@ ActiveRecord::Schema.define(:version => 20130509185724) do
     t.datetime "updated_at",   :null => false
   end
 
+  create_table "manifestation_checkout_stat_transitions", :force => true do |t|
+    t.string   "to_state"
+    t.text     "metadata",                       :default => "{}"
+    t.integer  "sort_key"
+    t.integer  "manifestation_checkout_stat_id"
+    t.datetime "created_at",                                       :null => false
+    t.datetime "updated_at",                                       :null => false
+  end
+
+  add_index "manifestation_checkout_stat_transitions", ["manifestation_checkout_stat_id"], :name => "index_manifestation_checkout_stat_transitions_on_stat_id"
+  add_index "manifestation_checkout_stat_transitions", ["sort_key", "manifestation_checkout_stat_id"], :name => "index_manifestation_checkout_stat_transitions_on_transition", :unique => true
+
   create_table "manifestation_checkout_stats", :force => true do |t|
     t.datetime "start_date"
     t.datetime "end_date"
@@ -698,6 +723,18 @@ ActiveRecord::Schema.define(:version => 20130509185724) do
 
   add_index "manifestation_relationships", ["child_id"], :name => "index_manifestation_relationships_on_child_id"
   add_index "manifestation_relationships", ["parent_id"], :name => "index_manifestation_relationships_on_parent_id"
+
+  create_table "manifestation_reserve_stat_transitions", :force => true do |t|
+    t.string   "to_state"
+    t.text     "metadata",                      :default => "{}"
+    t.integer  "sort_key"
+    t.integer  "manifestation_reserve_stat_id"
+    t.datetime "created_at",                                      :null => false
+    t.datetime "updated_at",                                      :null => false
+  end
+
+  add_index "manifestation_reserve_stat_transitions", ["manifestation_reserve_stat_id"], :name => "index_manifestation_reserve_stat_transitions_on_stat_id"
+  add_index "manifestation_reserve_stat_transitions", ["sort_key", "manifestation_reserve_stat_id"], :name => "index_manifestation_reserve_stat_transitions_on_transition", :unique => true
 
   create_table "manifestation_reserve_stats", :force => true do |t|
     t.datetime "start_date"
@@ -970,6 +1007,18 @@ ActiveRecord::Schema.define(:version => 20130509185724) do
   add_index "reserve_stat_has_users", ["user_id"], :name => "index_reserve_stat_has_users_on_user_id"
   add_index "reserve_stat_has_users", ["user_reserve_stat_id"], :name => "index_reserve_stat_has_users_on_user_reserve_stat_id"
 
+  create_table "reserve_transitions", :force => true do |t|
+    t.string   "to_state"
+    t.text     "metadata",   :default => "{}"
+    t.integer  "sort_key"
+    t.integer  "reserve_id"
+    t.datetime "created_at",                   :null => false
+    t.datetime "updated_at",                   :null => false
+  end
+
+  add_index "reserve_transitions", ["reserve_id"], :name => "index_reserve_transitions_on_reserve_id"
+  add_index "reserve_transitions", ["sort_key", "reserve_id"], :name => "index_reserve_transitions_on_sort_key_and_reserve_id", :unique => true
+
   create_table "reserves", :force => true do |t|
     t.integer  "user_id",                                         :null => false
     t.integer  "manifestation_id",                                :null => false
@@ -982,13 +1031,17 @@ ActiveRecord::Schema.define(:version => 20130509185724) do
     t.datetime "expired_at"
     t.datetime "deleted_at"
     t.string   "state"
-    t.boolean  "expiration_notice_to_agent",   :default => false
+    t.boolean  "expiration_notice_to_patron",  :default => false
     t.boolean  "expiration_notice_to_library", :default => false
+    t.datetime "retained_at"
+    t.datetime "postponed_at"
+    t.integer  "lock_version",                 :default => 0,     :null => false
   end
 
   add_index "reserves", ["item_id"], :name => "index_reserves_on_item_id"
   add_index "reserves", ["manifestation_id"], :name => "index_reserves_on_manifestation_id"
   add_index "reserves", ["request_status_type_id"], :name => "index_reserves_on_request_status_type_id"
+  add_index "reserves", ["state"], :name => "index_reserves_on_state"
   add_index "reserves", ["user_id"], :name => "index_reserves_on_user_id"
 
   create_table "resource_import_files", :force => true do |t|
@@ -1140,6 +1193,18 @@ ActiveRecord::Schema.define(:version => 20130509185724) do
     t.datetime "updated_at",   :null => false
   end
 
+  create_table "user_checkout_stat_transitions", :force => true do |t|
+    t.string   "to_state"
+    t.text     "metadata",              :default => "{}"
+    t.integer  "sort_key"
+    t.integer  "user_checkout_stat_id"
+    t.datetime "created_at",                              :null => false
+    t.datetime "updated_at",                              :null => false
+  end
+
+  add_index "user_checkout_stat_transitions", ["sort_key", "user_checkout_stat_id"], :name => "index_user_checkout_stat_transitions_on_sort_key_and_stat_id", :unique => true
+  add_index "user_checkout_stat_transitions", ["user_checkout_stat_id"], :name => "index_user_checkout_stat_transitions_on_user_checkout_stat_id"
+
   create_table "user_checkout_stats", :force => true do |t|
     t.datetime "start_date"
     t.datetime "end_date"
@@ -1195,6 +1260,18 @@ ActiveRecord::Schema.define(:version => 20130509185724) do
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
   end
+
+  create_table "user_reserve_stat_transitions", :force => true do |t|
+    t.string   "to_state"
+    t.text     "metadata",             :default => "{}"
+    t.integer  "sort_key"
+    t.integer  "user_reserve_stat_id"
+    t.datetime "created_at",                             :null => false
+    t.datetime "updated_at",                             :null => false
+  end
+
+  add_index "user_reserve_stat_transitions", ["sort_key", "user_reserve_stat_id"], :name => "index_user_reserve_stat_transitions_on_sort_key_and_stat_id", :unique => true
+  add_index "user_reserve_stat_transitions", ["user_reserve_stat_id"], :name => "index_user_reserve_stat_transitions_on_user_reserve_stat_id"
 
   create_table "user_reserve_stats", :force => true do |t|
     t.datetime "start_date"
