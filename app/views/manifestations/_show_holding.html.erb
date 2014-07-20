@@ -10,7 +10,7 @@
     <% end %>
   </tr>
   <% if current_user.try(:has_role?, 'Librarian') %>
-    <% items = manifestation.items.on_shelf %>
+    <% items = manifestation.items %>
   <% else %>
     <% items = manifestation.items.for_checkout.on_shelf %>
   <% end %>

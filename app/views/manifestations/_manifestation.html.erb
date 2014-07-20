@@ -10,7 +10,7 @@
                   <%= link_to manifestation.access_address, manifestation.access_address if manifestation.access_address.present? -%>
                 </div>
                 <% if current_user.try(:has_role?, 'Librarian') %>
-                  <%- unless manifestation.items.on_shelf.empty? -%>
+                  <%- unless manifestation.items.empty? -%>
                     (<%= link_to "#", {:onclick => "$('#holding_#{manifestation.id}').toggle(); return false;"} do t('page.holding') end %>)
                   <% end %>
                 <% else %>
