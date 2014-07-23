@@ -1,30 +1,30 @@
 <div id="content_detail" class="ui-corner-all ui-widget-content" itemscope="itemscope" itemtype="http://schema.org/Book">
-  <h1 class="title"><%= t('page.showing', :model => t('activerecord.models.manifestation')) -%></h1>
+  <h1 class="title"><%= t('page.showing', model: t('activerecord.models.manifestation')) -%></h1>
   <div id="content_list">
     <p id="notice"><%= notice %></p>
-    <%= render 'paginate_id_link', :manifestation => @manifestation, :manifestation_ids => @manifestation_ids %>
+    <%= render 'paginate_id_link', manifestation: @manifestation, manifestation_ids: @manifestation_ids %>
 
-    <%= render 'manifestations/title', :manifestation => @manifestation -%>
+    <%= render 'manifestations/title', manifestation: @manifestation -%>
     <%- if @version -%>
       <p>(<%= l(@manifestation.versions.find(@version).created_at) -%>)</p>
     <%- end -%>
     <% if current_user.try(:has_role?, 'Librarian') %>
-      <%= render 'manifestations/show_detail_librarian', :manifestation => @manifestation %>
+      <%= render 'manifestations/show_detail_librarian', manifestation: @manifestation %>
     <% else %>
-      <%= render 'manifestations/show_detail_user', :manifestation => @manifestation %>
+      <%= render 'manifestations/show_detail_user', manifestation: @manifestation %>
     <% end %>
   </div>
 </div>
 
 <div id="submenu" class="ui-corner-all ui-widget-content">
-  <%= render 'manifestations/book_jacket', :manifestation => @manifestation -%>
+  <%= render 'manifestations/book_jacket', manifestation: @manifestation -%>
   <ul>
     <%- if @manifestation.picture_files.exists? -%>
-      <li><%= t('page.total') %>: <%= @manifestation.picture_files.count %> <%= t('page.number_of_pictures', :count => @manifestation.picture_files.count) %></li>
-      <li><%= link_to t('page.listing', :model => t('activerecord.models.picture_file')), manifestation_picture_files_path(@manifestation) -%></li>
+      <li><%= t('page.total') %>: <%= @manifestation.picture_files.count %> <%= t('page.number_of_pictures', count: @manifestation.picture_files.count) %></li>
+      <li><%= link_to t('page.listing', model: t('activerecord.models.picture_file')), picture_files_path(manifestation_id: @manifestation.id) -%></li>
     <% end %>
     <%- if can? :create, PictureFile -%>
-      <li><%= link_to t('page.new', :model => t('activerecord.models.picture_file')), new_manifestation_picture_file_path(@manifestation) -%></li>
+      <li><%= link_to t('page.new', model: t('activerecord.models.picture_file')), new_picture_file_path(manifestation_id: @manifestation.id) -%></li>
     <%- end -%>
   </ul>
   <script type="text/javascript">
@@ -46,7 +46,7 @@
       <ul>
         <%- if user_signed_in? -%>
           <%- if current_user.email.present? -%>
-            <li><%= link_to t('manifestation.send_email'), manifestation_path(:mode => 'send_email'), :data => {:confirm => t('page.are_you_sure')} -%></li>
+            <li><%= link_to t('manifestation.send_email'), manifestation_path(mode: 'send_email'), data: {confirm: t('page.are_you_sure')} -%></li>
           <%- end -%>
           <% if defined?(EnjuBookmark) %>
             <li><%= link_to_bookmark(@manifestation) %></li>
@@ -59,16 +59,16 @@
               <% if @manifestation.is_reservable_by?(current_user) %>
                 <li><%= link_to_reservation(@manifestation, @reserve) %>
                 <br />
-                (<%= t('page.number_of_reservations', :count => @reserved_count) -%>)</li>
+                (<%= t('page.number_of_reservations', count: @reserved_count) -%>)</li>
               <%- else -%>
                 <% if defined?(EnjuPurchaseRequest) %>
-                  <li><%= link_to t('activerecord.models.purchase_request'), new_purchase_request_path(:purchase_request => {:url => manifestation_url(@manifestation)}) %></li>
+                  <li><%= link_to t('activerecord.models.purchase_request'), new_purchase_request_path(purchase_request: {url: manifestation_url(@manifestation)}) %></li>
                 <% end %>
               <%- end -%>
             <% else %>
               <% unless @manifestation.items.for_checkout.empty? %>
                 <li><%= link_to_reservation(@manifestation, @reserve) %><br />
-                (<%= t('page.number_of_reservations', :count => @reserved_count) -%>)</li>
+                (<%= t('page.number_of_reservations', count: @reserved_count) -%>)</li>
               <% end %>
             <% end %>
           <% end %>
