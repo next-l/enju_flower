@@ -1,5 +1,5 @@
   <div id="tabs">
-    <%= render 'manifestations/tab_menu', :manifestation => manifestation %>
+    <%= render 'manifestations/tab_menu', manifestation: manifestation %>
     <div id="detail">
     <% cache([current_user_role_name, @locale, manifestation]) do %>
       <table class="table table-striped" id="resource_detail">
@@ -14,14 +14,14 @@
           <tr>
             <td style="width: 200px"><%= t('activerecord.models.series_statement') -%>:</td>
             <td style="width: 500px">
-              <%= render 'show_series_detail', :manifestation => manifestation %>
+              <%= render 'show_series_detail', manifestation: manifestation %>
               <%- unless manifestation.identifier_contents(:issn).empty? -%>
                 (<%= t('activerecord.attributes.manifestation.issn') -%>: <%= manifestation.identifier_contents(:issn).join(" ") -%>)
               <%- end -%>
             </td>
           </tr>
         <% end %>
-        <%= render 'edition_and_number', :manifestation => manifestation %>
+        <%= render 'edition_and_number', manifestation: manifestation %>
         <tr>
           <td style="width: 200px"><%= t('page.form') -%>:</td>
           <td style="width: 500px">
@@ -53,14 +53,14 @@
           </tr>
         <% end %>
         <% if defined?(EnjuSubject) %>
-          <%= render 'manifestations/subject_detail', :manifestation => manifestation %>
-          <%= render 'manifestations/classification_detail', :manifestation => manifestation %>
+          <%= render 'manifestations/subject_detail', manifestation: manifestation %>
+          <%= render 'manifestations/classification_detail', manifestation: manifestation %>
         <% end %>
         <% if defined?(EnjuBookmark) %>
           <tr>
             <td><%= t('activerecord.models.tag') -%>:</td>
             <td>
-              <%= render 'manifestations/tag_list', :manifestation => manifestation -%>
+              <%= render 'manifestations/tag_list', manifestation: manifestation -%>
             </td>
           </tr>
         <% end %>
@@ -75,7 +75,7 @@
           </tr>
         <%- end -%>
         <%- unless manifestation.attachment_file_name.blank? -%>
-          <%= render 'manifestations/attachment_file', :manifestation => manifestation -%>
+          <%= render 'manifestations/attachment_file', manifestation: manifestation -%>
         <%- end -%>
         <tr>
           <td><%= t('page.created_at') -%>:</td>
@@ -104,8 +104,8 @@
       </table>
     <% end %>
       <%- if manifestation.items.for_checkout.on_shelf.exists? -%>
-        <%= render 'manifestations/show_holding', :manifestation => manifestation -%>
+        <%= render 'manifestations/show_holding', manifestation: manifestation -%>
       <%- end -%>
     </div>
-    <%= render 'manifestations/tab_list', :manifestation => manifestation %>
+    <%= render 'manifestations/tab_list', manifestation: manifestation %>
   </div>

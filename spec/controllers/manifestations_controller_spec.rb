@@ -52,8 +52,8 @@ describe ManifestationsController do
         assigns(:manifestations).should_not be_nil
       end
 
-      it "assigns all manifestations as @manifestations in csv format without operation" do
-        get :index, :format => 'csv'
+      it "assigns all manifestations as @manifestations in txt format without operation" do
+        get :index, :format => 'txt'
         response.should be_success
         assigns(:manifestations).should_not be_nil
         response.should render_template('manifestations/index')

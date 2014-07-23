@@ -1,7 +1,7 @@
-<strong><%= link_to manifestation.original_title, manifestations_path(:parent_id => manifestation.id, :query => @query) -%></strong>
+<strong><%= link_to manifestation.original_title, manifestations_path(parent_id: manifestation.id, query: @query) -%></strong>
   <%= link_to form_icon(manifestation.carrier_type), manifestation -%>
-  <%= link_to image_tag('icons/world_go.png', :size => '16x16', :alt => t('manifestation.web')), manifestation.access_address unless manifestation.access_address.blank? -%>
+  <%= link_to image_tag('icons/world_go.png', size: '16x16', alt: t('manifestation.web')), manifestation.access_address unless manifestation.access_address.blank? -%>
   <br />
   <div id="creator_list_<%= manifestation.id -%>">
-    <%= render 'manifestations/show_creators', :manifestation => manifestation -%>
+    <%= render 'manifestations/show_creators', manifestation: manifestation -%>
   </div>
