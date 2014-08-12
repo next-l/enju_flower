@@ -35,7 +35,7 @@
   <%- if user_signed_in? -%>
     <div id="call_number_content">
       <%- @manifestation.items.for_checkout.on_shelf.each do |item| -%>
-        <%- if item.hold?(current_user.library) -%>
+        <%- if item.hold?(current_user.profile.library) -%>
           <%= call_number_label(item) -%>
         <%- end -%>
       <%- end -%>
