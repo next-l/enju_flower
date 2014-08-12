@@ -10,7 +10,7 @@
     <% end %>
   </tr>
   <% if current_user.try(:has_role?, 'Librarian') %>
-    <% items = manifestation.items.on_shelf %>
+    <% items = manifestation.items %>
   <% else %>
     <% items = manifestation.items.for_checkout.on_shelf %>
   <% end %>
@@ -18,17 +18,17 @@
     <tr>
       <td>
         <%- if item.item_identifier? -%>
-          <%= link_to(item.item_identifier, item, :id => "item_identifier_item_#{item.id}") -%>
+          <%= link_to(item.item_identifier, item, id: "item_identifier_item_#{item.id}") -%>
         <%- else -%>
           (<%= link_to t('item.no_number'), item -%>)
         <%- end -%>
       </td>
       <td>
-        <%= link_to(item.shelf.library.display_name.localize, item.shelf.library, :id => "library_item_#{item.id}") %>
+        <%= link_to(item.shelf.library.display_name.localize, item.shelf.library, id: "library_item_#{item.id}") %>
       </td>
       <td>
-        <%= link_to(item.shelf_display_name.localize, item.shelf, :id => "shelf_item_#{item.id}")-%>
-        <%= render 'items/shelf_picture', :item => item -%>
+        <%= link_to(item.shelf_display_name.localize, item.shelf, id: "shelf_item_#{item.id}")-%>
+        <%= render 'items/shelf_picture', item: item -%>
       </td>
       <td>
         <%= item.call_number -%>
@@ -39,7 +39,7 @@
           <%- if item.rent? -%>
             (
               <%= t('activerecord.attributes.checkout.due_date') -%>:
-              <%= l(item.latest_checkout.due_date, :format => :short) -%>
+              <%= l(item.latest_checkout.due_date, format: :short) -%>
             )
           <%- end -%>
         </td>
@@ -58,11 +58,11 @@
           });
         });
       </script>
-      <%= render 'items/tooltip', :item => item %>
+      <%= render 'items/tooltip', item: item %>
     <% end %>
   <%- end -%>
 </table>
 <%- if policy(Item).create? -%>
-<p><%= link_to t('page.new', :model => t('activerecord.models.item')), new_manifestation_item_path(manifestation) -%></p>
+  <p><%= link_to t('page.new', model: t('activerecord.models.item')), new_item_path(manifestation_id: manifestation.id) -%></p>
 <%- end -%>
 </div>

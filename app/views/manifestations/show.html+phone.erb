@@ -1,9 +1,9 @@
 <div data-role="header">
   <a href="javascript:history.back()" data-icon="back" data-iconpos="notext" class="ui-btn-left"><%= t('page.back') %></a>
-  <h1 class="title"><%= t('page.showing', :model => t('activerecord.models.manifestation')) -%></h1>
+  <h1 class="title"><%= t('page.showing', model: t('activerecord.models.manifestation')) -%></h1>
 </div>
 <div data-role="content">
-<%= render 'title', :manifestation => @manifestation %>
+<%= render 'title', manifestation: @manifestation %>
 <table class="table table-striped">
 <tr>
 <th>ISBN</th>
@@ -15,6 +15,6 @@
 </tr>
 </table>
 <%- if @manifestation.items.on_shelf.exists? -%>
-  <%= render 'manifestations/show_holding', :manifestation => @manifestation -%>
+  <%= render 'manifestations/show_holding', manifestation: @manifestation -%>
 <%- end -%>
 </div>
