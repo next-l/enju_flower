@@ -40,7 +40,6 @@ class CreateAgents < ActiveRecord::Migration
       t.text :note
       t.integer :required_role_id, :default => 1, :null => false
       t.integer :required_score, :default => 0, :null => false
-      t.string :state
       t.text :email
       t.text :url
     end
