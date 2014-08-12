@@ -2,14 +2,14 @@
           <td style="width: 30px"><%= @manifestations.offset_value + 1 + manifestation_counter -%></td>
           <td style="480px">
               <% if manifestation.root_series_statement %>
-                <%= render 'manifestations/show_series_index', :manifestation => manifestation, :series_statement => manifestation.root_series_statement -%>
+                <%= render 'manifestations/show_series_index', manifestation: manifestation, series_statement: manifestation.root_series_statement -%>
               <% else %>
-                <%= render 'manifestations/show_index', :manifestation => manifestation -%>
+                <%= render 'manifestations/show_index', manifestation: manifestation -%>
                 <div class="access_address">
                   <%= link_to manifestation.access_address, manifestation.access_address if manifestation.access_address.present? -%>
                 </div>
                 <% if current_user.try(:has_role?, 'Librarian') %>
-                  <%- unless manifestation.items.on_shelf.empty? -%>
+                  <%- unless manifestation.items.empty? -%>
                     (<%= link_to_function t('page.holding'), "$('#holding_#{manifestation.id}').toggle()" -%>)
                   <% end %>
                 <% else %>
@@ -21,10 +21,10 @@
                   <%- if manifestation.tags.first -%>
                     (<%= link_to_function t('activerecord.models.tag'), "$('#tag_#{manifestation.id}').toggle()" -%>)
                   <%- end -%>
-                  <%= render 'manifestations/show_tag', :manifestation => manifestation -%>
+                  <%= render 'manifestations/show_tag', manifestation: manifestation -%>
                 <% end %>
               <% end %>
-              <%= render 'manifestations/holding', :manifestation => manifestation -%>
+              <%= render 'manifestations/holding', manifestation: manifestation -%>
           </td>
             <% if signed_in? %>
               <td id="edit_icons">
@@ -35,7 +35,7 @@
                       <%- if reserve -%>
                         <%= link_to t('reserve.show'), reserve -%>
                       <%- else -%>
-                        <%= link_to t('activerecord.models.reserve'), new_reserve_path(:manifestation_id => manifestation.id) if can? :create, Reserve -%>
+                        <%= link_to t('activerecord.models.reserve'), new_reserve_path(manifestation_id: manifestation.id) if can? :create, Reserve -%>
                       <%- end -%>
                     <% end %>
                     <br />
@@ -43,15 +43,15 @@
                 <% end %>
                 <%- if can? :update, manifestation -%>
                   <% unless params[:mode] == 'add' %>
-                    <%= link_to image_tag('icons/book_edit.png', :size => '16x16', :alt => t('page.edit')), edit_manifestation_path(manifestation) -%>
+                    <%= link_to image_tag('icons/book_edit.png', size: '16x16', alt: t('page.edit')), edit_manifestation_path(manifestation) -%>
                   <% else %>
                     <% case %>
                     <% when @parent %>
-                      <%= link_to t('page.add'), new_manifestation_manifestation_relationship_path(@parent, :child_id => manifestation.id) unless @parent.derived_manifestations.include?(manifestation) or @parent == manifestation -%>
+                      <%= link_to t('page.add'), new_manifestation_manifestation_relationship_path(@parent, child_id: manifestation.id) unless @parent.derived_manifestations.include?(manifestation) or @parent == manifestation -%>
                     <% when @item %>
-                      <%= link_to t('page.change'), edit_exemplify_path(@item.exemplify, :manifestation_id => manifestation.id) unless @item.manifestation == manifestation -%>
+                      <%= link_to t('page.change'), edit_exemplify_path(@item.exemplify, manifestation_id: manifestation.id) unless @item.manifestation == manifestation -%>
                     <% else %>
-                      <%= link_to image_tag('icons/arrow_divide.png', :size => '16x16', :alt => t('manifestation.add_derivation')), new_manifestation_path(:parent_id => manifestation.id) -%>
+                      <%= link_to image_tag('icons/arrow_divide.png', size: '16x16', alt: t('manifestation.add_derivation')), new_manifestation_path(parent_id: manifestation.id) -%>
                     <% end %>
                   <%- end -%>
                 <%- end -%>
