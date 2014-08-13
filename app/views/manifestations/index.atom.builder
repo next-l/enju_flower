@@ -6,7 +6,7 @@ atom_feed(url: manifestations_url(format: :atom)) do |feed|
     feed.entry(manifestation) do |entry|
       entry.title(manifestation.original_title)
       if defined?(EnjuBookmark)
-        entry.content(manifestation.tags.join(' '), :type => 'html')
+        entry.content(manifestation.tags.join(' '), type: 'html')
       end
 
       manifestation.creators.readable_by(current_user).each do |agent|

@@ -1,3 +1,4 @@
+<% cache([manifestation, fragment: 'show_holding_html', role: current_user_role_name, locale: @locale]) do %>
 <div class="holding">
 <table class="table table-striped holding">
   <tr>
@@ -36,12 +37,12 @@
       <% if defined?(EnjuCirculation) %>
         <td>
           <%= item.circulation_status.display_name.localize if item.circulation_status -%>
-          <%- if item.rent? -%>
+          <% if item.rent? %>
             (
               <%= t('activerecord.attributes.checkout.due_date') -%>:
               <%= l(item.latest_checkout.due_date, format: :short) -%>
             )
-          <%- end -%>
+          <% end %>
         </td>
       <% end %>
     </tr>
@@ -66,3 +67,4 @@
 <p><%= link_to t('page.new', model: t('activerecord.models.item')), new_item_path(manifestation_id: manifestation.id) -%></p>
 <%- end -%>
 </div>
+<% end %>

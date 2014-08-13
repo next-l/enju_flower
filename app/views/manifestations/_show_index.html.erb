@@ -1,3 +1,4 @@
+<% cache([manifestation, fragment: 'show_index_html', role: current_user_role_name, locale: @locale]) do %>
 <strong>
   <% if manifestation.root_series_statement %>
     <%= link_to manifestation.original_title, manifestations_path(parent_id: manifestation.id, query: @query) %>
@@ -14,3 +15,4 @@
   <div id="creator_list_<%= manifestation.id -%>">
     <%= render 'manifestations/show_creators', manifestation: manifestation -%>
   </div>
+<% end %>

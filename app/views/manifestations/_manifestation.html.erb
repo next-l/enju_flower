@@ -1,6 +1,6 @@
         <tr class="line<%= cycle("0", "1") -%>">
           <td style="width: 30px"><%= @manifestations.offset_value + 1 + manifestation_counter -%></td>
-          <td style="480px">
+            <td style="480px">
               <% if manifestation.root_series_statement %>
                 <%= render 'manifestations/show_series_index', manifestation: manifestation, series_statement: manifestation.root_series_statement -%>
               <% else %>
@@ -47,9 +47,9 @@
                   <% else %>
                     <% case %>
                     <% when @parent %>
-                      <%= link_to t('page.add'), new_manifestation_manifestation_relationship_path(@parent, child_id: manifestation.id) unless @parent.derived_manifestations.include?(manifestation) or @parent == manifestation -%>
+                      <%= link_to t('page.add'), new_manifestation_relationship_path(manifestation_id: @parent.id, child_id: manifestation.id) unless @parent.derived_manifestations.include?(manifestation) or @parent == manifestation -%>
                     <% when @item %>
-                      <%= link_to t('page.change'), edit_exemplify_path(@item.exemplify, manifestation_id: manifestation.id) unless @item.manifestation == manifestation -%>
+                      <%= link_to t('page.change'), edit_item_path(@item, manifestation_id: manifestation.id) unless @item.manifestation == manifestation -%>
                     <% else %>
                       <%= link_to image_tag('icons/arrow_divide.png', size: '16x16', alt: t('manifestation.add_derivation')), new_manifestation_path(parent_id: manifestation.id) -%>
                     <% end %>

@@ -11,7 +11,7 @@ xml.rss('version' => "2.0",
     xml.ttl "60"
     xml.tag! "atom:link", rel: 'self', href: "#{request.protocol}#{request.host_with_port}#{url_for(params.merge(format: :rss, only_path: true))}"
     xml.tag! "atom:link", rel: 'alternate', href: manifestations_url
-    xml.tag! "atom:link", rel: 'search', :type => 'application/opensearchdescription+xml', href: page_opensearch_url
+    xml.tag! "atom:link", rel: 'search', type: 'application/opensearchdescription+xml', href: page_opensearch_url
     unless params[:query].blank?
       xml.tag! "opensearch:totalResults", @manifestations.total_count
       xml.tag! "opensearch:startIndex", @manifestations.offset_value + 1
