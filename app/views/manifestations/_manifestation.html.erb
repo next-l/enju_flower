@@ -1,3 +1,4 @@
+      <% cache([manifestation, fragment: 'manifestation_html', role: current_user_role_name, locale: @locale]) do %>
         <tr class="line<%= cycle("0", "1") -%>">
           <td style="width: 30px"><%= @manifestations.offset_value + 1 + manifestation_counter -%></td>
             <td style="480px">
@@ -57,4 +58,5 @@
                 <%- end -%>
               </td>
             <% end %>
-        </tr>
+          </tr>
+        <% end %>
