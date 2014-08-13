@@ -12,7 +12,7 @@ module ManifestationsHelper
 
   def back_to_manifestation_index
     if session[:params]
-      params = session[:params].merge(:view => nil, :controller => :manifestations)
+      params = session[:params].merge(view: nil, :controller => :manifestations)
       link_to t('page.back_to_search_results'), url_for(params)
     else
       link_to t('page.back'), :back
@@ -69,10 +69,10 @@ module ManifestationsHelper
     current = true if languages.include?(language.name)
     if current
       content_tag :strong do
-        link_to("#{language.display_name.localize} (" + facet.count.to_s + ")", url_for(params.merge(:page => nil, :language => language.name, :view => nil, :only_path => true)))
+        link_to("#{language.display_name.localize} (" + facet.count.to_s + ")", url_for(params.merge(page: nil, language: language.name, view: nil, only_path: true)))
       end
     else
-      link_to("#{language.display_name.localize} (" + facet.count.to_s + ")", url_for(params.merge(:page => nil, :language => language.name, :view => nil, :only_path => true)))
+      link_to("#{language.display_name.localize} (" + facet.count.to_s + ")", url_for(params.merge(page: nil, language: language.name, view: nil, only_path: true)))
     end
   end
 
@@ -84,10 +84,10 @@ module ManifestationsHelper
     content_tag :li do
       if current
         content_tag :strong do
-          link_to("#{library.display_name.localize} (" + facet.count.to_s + ")", url_for(params.merge(:page => nil, :library => (current_libraries << library.name).uniq.join(' '), :view => nil, :only_path => true)))
+          link_to("#{library.display_name.localize} (" + facet.count.to_s + ")", url_for(params.merge(page: nil, library: (current_libraries << library.name).uniq.join(' '), view: nil, only_path: true)))
         end
       else
-        link_to("#{library.display_name.localize} (" + facet.count.to_s + ")", url_for(params.merge(:page => nil, :library => (current_libraries << library.name).uniq.join(' '), :view => nil, :only_path => true)))
+        link_to("#{library.display_name.localize} (" + facet.count.to_s + ")", url_for(params.merge(page: nil, library: (current_libraries << library.name).uniq.join(' '), view: nil, only_path: true)))
       end
     end
   end
@@ -100,10 +100,10 @@ module ManifestationsHelper
       current = true if params[:carrier_type] == carrier_type.name
       if current
         content_tag :strong do
-          link_to("#{carrier_type.display_name.localize} (" + facet.count.to_s + ")", url_for(params.merge(:carrier_type => carrier_type.name, :page => nil, :view => nil, :only_path => true)))
+          link_to("#{carrier_type.display_name.localize} (" + facet.count.to_s + ")", url_for(params.merge(carrier_type: carrier_type.name, page: nil, view: nil, only_path: true)))
         end
       else
-        link_to("#{carrier_type.display_name.localize} (" + facet.count.to_s + ")", url_for(params.merge(:carrier_type => carrier_type.name, :page => nil, :view => nil, :only_path => true)))
+        link_to("#{carrier_type.display_name.localize} (" + facet.count.to_s + ")", url_for(params.merge(carrier_type: carrier_type.name, page: nil, view: nil, only_path: true)))
       end
     end
   end
@@ -113,10 +113,10 @@ module ManifestationsHelper
     current = true if facet.value.first.to_i == pub_date_from.to_i and facet.value.last.to_i - 1 == pub_date_to.to_i
     if current
       content_tag :strong do
-        link_to("#{facet.value.first.to_i} - #{facet.value.last.to_i - 1} (" + facet.count.to_s + ")", url_for(params.merge(:pub_date_from => facet.value.first.to_i, :pub_date_to => facet.value.last.to_i - 1, :page => nil, :view => nil, :only_path => true)))
+        link_to("#{facet.value.first.to_i} - #{facet.value.last.to_i - 1} (" + facet.count.to_s + ")", url_for(params.merge(pub_date_from: facet.value.first.to_i, pub_date_to: facet.value.last.to_i - 1, page: nil, view: nil, only_path: true)))
       end
     else
-      link_to("#{facet.value.first.to_i} - #{facet.value.last.to_i - 1} (" + facet.count.to_s + ")", url_for(params.merge(:pub_date_from => facet.value.first.to_i, :pub_date_to => facet.value.last.to_i - 1, :page => nil, :view => nil, :only_path => true)))
+      link_to("#{facet.value.first.to_i} - #{facet.value.last.to_i - 1} (" + facet.count.to_s + ")", url_for(params.merge(pub_date_from: facet.value.first.to_i, pub_date_to: facet.value.last.to_i - 1, page: nil, view: nil, only_path: true)))
     end
   end
 
@@ -139,7 +139,7 @@ module ManifestationsHelper
   if defined?(EnjuBookmark)
     def link_to_bookmark(manifestation)
       if manifestation.bookmarked?(current_user)
-        link_to t('bookmark.remove_from_my_bookmark'), bookmark_path(Bookmark.where(:user_id => current_user.id, :manifestation_id => manifestation.id).first), :confirm => t('page.are_you_sure'), :method => :delete
+        link_to t('bookmark.remove_from_my_bookmark'), bookmark_path(Bookmark.where(:user_id => current_user.id, manifestation_id: manifestation.id).first), confirm: t('page.are_you_sure'), method: :delete
       else
         link_to t('bookmark.add_to_my_bookmark'), new_bookmark_path(:bookmark => {:url => manifestation_url(manifestation)})
       end
@@ -150,19 +150,19 @@ module ManifestationsHelper
     def link_to_reservation(manifestation, reserve)
       unless current_user
         unless manifestation.items.for_checkout.empty?
-          link_to t('manifestation.reserve_this'), new_reserve_path(:manifestation_id => manifestation.id)
+          link_to t('manifestation.reserve_this'), new_reserve_path(manifestation_id: manifestation.id)
         end
       else
         if current_user.has_role?('Librarian')
-          link_to t('manifestation.reserve_this'), new_reserve_path(:manifestation_id => manifestation.id)
+          link_to t('manifestation.reserve_this'), new_reserve_path(manifestation_id: manifestation.id)
         else
           if manifestation.is_checked_out_by?(current_user)
             I18n.t('manifestation.currently_checked_out')
           else
             if manifestation.is_reserved_by?(current_user)
-              link_to t('manifestation.cancel_reservation'), reserve, :confirm => t('page.are_you_sure'), :method => :delete 
+              link_to t('manifestation.cancel_reservation'), reserve, confirm: t('page.are_you_sure'), method: :delete 
             else
-              link_to t('manifestation.reserve_this'), new_reserve_path(:manifestation_id => manifestation.id)
+              link_to t('manifestation.reserve_this'), new_reserve_path(manifestation_id: manifestation.id)
             end
           end
         end
