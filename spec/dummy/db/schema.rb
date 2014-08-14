@@ -601,8 +601,8 @@ ActiveRecord::Schema.define(:version => 20140812093836) do
     t.datetime "created_at",                                                        :null => false
     t.datetime "updated_at",                                                        :null => false
     t.text     "admin_networks"
-    t.string   "url",                         :default => "http://localhost:3000/"
     t.boolean  "allow_bookmark_external_url", :default => false,                    :null => false
+    t.string   "url",                         :default => "http://localhost:3000/"
   end
 
   add_index "library_groups", ["short_name"], :name => "index_library_groups_on_short_name"
@@ -919,7 +919,6 @@ ActiveRecord::Schema.define(:version => 20140812093836) do
     t.datetime "canceled_at"
     t.datetime "expired_at"
     t.datetime "deleted_at"
-    t.string   "state"
     t.boolean  "expiration_notice_to_patron",  :default => false
     t.boolean  "expiration_notice_to_library", :default => false
     t.datetime "retained_at"
@@ -930,7 +929,6 @@ ActiveRecord::Schema.define(:version => 20140812093836) do
   add_index "reserves", ["item_id"], :name => "index_reserves_on_item_id"
   add_index "reserves", ["manifestation_id"], :name => "index_reserves_on_manifestation_id"
   add_index "reserves", ["request_status_type_id"], :name => "index_reserves_on_request_status_type_id"
-  add_index "reserves", ["state"], :name => "index_reserves_on_state"
   add_index "reserves", ["user_id"], :name => "index_reserves_on_user_id"
 
   create_table "resource_export_file_transitions", :force => true do |t|
@@ -1309,6 +1307,9 @@ ActiveRecord::Schema.define(:version => 20140812093836) do
     t.string   "last_sign_in_ip"
     t.datetime "created_at",                                  :null => false
     t.datetime "updated_at",                                  :null => false
+    t.boolean  "save_checkout_history",    :default => false, :null => false
+    t.string   "checkout_icalendar_token"
+    t.boolean  "share_bookmarks"
     t.string   "username"
     t.datetime "deleted_at"
     t.datetime "expired_at"
@@ -1316,9 +1317,6 @@ ActiveRecord::Schema.define(:version => 20140812093836) do
     t.string   "unlock_token"
     t.datetime "locked_at"
     t.datetime "confirmed_at"
-    t.boolean  "share_bookmarks"
-    t.boolean  "save_checkout_history",    :default => false, :null => false
-    t.string   "checkout_icalendar_token"
   end
 
   add_index "users", ["checkout_icalendar_token"], :name => "index_users_on_checkout_icalendar_token", :unique => true
