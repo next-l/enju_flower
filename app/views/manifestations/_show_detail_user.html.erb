@@ -34,6 +34,10 @@
           <td><span itemprop="inLanguage"><%= manifestation.language.display_name.localize -%></span></td>
         </tr>
         <tr>
+          <td><%= t('activerecord.attributes.manifestation.publication_place') -%>:</td>
+          <td><%= manifestation.publication_place %></td>
+        </tr>
+        <tr>
           <td><%= t('manifestation.physical_description') -%>:</td>
           <td>
             <%- if manifestation.number_of_pages -%>
