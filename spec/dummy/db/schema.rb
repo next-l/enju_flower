@@ -896,6 +896,18 @@ ActiveRecord::Schema.define(:version => 20140812093836) do
   add_index "reserve_stat_has_users", ["user_id"], :name => "index_reserve_stat_has_users_on_user_id"
   add_index "reserve_stat_has_users", ["user_reserve_stat_id"], :name => "index_reserve_stat_has_users_on_user_reserve_stat_id"
 
+  create_table "reserve_transitions", :force => true do |t|
+    t.string   "to_state"
+    t.text     "metadata",   :default => "{}"
+    t.integer  "sort_key"
+    t.integer  "reserve_id"
+    t.datetime "created_at",                   :null => false
+    t.datetime "updated_at",                   :null => false
+  end
+
+  add_index "reserve_transitions", ["reserve_id"], :name => "index_reserve_transitions_on_reserve_id"
+  add_index "reserve_transitions", ["sort_key", "reserve_id"], :name => "index_reserve_transitions_on_sort_key_and_reserve_id", :unique => true
+
   create_table "reserves", :force => true do |t|
     t.integer  "user_id",                                         :null => false
     t.integer  "manifestation_id",                                :null => false
@@ -1285,28 +1297,31 @@ ActiveRecord::Schema.define(:version => 20140812093836) do
   add_index "user_reserve_stats", ["user_id"], :name => "index_user_reserve_stats_on_user_id"
 
   create_table "users", :force => true do |t|
-    t.string   "email",                  :default => "", :null => false
-    t.string   "encrypted_password",     :default => "", :null => false
+    t.string   "email",                    :default => "",    :null => false
+    t.string   "encrypted_password",       :default => "",    :null => false
     t.string   "reset_password_token"
     t.datetime "reset_password_sent_at"
     t.datetime "remember_created_at"
-    t.integer  "sign_in_count",          :default => 0
+    t.integer  "sign_in_count",            :default => 0
     t.datetime "current_sign_in_at"
     t.datetime "last_sign_in_at"
     t.string   "current_sign_in_ip"
     t.string   "last_sign_in_ip"
-    t.datetime "created_at",                             :null => false
-    t.datetime "updated_at",                             :null => false
+    t.datetime "created_at",                                  :null => false
+    t.datetime "updated_at",                                  :null => false
     t.string   "username"
     t.datetime "deleted_at"
     t.datetime "expired_at"
-    t.integer  "failed_attempts",        :default => 0
+    t.integer  "failed_attempts",          :default => 0
     t.string   "unlock_token"
     t.datetime "locked_at"
     t.datetime "confirmed_at"
     t.boolean  "share_bookmarks"
+    t.boolean  "save_checkout_history",    :default => false, :null => false
+    t.string   "checkout_icalendar_token"
   end
 
+  add_index "users", ["checkout_icalendar_token"], :name => "index_users_on_checkout_icalendar_token", :unique => true
   add_index "users", ["email"], :name => "index_users_on_email"
   add_index "users", ["reset_password_token"], :name => "index_users_on_reset_password_token", :unique => true
   add_index "users", ["unlock_token"], :name => "index_users_on_unlock_token", :unique => true
