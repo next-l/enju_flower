@@ -77,7 +77,7 @@ module ManifestationsHelper
   end
 
   def library_facet(current_libraries, facet)
-    library = Library.where(:name => facet.value).select([:name, :display_name]).first
+    library = Library.where(name: facet.value).select([:name, :display_name]).first
     return nil unless library
     string = ''
     current = true if current_libraries.include?(library.name)
@@ -94,7 +94,7 @@ module ManifestationsHelper
 
   def carrier_type_facet(facet)
     string = ''
-    carrier_type = CarrierType.where(:name => facet.value).select([:name, :display_name]).first
+    carrier_type = CarrierType.where(name: facet.value).select([:name, :display_name]).first
     if carrier_type
       string << form_icon(carrier_type)
       current = true if params[:carrier_type] == carrier_type.name
