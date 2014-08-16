@@ -1,6 +1,7 @@
 <div id="content_detail" class="ui-corner-all ui-widget-content">
 <h1 class="title"><%= t('page.search_resource', model: t('page.resource')) -%></h1>
 <div id="content_list">
+  <p id="notice"><%= notice %></p>
   <%= render 'manifestations/title', manifestation: @manifestation if @manifestation -%>
 
   <% case %>
