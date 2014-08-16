@@ -1,3 +1,5 @@
+<%= render 'paginate_id_link', manifestation: @parent, manifestation_ids: @manifestation_ids %>
+
 <h2 class="resource_title">
   [M]
   <%= link_to @parent.original_title, @parent, itemprop: 'name' -%>
