@@ -60,3 +60,4 @@ end
 require 'enju_leaf'
 require 'enju_circulation'
 require 'enju_bookmark'
+require 'enju_manifestation_viewer'
