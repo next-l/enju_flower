@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140817155043) do
+ActiveRecord::Schema.define(:version => 20140823095740) do
 
   create_table "accepts", :force => true do |t|
     t.integer  "basket_id"
@@ -189,12 +189,9 @@ ActiveRecord::Schema.define(:version => 20140817155043) do
     t.datetime "started_at"
     t.datetime "completed_at"
     t.text     "note"
-    t.string   "state"
     t.datetime "created_at",   :null => false
     t.datetime "updated_at",   :null => false
   end
-
-  add_index "bookmark_stats", ["state"], :name => "index_bookmark_stats_on_state"
 
   create_table "bookmarks", :force => true do |t|
     t.integer  "user_id",          :null => false
@@ -342,6 +339,43 @@ ActiveRecord::Schema.define(:version => 20140817155043) do
     t.datetime "updated_at",   :null => false
   end
 
+  create_table "classification_types", :force => true do |t|
+    t.string   "name",         :null => false
+    t.text     "display_name"
+    t.text     "note"
+    t.integer  "position"
+    t.datetime "created_at",   :null => false
+    t.datetime "updated_at",   :null => false
+  end
+
+  create_table "classifications", :force => true do |t|
+    t.integer  "parent_id"
+    t.string   "category",               :null => false
+    t.text     "note"
+    t.integer  "classification_type_id", :null => false
+    t.datetime "created_at",             :null => false
+    t.datetime "updated_at",             :null => false
+    t.integer  "lft"
+    t.integer  "rgt"
+    t.integer  "manifestation_id"
+  end
+
+  add_index "classifications", ["category"], :name => "index_classifications_on_category"
+  add_index "classifications", ["classification_type_id"], :name => "index_classifications_on_classification_type_id"
+  add_index "classifications", ["manifestation_id"], :name => "index_classifications_on_manifestation_id"
+  add_index "classifications", ["parent_id"], :name => "index_classifications_on_parent_id"
+
+  create_table "colors", :force => true do |t|
+    t.integer  "library_group_id"
+    t.string   "property"
+    t.string   "code"
+    t.integer  "position"
+    t.datetime "created_at",       :null => false
+    t.datetime "updated_at",       :null => false
+  end
+
+  add_index "colors", ["library_group_id"], :name => "index_colors_on_library_group_id"
+
   create_table "content_types", :force => true do |t|
     t.string   "name",         :null => false
     t.text     "display_name"
@@ -407,15 +441,6 @@ ActiveRecord::Schema.define(:version => 20140817155043) do
 
   add_index "exemplifies", ["item_id"], :name => "index_exemplifies_on_item_id", :unique => true
   add_index "exemplifies", ["manifestation_id"], :name => "index_exemplifies_on_manifestation_id"
-
-  create_table "extents", :force => true do |t|
-    t.string   "name",         :null => false
-    t.text     "display_name"
-    t.text     "note"
-    t.integer  "position"
-    t.datetime "created_at",   :null => false
-    t.datetime "updated_at",   :null => false
-  end
 
   create_table "form_of_works", :force => true do |t|
     t.string   "name",         :null => false
@@ -698,7 +723,6 @@ ActiveRecord::Schema.define(:version => 20140817155043) do
     t.string   "access_address"
     t.integer  "language_id",                     :default => 1,     :null => false
     t.integer  "carrier_type_id",                 :default => 1,     :null => false
-    t.integer  "extent_id",                       :default => 1,     :null => false
     t.integer  "start_page"
     t.integer  "end_page"
     t.integer  "height"
@@ -739,16 +763,15 @@ ActiveRecord::Schema.define(:version => 20140817155043) do
     t.text     "attachment_meta"
     t.integer  "month_of_publication"
     t.boolean  "fulltext_content"
-    t.string   "doi"
-    t.boolean  "periodical"
+    t.boolean  "serial"
     t.text     "statement_of_responsibility"
     t.text     "publication_place"
-    t.text     "extent_of_text"
+    t.text     "extent"
+    t.text     "dimensions"
   end
 
   add_index "manifestations", ["access_address"], :name => "index_manifestations_on_access_address"
   add_index "manifestations", ["date_of_publication"], :name => "index_manifestations_on_date_of_publication"
-  add_index "manifestations", ["doi"], :name => "index_manifestations_on_doi"
   add_index "manifestations", ["manifestation_identifier"], :name => "index_manifestations_on_manifestation_identifier"
   add_index "manifestations", ["updated_at"], :name => "index_manifestations_on_updated_at"
 
@@ -995,6 +1018,7 @@ ActiveRecord::Schema.define(:version => 20140817155043) do
     t.text     "body"
     t.datetime "created_at",              :null => false
     t.datetime "updated_at",              :null => false
+    t.text     "error_message"
   end
 
   add_index "resource_import_results", ["item_id"], :name => "index_resource_import_results_on_item_id"
@@ -1080,6 +1104,49 @@ ActiveRecord::Schema.define(:version => 20140817155043) do
   end
 
   add_index "shelves", ["library_id"], :name => "index_shelves_on_library_id"
+
+  create_table "subject_heading_types", :force => true do |t|
+    t.string   "name",         :null => false
+    t.text     "display_name"
+    t.text     "note"
+    t.integer  "position"
+    t.datetime "created_at",   :null => false
+    t.datetime "updated_at",   :null => false
+  end
+
+  create_table "subject_types", :force => true do |t|
+    t.string   "name",         :null => false
+    t.text     "display_name"
+    t.text     "note"
+    t.integer  "position"
+    t.datetime "created_at",   :null => false
+    t.datetime "updated_at",   :null => false
+  end
+
+  create_table "subjects", :force => true do |t|
+    t.integer  "parent_id"
+    t.integer  "use_term_id"
+    t.string   "term"
+    t.text     "term_transcription"
+    t.integer  "subject_type_id",                        :null => false
+    t.text     "scope_note"
+    t.text     "note"
+    t.integer  "required_role_id",        :default => 1, :null => false
+    t.integer  "lock_version",            :default => 0, :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.datetime "deleted_at"
+    t.string   "url"
+    t.integer  "manifestation_id"
+    t.integer  "subject_heading_type_id"
+  end
+
+  add_index "subjects", ["manifestation_id"], :name => "index_subjects_on_manifestation_id"
+  add_index "subjects", ["parent_id"], :name => "index_subjects_on_parent_id"
+  add_index "subjects", ["required_role_id"], :name => "index_subjects_on_required_role_id"
+  add_index "subjects", ["subject_type_id"], :name => "index_subjects_on_subject_type_id"
+  add_index "subjects", ["term"], :name => "index_subjects_on_term"
+  add_index "subjects", ["use_term_id"], :name => "index_subjects_on_use_term_id"
 
   create_table "subscribes", :force => true do |t|
     t.integer  "subscription_id", :null => false

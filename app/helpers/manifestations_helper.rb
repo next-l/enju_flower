@@ -125,7 +125,7 @@ module ManifestationsHelper
     if manifestation.volume_number_string?
       title << " " + manifestation.volume_number_string
     end
-    if manifestation.periodical?
+    if manifestation.serial?
       if manifestation.issue_number_string?
         title <<  " (#{manifestation.issue_number_string})"
       end
