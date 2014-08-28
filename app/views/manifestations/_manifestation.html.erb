@@ -11,16 +11,16 @@
               </div>
               <% if current_user.try(:has_role?, 'Librarian') %>
                 <%- unless manifestation.items.empty? -%>
-                  (<%= link_to_function t('page.holding'), "$('#holding_#{manifestation.id}').toggle()" -%>)
+                  (<%= link_to "#", { onclick: "$('#holding_#{manifestation.id}').toggle(); return false;"} do t('page.holding') end %>)
                 <% end %>
               <% else %>
                 <%- unless manifestation.items.for_checkout.on_shelf.empty? -%>
-                  (<%= link_to_function t('page.holding'), "$('#holding_#{manifestation.id}').toggle()" -%>)
+                  (<%= link_to "#", { onclick: "$('#holding_#{manifestation.id}').toggle(); return false;"} do t('page.holding') end %>)
                 <%- end -%>
               <%- end -%>
               <% if defined?(EnjuBookmark) %>
                 <%- if manifestation.tags.first -%>
-                  (<%= link_to_function t('activerecord.models.tag'), "$('#tag_#{manifestation.id}').toggle()" -%>)
+                  (<%= link_to "#", { onclick: "$('#tag_#{manifestation.id}').toggle(); return false;" } do t('activerecord.models.tag') end %>)
                 <%- end -%>
                 <%= render 'manifestations/show_tag', manifestation: manifestation -%>
               <% end %>
