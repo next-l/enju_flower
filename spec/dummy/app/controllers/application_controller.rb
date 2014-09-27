@@ -4,4 +4,5 @@ class ApplicationController < ActionController::Base
   enju_leaf
   enju_biblio
   enju_library
+  enju_subject
 end
