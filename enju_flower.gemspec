@@ -29,7 +29,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency "sunspot_solr", "~> 2.1"
   s.add_development_dependency "enju_leaf", "~> 1.1.0.rc15"
   s.add_development_dependency "enju_manifestation_viewer", "~> 0.1.0.pre16"
-  s.add_development_dependency "enju_circulation", "~> 0.1.0.pre39"
+  s.add_development_dependency "enju_circulation", "~> 0.1.0.pre41"
   s.add_development_dependency "enju_bookmark", "~> 0.1.2.pre18"
   s.add_development_dependency "enju_subject", "~> 0.1.0.pre28"
   s.add_development_dependency "mobylette"
