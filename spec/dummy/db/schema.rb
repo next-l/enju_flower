@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140823095740) do
+ActiveRecord::Schema.define(version: 20141014065831) do
 
   create_table "accepts", force: true do |t|
     t.integer  "basket_id"
@@ -337,6 +337,7 @@ ActiveRecord::Schema.define(version: 20140823095740) do
     t.integer  "lock_version",           default: 0, null: false
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "shelf_id"
   end
 
   add_index "checkouts", ["basket_id"], name: "index_checkouts_on_basket_id"
@@ -344,6 +345,7 @@ ActiveRecord::Schema.define(version: 20140823095740) do
   add_index "checkouts", ["item_id", "basket_id"], name: "index_checkouts_on_item_id_and_basket_id", unique: true
   add_index "checkouts", ["item_id"], name: "index_checkouts_on_item_id"
   add_index "checkouts", ["librarian_id"], name: "index_checkouts_on_librarian_id"
+  add_index "checkouts", ["shelf_id"], name: "index_checkouts_on_shelf_id"
   add_index "checkouts", ["user_id"], name: "index_checkouts_on_user_id"
 
   create_table "circulation_statuses", force: true do |t|
@@ -867,6 +869,8 @@ ActiveRecord::Schema.define(version: 20140823095740) do
     t.boolean  "save_checkout_history",    default: false, null: false
     t.datetime "expired_at"
     t.boolean  "share_bookmarks"
+    t.text     "full_name_transcription"
+    t.datetime "date_of_birth"
   end
 
   add_index "profiles", ["checkout_icalendar_token"], name: "index_profiles_on_checkout_icalendar_token", unique: true
