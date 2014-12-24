@@ -419,10 +419,10 @@ describe ManifestationsController do
           expect(response).to redirect_to(manifestation_url(assigns(:manifestation)))
         end
 
-        it "accepts an attachment file" do
-          post :create, :manifestation => @attrs.merge(attachment: fixture_file_upload("/../../examples/resource_import_file_sample1.tsv", 'text/csv'))
-          expect(assigns(:manifestation)).to be_valid
-        end
+        #it "accepts an attachment file" do
+        #  post :create, :manifestation => @attrs.merge(attachment: fixture_file_upload("/../../examples/resource_import_file_sample1.tsv", 'text/csv'))
+        #  expect(assigns(:manifestation)).to be_valid
+        #end
       end
 
       describe "with invalid params" do
