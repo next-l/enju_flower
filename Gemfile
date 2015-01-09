@@ -18,6 +18,7 @@ gem "enju_subject", github: "next-l/enju_subject", branch: "master"
 gem "enju_bookmark", github: "next-l/enju_bookmark", branch: "master"
 gem "enju_message", github: "next-l/enju_message", branch: "master"
 gem "enju_circulation", github: "next-l/enju_circulation", branch: "master"
+gem "enju_manifestation_viewer", github: "next-l/enju_manifestation_viewer", branch: "master"
 gem "coveralls", require: false, group: :test
 
 # To use a debugger
