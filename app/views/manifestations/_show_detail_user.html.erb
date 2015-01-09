@@ -1,7 +1,7 @@
   <div id="tabs">
     <%= render 'manifestations/tab_menu', manifestation: manifestation %>
     <div id="detail">
-    <% cache([current_user_role_name, @locale, manifestation]) do %>
+    <% cache([manifestation, fragment: 'show_detail_user_html', role: current_user_role_name, locale: @locale]) do %>
       <table class="table table-striped" id="resource_detail">
         <%= embed_content(manifestation) -%>
         <% if manifestation.title_alternative? %>
@@ -34,6 +34,10 @@
           <td><span itemprop="inLanguage"><%= manifestation.language.display_name.localize -%></span></td>
         </tr>
         <tr>
+          <td><%= t('activerecord.attributes.manifestation.publication_place') -%>:</td>
+          <td><%= manifestation.publication_place %></td>
+        </tr>
+        <tr>
           <td><%= t('manifestation.physical_description') -%>:</td>
           <td>
             <%- if manifestation.number_of_pages -%>
@@ -64,13 +68,18 @@
             </td>
           </tr>
         <% end %>
-        <%- unless manifestation.periodical? -%>
+        <%- unless manifestation.serial? -%>
           <tr>
             <td><%= t('page.identifier') -%>:</td>
             <td>
-              <% manifestation.identifiers.each do |identifier| %>
-                <%= "#{identifier.identifier_type.display_name.localize}: #{identifier.body}" %>
-              <% end %>
+              <ul>
+                <% manifestation.identifiers.each do |identifier| %>
+                  <li>
+                    <%= identifier.identifier_type.display_name.localize %>:
+                    <%= identifier_link(identifier) %>
+                  </li>
+                <% end %>
+              </ul>
             </td>
           </tr>
         <%- end -%>

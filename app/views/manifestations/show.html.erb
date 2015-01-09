@@ -23,7 +23,7 @@
       <li><%= t('page.total') %>: <%= @manifestation.picture_files.count %> <%= t('page.number_of_pictures', count: @manifestation.picture_files.count) %></li>
       <li><%= link_to t('page.listing', model: t('activerecord.models.picture_file')), picture_files_path(manifestation_id: @manifestation.id) -%></li>
     <% end %>
-    <%- if policy(PictureFile).create? -%>
+    <%- if can? :create, PictureFile -%>
       <li><%= link_to t('page.new', model: t('activerecord.models.picture_file')), new_picture_file_path(manifestation_id: @manifestation.id) -%></li>
     <%- end -%>
   </ul>

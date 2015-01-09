@@ -1,8 +1,8 @@
   <ul>
-    <% if policy(Manifestation).create? %>
+    <% if can? :create, Manifestation %>
       <li><%= link_to t('page.new', model: t('activerecord.models.manifestation')), new_manifestation_path(parent_id: @parent.id) %></li>
     <% end %>
-    <% if policy(@parent).update? %>
+    <% if can? :update, @parent %>
       <li><%= link_to t('page.edit'), edit_manifestation_path(@parent) %></li>
     <% end %>
   </ul>

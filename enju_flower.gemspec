@@ -14,19 +14,23 @@ Gem::Specification.new do |s|
   s.description = "User interface for Next-L Enju"
 
   s.files = Dir["{app,config,db,lib,vendor}/**/*"] + ["MIT-LICENSE", "Rakefile", "README.rdoc"]
-  s.test_files = Dir["spec/**/*"] - Dir["spec/dummy/log/*"] - Dir["spec/dummy/solr/{data,pids}/*"]
+  s.test_files = Dir["spec/**/*"] - Dir["spec/dummy/log/*"] - Dir["spec/dummy/solr/{data,pids,default,development,test}/*"] - Dir["spec/dummy/tmp/*"]
 
-  s.add_dependency "rails", "~> 4.1"
+  # s.add_dependency "jquery-rails"
 
   s.add_development_dependency "sqlite3"
-  s.add_development_dependency "rspec-rails", "~> 3.0"
-  s.add_development_dependency "fakeweb"
+  s.add_development_dependency "mysql2"
+  s.add_development_dependency "pg"
+  s.add_development_dependency "rspec-rails", "~> 3.1"
   s.add_development_dependency "vcr"
   s.add_development_dependency "simplecov"
   s.add_development_dependency "factory_girl_rails"
-  #s.add_development_dependency "enju_leaf", "~> 1.2.0.pre1"
-  #s.add_development_dependency "enju_bookmark", "~> 0.2.0.pre1"
-  s.add_development_dependency "elasticsearch-extensions"
-  s.add_development_dependency "annotate"
+  s.add_development_dependency "sunspot_solr", "~> 2.1"
+  #s.add_development_dependency "enju_leaf", "~> 1.1.0.rc16"
+  #s.add_development_dependency "enju_manifestation_viewer", "~> 0.1.0.pre16"
+  #s.add_development_dependency "enju_circulation", "~> 0.1.0.pre41"
+  #s.add_development_dependency "enju_bookmark", "~> 0.1.2.pre20"
+  #s.add_development_dependency "enju_subject", "~> 0.1.0.pre28"
+  s.add_development_dependency "sunspot-rails-tester"
   s.add_development_dependency "rspec-activemodel-mocks"
 end

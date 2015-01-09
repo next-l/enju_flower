@@ -1,6 +1,7 @@
 <div id="content_detail" class="ui-corner-all ui-widget-content">
 <h1 class="title"><%= t('page.search_resource', model: t('page.resource')) -%></h1>
 <div id="content_list">
+  <p id="notice"><%= notice %></p>
   <%= render 'manifestations/title', manifestation: @manifestation if @manifestation -%>
 
   <% case %>
@@ -27,10 +28,10 @@
 
   <%- if @manifestations.total_count > 0 -%>
     <p>
-      <%= t('page.number_of_search_results', count: @count[:query_result], numdocs: Manifestation.search('[* TO *]').results.total, seconds: sprintf("%.3f", @seconds)) -%>
-      <%- if @count[:query_result] > Setting.max_number_of_results -%>
+      <%= t('page.number_of_search_results', count: @count[:query_result], numdocs: Manifestation.search.total, seconds: sprintf("%.3f", @seconds)) -%>
+      <%- if @count[:query_result] > Rails.application.config_for(:enju_leaf)["max_number_of_results"] -%>
         <br />
-        <%= t('page.limit_exceeded', count: Setting.max_number_of_results) -%>
+        <%= t('page.limit_exceeded', count: Rails.application.config_for(:enju_leaf)["max_number_of_results"]) -%>
       <%- end -%>
     </p>
 
@@ -75,7 +76,7 @@
 </div>
 
 <div id="submenu" class="ui-corner-all ui-widget-content">
-  <% if @parent and policy(@parent).update? %>
+  <% if @parent and can?(:update, @parent) %>
     <%= render 'submenu_parent' %>
   <% end %>
   <h3><%= link_to h("#{t('page.total')}: #{@count[:query_result]}"), url_for(params.merge(action: 'index', view: nil, carrier_type: nil, library: nil, language: nil, subject: nil, only_path: true))  -%></h3>

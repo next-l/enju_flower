@@ -1,4 +1,4 @@
-source "https://rubygems.org"
+source 'https://rubygems.org'
 
 # Declare your gem's dependencies in enju_flower.gemspec.
 # Bundler will treat runtime dependencies like base dependencies, and
@@ -9,11 +9,16 @@ gemspec
 # your gemspec. These might include edge Rails or gems from your path or
 # Git. Remember to move these dependencies to your gemspec before releasing
 # your gem to rubygems.org.
-gem "enju_leaf", github: "next-l/enju_leaf"
-gem "enju_biblio", github: "next-l/enju_biblio"
-gem "enju_library", github: "next-l/enju_library"
-gem "enju_manifestation_viewer", github: "next-l/enju_manifestation_viewer"
-gem "enju_bookmark", github: "next-l/enju_bookmark"
+gem "jquery-rails"
+gem "enju_leaf", github: "next-l/enju_leaf", branch: "master"
+gem "enju_biblio", github: "next-l/enju_biblio", branch: "master"
+gem "enju_library", github: "next-l/enju_library", branch: "master"
+gem "enju_event", github: "next-l/enju_event", branch: "master"
+gem "enju_subject", github: "next-l/enju_subject", branch: "master"
+gem "enju_bookmark", github: "next-l/enju_bookmark", branch: "master"
+gem "enju_message", github: "next-l/enju_message", branch: "master"
+gem "enju_circulation", github: "next-l/enju_circulation", branch: "master"
+gem "coveralls", require: false, group: :test
 
-# To use debugger
-# gem 'debugger'
+# To use a debugger
+# gem 'byebug', group: [:development, :test]

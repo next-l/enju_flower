@@ -1,4 +1,4 @@
-<%- if policy(manifestation).show? -%>
+<%- if can? :show, manifestation -%>
   <tr>
     <td><%= t('manifestation.attachment_file') -%>:</td>
     <td><%= link_to manifestation.attachment_file_name, manifestation_path(format: :download) -%></td>

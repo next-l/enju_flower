@@ -1,38 +1,62 @@
-        <tr class="line<%= cycle("0", "1") -%>">
-          <td style="width: 30px"><%= @manifestations.offset_value + 1 + manifestation_counter -%></td>
+      <tr class="line<%= cycle("0", "1") -%>">
+        <td style="width: 30px"><%= @manifestations.offset_value + 1 + manifestation_counter -%></td>
+        <% cache([manifestation, fragment: 'manifestation_html', role: current_user_role_name, locale: @locale]) do %>
           <td style="480px">
-            <% cache([current_user_role_name, @locale, manifestation]) do %>
-              <% if manifestation.root_series_statement %>
-                <%= render 'manifestations/show_series_index', manifestation: manifestation, series_statement: manifestation.root_series_statement -%>
+            <% if manifestation.root_series_statement %>
+              <%= render 'manifestations/show_series_index', manifestation: manifestation, series_statement: manifestation.root_series_statement -%>
+            <% else %>
+              <%= render 'manifestations/show_index', manifestation: manifestation -%>
+              <div class="access_address">
+                <%= link_to manifestation.access_address, manifestation.access_address if manifestation.access_address.present? -%>
+              </div>
+              <% if current_user.try(:has_role?, 'Librarian') %>
+                <%- unless manifestation.items.empty? -%>
+                  (<%= link_to "#", { onclick: "$('#holding_#{manifestation.id}').toggle(); return false;"} do t('page.holding') end %>)
+                <% end %>
               <% else %>
-                <%= render 'manifestations/show_index', manifestation: manifestation -%>
-                <div class="access_address">
-                  <%= link_to manifestation.access_address, manifestation.access_address if manifestation.access_address.present? -%>
-                </div>
-                <% if current_user.try(:has_role?, 'Librarian') %>
-                  <%- unless manifestation.items.empty? -%>
-                    (<%= link_to "#", {:onclick => "$('#holding_#{manifestation.id}').toggle(); return false;"} do t('page.holding') end %>)
-                  <% end %>
-                <% else %>
-                  <%- unless manifestation.items.for_checkout.on_shelf.empty? -%>
-                    (<%= link_to "#", {:onclick => "$('#holding_#{manifestation.id}').toggle(); return false;"} do t('page.holding') end %>)
-                  <%- end -%>
+                <%- unless manifestation.items.for_checkout.on_shelf.empty? -%>
+                  (<%= link_to "#", { onclick: "$('#holding_#{manifestation.id}').toggle(); return false;"} do t('page.holding') end %>)
                 <%- end -%>
-                <% if defined?(EnjuBookmark) %>
-                  <%- if manifestation.tags.first -%>
-                    (<%= link_to "#", {:onclick => "$('#tag_#{manifestation.id}').toggle(); return false;" } do t('activerecord.models.tag') end %>)
-                  <%- end -%>
-                  <%= render 'manifestations/show_tag', manifestation: manifestation -%>
+              <%- end -%>
+              <% if defined?(EnjuBookmark) %>
+                <%- if manifestation.tags.first -%>
+                  (<%= link_to "#", { onclick: "$('#tag_#{manifestation.id}').toggle(); return false;" } do t('activerecord.models.tag') end %>)
+                <%- end -%>
+                <%= render 'manifestations/show_tag', manifestation: manifestation -%>
+              <% end %>
+            <% end %>
+            <%= render 'manifestations/holding', manifestation: manifestation -%>
+          </td>
+          <% if signed_in? %>
+            <td id="edit_icons">
+              <% if defined?(EnjuCirculation) %>
+                <% unless params[:mode] == 'add' %>
+                  <% if manifestation.is_reservable_by?(current_user) %>
+                    <%- reserve = manifestation.is_reserved_by?(current_user) -%>
+                    <%- if reserve -%>
+                      <%= link_to t('reserve.show'), reserve -%>
+                    <%- else -%>
+                      <%= link_to t('activerecord.models.reserve'), new_reserve_path(manifestation_id: manifestation.id) if can? :create, Reserve -%>
+                    <%- end -%>
+                  <% end %>
+                  <br />
                 <% end %>
               <% end %>
-              <%= render 'manifestations/holding', manifestation: manifestation -%>
-            <% end %>
-          </td>
-            <% if signed_in? %>
-              <td id="edit_icons">
-                <% if defined?(EnjuCirculation) %>
-                  <%= render 'manifestations/show_reservation', :manifestation => manifestation %>
+              <%- if can? :update, manifestation -%>
+                <% unless params[:mode] == 'add' %>
+                  <%= link_to image_tag('icons/book_edit.png', size: '16x16', alt: t('page.edit')), edit_manifestation_path(manifestation) -%>
+                <% else %>
+                  <% case %>
+                  <% when @parent %>
+                    <%= link_to t('page.add'), new_manifestation_relationship_path(manifestation_id: @parent.id, child_id: manifestation.id) unless @parent.derived_manifestations.include?(manifestation) or @parent == manifestation -%>
+                  <% when @item %>
+                    <%= link_to t('page.change'), edit_item_path(@item, manifestation_id: manifestation.id) unless @item.manifestation == manifestation -%>
+                  <% else %>
+                    <%= link_to image_tag('icons/arrow_divide.png', size: '16x16', alt: t('manifestation.add_derivation')), new_manifestation_path(parent_id: manifestation.id) -%>
+                  <% end %>
                 <%- end -%>
-              </td>
-            <% end %>
-          </tr>
+              <%- end -%>
+            </td>
+          <% end %>
+        <% end %>
+      </tr>
