@@ -26,11 +26,30 @@ describe "manifestations/index" do
 
   it "render items for checkouts" do
     3.times do |i|
-      item = FactoryGirl.create( :item, shelf_id: 2, circulation_status_id: 2, use_restriction: use_restrictions(:use_restriction_00004) )
+      item = FactoryGirl.create( :item_for_checkout )
       @manifestations.first.items << item
     end
     expect( @manifestations.first.items.size ).to eq 3
     render
-    expect( rendered ).to have_selector( "div.holding_index tr>td:first-child", count: 3, visible: false )
+    expect( rendered ).to have_selector( "div.holding_index tr td:first-child", count: 3, visible: false )
+  end
+
+  it "render items with default sort order" do
+    item1 = FactoryGirl.create( :item_for_checkout, shelf_id: 2 )
+    item2 = FactoryGirl.create( :item_for_checkout, shelf_id: 4 )
+    @manifestations.first.items = [ item1, item2 ]
+    render
+    expect( rendered ).to have_selector( "div.holding_index tr td:first-child a", visible: false, text: item1.item_identifier )
+  end
+  it "render items with sort order to prefer user's library" do
+    user = FactoryGirl.create(:user)
+    user.profile = FactoryGirl.create(:profile, library_id: 3)
+    sign_in( user )
+
+    item1 = FactoryGirl.create( :item_for_checkout, shelf_id: 2 )
+    item2 = FactoryGirl.create( :item_for_checkout, shelf_id: 4 )
+    @manifestations.first.items = [ item1, item2 ]
+    render
+    expect( rendered ).to have_selector( "div.holding_index tr:nth-child(2) td:first-child a", visible: false, text: item2.item_identifier )
   end
 end

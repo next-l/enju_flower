@@ -148,7 +148,7 @@ module ManifestationsHelper
 
   def holding_item_sort_criteria( item )
     own_library = 2
-    own_library = 1 if signed_in? and current_user.profile.library_id == item.shelf.library_id
+    own_library = 1 if (signed_in? and current_user.profile.library_id == item.shelf.library_id)
     [ own_library, Library.find(item.shelf.library_id).position, item.shelf.position, item.id ]
   end
 
