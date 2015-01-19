@@ -260,8 +260,8 @@ item_00023:
 #  id                      :integer          not null, primary key
 #  call_number             :string(255)
 #  item_identifier         :string(255)
-#  created_at              :datetime         not null
-#  updated_at              :datetime         not null
+#  created_at              :datetime
+#  updated_at              :datetime
 #  deleted_at              :datetime
 #  shelf_id                :integer          default(1), not null
 #  include_supplements     :boolean          default(FALSE), not null

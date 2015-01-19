@@ -306,7 +306,7 @@ describe ManifestationsController do
 
       it "should not assign the requested manifestation as @manifestation" do
         get :new
-        expect(assigns(:manifestation)).to_not be_valid
+        expect(assigns(:manifestation)).to be_nil
         expect(response).to be_forbidden
       end
     end
@@ -314,7 +314,7 @@ describe ManifestationsController do
     describe "When not logged in" do
       it "should not assign the requested manifestation as @manifestation" do
         get :new
-        expect(assigns(:manifestation)).to_not be_valid
+        expect(assigns(:manifestation)).to be_nil
         expect(response).to redirect_to(new_user_session_url)
       end
     end
@@ -444,7 +444,7 @@ describe ManifestationsController do
       describe "with valid params" do
         it "assigns a newly created manifestation as @manifestation" do
           post :create, :manifestation => @attrs
-          expect(assigns(:manifestation)).to be_valid
+          expect(assigns(:manifestation)).to be_nil
         end
 
         it "should be forbidden" do
@@ -456,7 +456,7 @@ describe ManifestationsController do
       describe "with invalid params" do
         it "assigns a newly created but unsaved manifestation as @manifestation" do
           post :create, :manifestation => @invalid_attrs
-          expect(assigns(:manifestation)).to_not be_valid
+          expect(assigns(:manifestation)).to be_nil
         end
 
         it "should be forbidden" do
@@ -470,7 +470,7 @@ describe ManifestationsController do
       describe "with valid params" do
         it "assigns a newly created manifestation as @manifestation" do
           post :create, :manifestation => @attrs
-          expect(assigns(:manifestation)).to be_valid
+          expect(assigns(:manifestation)).to be_nil
         end
 
         it "should be forbidden" do
@@ -482,7 +482,7 @@ describe ManifestationsController do
       describe "with invalid params" do
         it "assigns a newly created but unsaved manifestation as @manifestation" do
           post :create, :manifestation => @invalid_attrs
-          expect(assigns(:manifestation)).to_not be_valid
+          expect(assigns(:manifestation)).to be_nil
         end
 
         it "should be forbidden" do
