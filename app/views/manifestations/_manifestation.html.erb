@@ -36,13 +36,13 @@
                     <%- if reserve -%>
                       <%= link_to t('reserve.show'), reserve -%>
                     <%- else -%>
-                      <%= link_to t('activerecord.models.reserve'), new_reserve_path(manifestation_id: manifestation.id) if can? :create, Reserve -%>
+                      <%= link_to t('activerecord.models.reserve'), new_reserve_path(manifestation_id: manifestation.id) if policy(Reserve).create? -%>
                     <%- end -%>
                   <% end %>
                   <br />
                 <% end %>
               <% end %>
-              <%- if can? :update, manifestation -%>
+              <%- if policy(manifestation).update? -%>
                 <% unless params[:mode] == 'add' %>
                   <%= link_to image_tag('icons/book_edit.png', size: '16x16', alt: t('page.edit')), edit_manifestation_path(manifestation) -%>
                 <% else %>
