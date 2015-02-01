@@ -44,7 +44,10 @@
               <% end %>
               <%- if policy(manifestation).update? -%>
                 <% unless params[:mode] == 'add' %>
-                  <%= link_to image_tag('icons/book_edit.png', size: '16x16', alt: t('page.edit')), edit_manifestation_path(manifestation) -%>
+                  <% if manifestation.serial? && manifestation.series_master? %>
+                    <%= link_to t('page.new_acquisition'), new_manifestation_path(parent_id: manifestation.id) %>
+                  <% end %>
+                  <%= link_to t('page.edit'), edit_manifestation_path(manifestation) -%>
                 <% else %>
                   <% case %>
                   <% when @parent %>
