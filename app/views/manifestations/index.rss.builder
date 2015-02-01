@@ -1,4 +1,4 @@
-xml.instruct! :xml, :version=>"1.0"
+xml.instruct! :xml, version: "1.0"
 xml.rss('version' => "2.0",
         'xmlns:opensearch' => "http://a9.com/-/spec/opensearch/1.1/",
         'xmlns:dc' => "http://purl.org/dc/elements/1.1/",
@@ -16,7 +16,7 @@ xml.rss('version' => "2.0",
       xml.tag! "opensearch:totalResults", @manifestations.total_count
       xml.tag! "opensearch:startIndex", @manifestations.offset_value + 1
       xml.tag! "opensearch:itemsPerPage", @manifestations.limit_value
-      xml.tag! "opensearch:Query", role: 'request', :searchTerms => h(params[:query]), :startPage => (h(params[:page]) || 1)
+      xml.tag! "opensearch:Query", role: 'request', searchTerms: h(params[:query]), startPage: (h(params[:page]) || 1)
     end
     if @manifestations
       @manifestations.each do |manifestation|
@@ -29,7 +29,7 @@ xml.rss('version' => "2.0",
             end
             xml.pubDate manifestation.date_of_publication.try(:utc).try(:rfc822)
             xml.link manifestation_url(manifestation)
-            xml.guid manifestation_url(manifestation), :isPermaLink => "true"
+            xml.guid manifestation_url(manifestation), isPermaLink: "true"
             manifestation.identifier_contents(:isbn).each do |i|
               xml.tag! "dc:identifier", i
             end
