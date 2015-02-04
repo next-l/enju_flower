@@ -15,7 +15,7 @@
   <% else %>
     <% items = manifestation.items.for_checkout.on_shelf %>
   <% end %>
-  <%- items.sort_by{|i| holding_item_sort_criteria(i) }.each do |item| -%>
+  <%- items.each do |item| -%>
     <tr>
       <td>
         <%- if item.item_identifier? -%>
@@ -37,7 +37,12 @@
       <% if defined?(EnjuCirculation) %>
         <td>
           <%= item.circulation_status.display_name.localize if item.circulation_status -%>
+          <% if item.retained? %>
+            <br />
+            <%= t('reserve.retained') %>
+          <% end %>
           <% if item.rent? %>
+            <br />
             (
               <%= t('activerecord.attributes.checkout.due_date') -%>:
               <%= l(item.latest_checkout.due_date, format: :short) -%>

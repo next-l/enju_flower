@@ -55,9 +55,13 @@
     </p>
 
     <div class="autopagerize_page_element" id="list">
-      <%= render 'manifestations/list', manifestations: @manifestations -%>
-    </div>
+      <table class="table table-striped index" id="manifestation_list">
+        <%= render @manifestations %>
+      </table>
 
+      <%= paginate(@manifestations) -%>
+      <br />
+    </div>
     <% if defined?(EnjuBookmark) %>
       <div id="tag_cloud">
         <h3 class="resource_title"><%= t('activerecord.models.tag') -%></h3>
@@ -67,6 +71,7 @@
       </div>
     <% end %>
   <%- else -%>
+    <!-- TODO: 検索結果が少ない場合にも表示させる -->
     <%= render 'manifestations/not_found' -%>
   <%- end -%>
 

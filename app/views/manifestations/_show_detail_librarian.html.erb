@@ -106,7 +106,9 @@
         </tr>
       </table>
     <% end %>
-      <%= render 'manifestations/show_holding', manifestation: manifestation -%>
+      <%- if manifestation.items.on_shelf.exists? -%>
+        <%= render 'manifestations/show_holding', manifestation: manifestation -%>
+      <%- end -%>
     </div>
     <%= render 'manifestations/tab_list', manifestation: manifestation %>
   </div>
