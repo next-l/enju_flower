@@ -97,5 +97,5 @@ def value_sort(hash)
 end
 
 xml = Builder::XmlMarkup.new :indent => 2
-xml.instruct! directive_tag=:xml, :encoding=> 'UTF-8'
+xml.instruct! directive_tag=:xml, :encoding => 'UTF-8'
 search_retrieve_response!(xml)
