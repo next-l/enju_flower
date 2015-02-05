@@ -5,6 +5,7 @@ one:
   manifestation_id: 1
   identifier_type_id: 1
   primary: false
+  position: 2
 
 two:
   body: 99999999
@@ -16,6 +17,7 @@ identifier_00001:
   manifestation_id: 1
   identifier_type_id: 1
   body: "4798002062"
+  position: 1
 
 identifier_00002:
   manifestation_id: 2
@@ -97,6 +99,11 @@ identifier_00201:
   identifier_type_id: 2
   body: "09130000"
 
+identifier_00217:
+  manifestation_id: 217
+  identifier_type_id: 4
+  body: "BN15603730"
+
 # == Schema Information
 #
 # Table name: identifiers
@@ -107,7 +114,6 @@ identifier_00201:
 #  manifestation_id   :integer
 #  primary            :boolean
 #  position           :integer
-#  created_at         :datetime         not null
-#  updated_at         :datetime         not null
+#  created_at         :datetime
+#  updated_at         :datetime
 #
-
