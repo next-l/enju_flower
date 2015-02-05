@@ -2,7 +2,7 @@
 
 FactoryGirl.define do
   factory :create_type do
-    name "MyString"
+    name "mystring"
     display_name "MyText"
     note "MyText"
   end
