@@ -20,6 +20,7 @@ gem "enju_message", github: "next-l/enju_message", branch: "master"
 gem "enju_circulation", github: "next-l/enju_circulation", branch: "master"
 gem "enju_manifestation_viewer", github: "next-l/enju_manifestation_viewer", branch: "master"
 gem "coveralls", require: false, group: :test
+gem "dotenv-rails"
 
 # To use a debugger
 # gem 'byebug', group: [:development, :test]
