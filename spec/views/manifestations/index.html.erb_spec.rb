@@ -13,6 +13,7 @@ describe "manifestations/index" do
     @reservable_facet = @carrier_type_facet = @language_facet = @library_facet = @pub_year_facet = [] 
     @index_agent = {}
     @seconds = 0
+    @max_number_of_results = 500
 
     @ability = Object.new
     @ability.extend(CanCan::Ability)
