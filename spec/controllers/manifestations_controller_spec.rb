@@ -82,14 +82,14 @@ describe ManifestationsController do
         expect(assigns(:manifestations)).to_not be_nil
       end
 
-      it "assigns all manifestations as @manifestations when pub_date_from and pub_date_to are specified" do
-        get :index, :pub_date_from => '2000', :pub_date_to => '2007'
+      it "assigns all manifestations as @manifestations when pub_date_from and pub_date_until are specified" do
+        get :index, :pub_date_from => '2000', :pub_date_until => '2007'
         assigns(:query).should eq "date_of_publication_d:[#{Time.zone.parse('2000-01-01').utc.iso8601} TO #{Time.zone.parse('2007-12-31').end_of_year.utc.iso8601}]"
         expect(assigns(:manifestations)).to_not be_nil
       end
 
-      it "assigns all manifestations as @manifestations when acquired_from and pub_date_to are specified" do
-        get :index, :acquired_from => '2000', :acquired_to => '2007'
+      it "assigns all manifestations as @manifestations when acquired_from and pub_date_until are specified" do
+        get :index, :acquired_from => '2000', :acquired_until => '2007'
         assigns(:query).should eq "acquired_at_d:[#{Time.zone.parse('2000-01-01').utc.iso8601} TO #{Time.zone.parse('2007-12-31').end_of_day.utc.iso8601}]"
         expect(assigns(:manifestations)).to_not be_nil
       end
@@ -137,8 +137,8 @@ describe ManifestationsController do
         assigns(:query).should eq '2005 date_of_publication_d:[1999-12-31T15:00:00Z TO *]'
       end
 
-      it "should get index with pub_date_to" do
-        get :index, :query => '2005', :pub_date_to => '2000'
+      it "should get index with pub_date_until" do
+        get :index, :query => '2005', :pub_date_until => '2000'
         expect(response).to be_success
         expect(assigns(:manifestations)).to be_truthy
         assigns(:query).should eq '2005 date_of_publication_d:[* TO 2000-12-31T14:59:59Z]'
