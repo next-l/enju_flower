@@ -95,7 +95,7 @@ describe ManifestationsController do
       end
 
       it "assigns all manifestations as @manifestations when number_of_pages_at_least and number_of_pages_at_most are specified" do
-        get :index, :number_of_pages_at_least => '100', :number_of_pages_at_least => '200'
+        get :index, :number_of_pages_at_least => '100', :number_of_pages_at_most => '200'
         expect(assigns(:manifestations)).to_not be_nil
       end
 
