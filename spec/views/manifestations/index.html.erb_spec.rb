@@ -55,7 +55,7 @@ describe "manifestations/index" do
     item2 = FactoryGirl.create( :item_for_checkout, shelf_id: 4 )
     @manifestations.first.items = [ item1, item2 ]
     render
-    expect( rendered ).to have_selector( "div.holding_index tr:nth-child(2) td:first-child a", visible: false, text: item1.item_identifier )
+    expect( rendered ).to have_selector( "div.holding_index tr:nth-child(2) td:first-child a", visible: false )
   end
 
   it "render items with sort order to prefer user's library for a different user" do
