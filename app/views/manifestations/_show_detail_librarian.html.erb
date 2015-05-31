@@ -77,6 +77,12 @@
                     <%= identifier_link(identifier) %>
                   </li>
                 <% end %>
+                <% if manifestation.manifestation_identifier %>
+                  <li>
+                    <%= t('activerecord.attributes.manifestation.manifestation_identifier') %>:
+                    <%= manifestation.manifestation_identifier %>
+                  </li>
+                <% end %>
               </ul>
             </td>
           </tr>
