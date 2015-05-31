@@ -16,8 +16,8 @@
     (<%= manifestation.pub_date -%>)
   <%- end -%>
   <% if defined?(EnjuSubject) %>
-    ;
-    <% manifestation.classifications.each do |classification| %>
+    <%= ';' if manifestation.classifications.count >= 1 %>
+    <% manifestation.classifications.each_with_index do |classification| %>
       <%= link_to "#{classification.classification_type.display_name.localize}: #{classification.category}", manifestations_path(query: "classification_sm:#{classification.classification_type.name}_#{classification.category}") %>
     <% end %>
   <% end %>
