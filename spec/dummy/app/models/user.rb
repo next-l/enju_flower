@@ -6,4 +6,5 @@ class User < ActiveRecord::Base
 
   enju_leaf_user_model
   enju_circulation_user_model
+  enju_bookmark_user_model
 end
