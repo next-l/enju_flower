@@ -18,4 +18,16 @@ describe "manifestations/show" do
     # Run the generator again with the --webrat flag if you want to use webrat matchers
     rendered.should match(/1/)
   end
+
+  it "should renders series_statement" do
+    series_statement = FactoryGirl.create(:series_statement,
+      creator_string: "Series Creator",
+      volume_number_string: "Volume 12"
+    )
+    @manifestation.series_statements << series_statement
+    render
+    expect(rendered).to include series_statement.original_title
+    expect(rendered).to include series_statement.volume_number_string
+    expect(rendered).to include series_statement.creator_string
+  end
 end
