@@ -30,4 +30,19 @@ describe "manifestations/show" do
     expect(rendered).to include series_statement.volume_number_string
     expect(rendered).to include series_statement.creator_string
   end
+
+  describe "call_number_label" do
+    before(:each) do
+      profile = FactoryGirl.create(:profile, :library_id => 2)
+      user = FactoryGirl.create(:user, :profile => profile)
+      sign_in user
+    end
+    # Ref: next-l/enju_leaf#735
+    it "should renders call_number table even if identifier is nil" do
+      item = FactoryGirl.create(:item_for_checkout, :item_identifier => nil, :call_number => '010')
+      @manifestation.items << item
+      render
+      expect(rendered).to match /010/
+    end
+  end
 end
