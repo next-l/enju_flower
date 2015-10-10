@@ -95,6 +95,7 @@
       <%= link_to((image_tag 'icons/feed.png', size: '16x16', alt: t('page.feed'), class: 'icon'), url_for(params.merge(format: :rss, page: nil, only_path: true))) -%> <%= link_to t('page.search_result_feed'), url_for(params.merge(format: :rss, page: nil, commit: nil, only_path: true)) -%>
     <%- end -%>
   </div>
+  <%= render 'manifestations/export_list' %>
 </div>
 
 <% if defined?(EnjuBookmark) %>
