@@ -32,15 +32,17 @@
       $("a[rel='manifestation_<%= @manifestation.id -%>']").colorbox({transition:"none", photo:true});
     })
   </script>
-  <%- if user_signed_in? -%>
-    <div id="call_number_content">
-      <%- @manifestation.items.for_checkout(nil).on_shelf.each do |item| -%>
-        <%- if item.hold?(current_user.profile.library) -%>
-          <%= call_number_label(item) -%>
-        <%- end -%>
+  <div id="call_number_content">
+    <%- @manifestation.items.for_checkout(nil).on_shelf.sort_by{|item|
+          holding_item_sort_criteria(item)
+        }.each_with_index do |item, idx| -%>
+      <%- if item.hold?(current_user.try(:profile).try(:library)) -%>
+        <%= call_number_label(item) -%>
+      <%- elsif idx < 3 -%>
+        <%= call_number_label(item) -%>
       <%- end -%>
-    </div>
-  <%- end -%>
+    <%- end -%>
+  </div>
 
   <div id="resource_bookmark_buttons">
       <ul>
