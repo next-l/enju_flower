@@ -80,5 +80,6 @@
       <%- if current_user.try(:has_role?, 'Librarian') -%>
         <%= render 'manifestations/edit_detail' %>
       <% end %>
+      <%= render 'manifestations/export' %>
   </div>
 </div>
