@@ -11,6 +11,7 @@ describe "manifestations/show" do
     @item1 = FactoryGirl.create( :item_for_checkout, shelf_id: 2 )
     @item2 = FactoryGirl.create( :item_for_checkout, shelf_id: 4 )
     assign(:manifestation, @manifestation)
+    assign(:library_group, LibraryGroup.site_config)
   end
 
   it "renders attributes in <p>" do
