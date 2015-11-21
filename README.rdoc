@@ -1,11 +1,11 @@
 = Next-L Enju Flower
-{<img src="https://travis-ci.org/next-l/enju_flower.png?branch=1.1" alt="Build Status" />}[https://travis-ci.org/next-l/enju_flower]
-{<img src="https://coveralls.io/repos/next-l/enju_flower/badge.png?branch=1.1" alt="Coverage Status" />}[https://coveralls.io/r/next-l/enju_flower?branch=1.1]
+{<img src="https://travis-ci.org/next-l/enju_flower.svg?branch=1.1" alt="Build Status" />}[https://travis-ci.org/next-l/enju_flower]
+{<img src="https://coveralls.io/repos/next-l/enju_flower/badge.svg?branch=1.1&service=github" alt="Coverage Status" />}[https://coveralls.io/github/next-l/enju_flower?branch=1.1]
 {<img src="https://hakiri.io/github/next-l/enju_flower/1.1.svg" alt="security" />}[https://hakiri.io/github/next-l/enju_flower/1.1]
 
 == Related projects
 * {Next-L Enju Root}[https://github.com/next-l/enju_root]
-* {Next-L Enju Leaf}[https://github.com/next-l/enju_leaf]
+* {Next-L Enju Leaf}[https://github.com/next-l/enju_flower]
 
 == Authors and contributors
 * {TANABE, Kosuke}[https://github.com/nabeta]
