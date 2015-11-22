@@ -15,6 +15,6 @@
 </tr>
 </table>
 <%- if @manifestation.items.for_checkout.on_shelf.exists? -%>
-  <%= render 'manifestations/show_holding', manifestation: @manifestation -%>
+  <%= render 'manifestations/show_holding', manifestation: @manifestation, items: @manifestation.items.for_checkout.on_shelf %>
 <%- end -%>
 </div>
