@@ -27,11 +27,7 @@
       <li><%= link_to t('page.new', model: t('activerecord.models.picture_file')), new_picture_file_path(manifestation_id: @manifestation.id) -%></li>
     <%- end -%>
   </ul>
-  <script type="text/javascript">
-    $(document).ready(function(){
-      $("a[rel='manifestation_<%= @manifestation.id -%>']").colorbox({transition:"none", photo:true});
-    })
-  </script>
+  <%= render 'manifestations/colorbox' %>
   <div id="call_number_content">
     <%- @manifestation.items.for_checkout(nil).on_shelf.sort_by{|item|
           holding_item_sort_criteria(item)
