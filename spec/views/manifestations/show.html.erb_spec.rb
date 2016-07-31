@@ -12,6 +12,7 @@ describe "manifestations/show" do
     @item2 = FactoryGirl.create( :item_for_checkout, shelf_id: 4 )
     assign(:manifestation, @manifestation)
     assign(:library_group, LibraryGroup.site_config)
+    view.stub(:params).and_return(ActionController::Parameters.new)
   end
 
   it "renders attributes in <p>" do
@@ -29,7 +30,6 @@ describe "manifestations/show" do
     render
     expect(rendered).to include series_statement.original_title
     expect(rendered).to include series_statement.volume_number_string
-    expect(rendered).to include series_statement.creator_string
   end
 
   describe "call_number_label" do

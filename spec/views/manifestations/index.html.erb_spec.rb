@@ -18,6 +18,7 @@ describe "manifestations/index" do
     @ability = Object.new
     @ability.extend(CanCan::Ability)
     controller.stub(:current_ability) { @ability }
+    view.stub(:params).and_return(ActionController::Parameters.new)
   end
 
   it "render works" do
